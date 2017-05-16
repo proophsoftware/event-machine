@@ -1,0 +1,56 @@
+version: '2'
+
+services:
+
+  nginx:
+    image: prooph/nginx:www
+    ports:
+      - 8080:80
+      - 443:443
+    links:
+      - php:php
+    volumes:
+      - .:/var/www
+
+  php:
+    image: prooph/php:7.1-fpm
+    volumes:
+      - .:/var/www
+    environment:
+      - PDO_DSN=pgsql:host=postgres port=5432 dbname=todo
+      - PDO_USER=postgres
+      - PDO_PWD=
+      - MONGO_SERVER=mongodb://mongodb:27017
+      - MONGO_DB_NAME=todo
+#
+#  php-user-snapshotter:
+#    image: prooph/php:7.1-cli
+#    volumes:
+#      - ./service/user-write:/app
+#    environment:
+#      - PDO_DSN=pgsql:host=postgres port=5432 dbname=todo
+#      - PDO_USER=postgres
+#      - PDO_PWD=
+#      - MONGO_SERVER=mongodb://mongodb:27017
+#      - MONGO_DB_NAME=todo
+#    command: php /app/bin/user_snapshotter.php
+
+  rabbit:
+    image: rabbitmq:3-management
+    ports:
+      - 8081:15672
+      - 15674:15674
+
+  postgres:
+    image: postgres:alpine
+    ports:
+      - 5432:5432
+    environment:
+      - POSTGRES_DB=todo
+    volumes:
+      - ./env/postgres/initdb.d:/docker-entrypoint-initdb.d:ro
+
+  mongodb:
+    image: mongo
+    ports:
+      - 27017:27017

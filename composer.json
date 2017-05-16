@@ -1,0 +1,60 @@
+{
+  "name": "proophsoftware/es-workshop",
+  "description": "Event Sourcing Workshop",
+  "homepage": "http://getprooph.org/",
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Alexander Miertsch",
+      "email": "contact@prooph.de",
+      "homepage": "http://www.prooph.de"
+    },
+    {
+      "name": "Sandro Keil",
+      "email": "contact@prooph.de",
+      "homepage": "http://prooph-software.com/"
+    }
+  ],
+  "require": {
+    "php": "^7.1",
+    "roave/security-advisories": "dev-master",
+    "prooph/common": "^4.0",
+    "prooph/event-store": "^7.0",
+    "prooph/pdo-event-store": "^1.0",
+    "prooph/event-sourcing": "^5.0",
+    "prooph/snapshot-store": "^1.0",
+    "prooph/mongodb-snapshot-store": "^1.0",
+    "prooph/service-bus": "^6.0",
+    "prooph/event-store-bus-bridge": "^3.0",
+    "prooph/humus-amqp-producer": "^2.0",
+    "mongodb/mongodb": "^1.0",
+    "zendframework/zend-diactoros": "^1.3",
+    "zendframework/zend-stratigility": "^1.3",
+    "nikic/fast-route": "^1.0",
+    "psr/log": "^1.0",
+    "psr/container": "^1.0",
+    "monolog/monolog": "^1.21",
+    "zendframework/zend-expressive-helpers": "^2.2",
+    "beberlei/assert": "^2.7",
+    "webmozart/json": "^1.2.2"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Prooph\\EventMachine\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Prooph\\EventMachineTest\\": "tests/",
+      "ProophExample\\": "examples"
+    }
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "scripts": {
+    "test": "vendor/bin/phpunit"
+  }
+}

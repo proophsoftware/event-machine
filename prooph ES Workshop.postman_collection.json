@@ -1,0 +1,35 @@
+{
+	"variables": [],
+	"info": {
+		"name": "prooph ES Workshop",
+		"_postman_id": "f4929b96-950e-4afc-1292-2fea22267dda",
+		"schema": "https://schema.getpostman.com/json/collection/v2.0.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "messagebox",
+			"request": {
+				"url": "http://localhost:8080/api/v1/messagebox",
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json",
+						"description": ""
+					},
+					{
+						"key": "Accept",
+						"value": "application/json",
+						"description": ""
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"message_name\": \"RegisterUser\",\n\t\"payload\": {\n\t\t\"userId\": \"c978a3d1-5e93-43a6-9752-e3a2fefe613c\",\n\t\t\"name\": \"Alex\",\n\t\t\"email\": \"contact@prooph.de\"\n\t}\n}"
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
