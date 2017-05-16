@@ -48,6 +48,8 @@ You can focus on the core principles and Event Machine will handle the rest for 
 
 ## Installation
 
+*This package is under heavy development and not ready for usage. Watch the repo and keep up with the development. We'll tag a first dev version soon.*
+
 ```bash
 docker run --rm -it -v $(pwd):/app prooph/composer:7.1 install
 docker-compose up -d
