@@ -18,13 +18,14 @@ the development of event sourced applications. It can be used for prototypes as 
 - Event Machine only supports a single event stream (a stream per aggregate type or even per aggregate is not possible)
 - Command and Event validation is based on Json Schema, no other validation mechanism available
 - You only get access to command and event payload, everything else is handled by Event Machine internally
+- You cannot use one aggregate as a factory for another aggregate
 
 ## Ok, got the cons, but what are the pros?
 
 prooph software Event Machine is designed based on years of experience with event sourced applications.
-Our continuous support in the gitter chat, many discussions and some workshops have shown that 
+Our continuous support in the improoph gitter chat, many discussions and some workshops have shown that 
 event sourcing is one of the best ways to design a software system. But for many developers this concept is hard to learn
-because it is so much different from what they learned in past projects and/or at university/school. 
+because it is so different from what they learned in past projects and/or at university/school. 
 
 That's one of the two problems. The second problem is, that even if developers want to learn event sourcing 
 they don't know where to start or don't see the benefit fast enough because everything is sooo different.
@@ -38,7 +39,7 @@ You can focus on the core principles and Event Machine will handle the rest for 
 - programmatic message routing, again zero configuration
 - No PHP class names used for messages or aggregate types (easy refactoring possible)
 - Still a lot of extension points to inject custom logic
-- Event Machine can be removed later when project grows and more time/budget is available to get the most performance and flexibility out of event sourcing
+- Event Machine can be removed later when project grows and more time/budget is available to get the most **performance, flexibility and explicit modeling** out of event sourcing
 - Audit log from day one (no data loss)
 - Replay functionality available 
 - Projections based on domain events
