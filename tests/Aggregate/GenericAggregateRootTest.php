@@ -19,7 +19,7 @@ class GenericAggregateRootTest extends BasicTestCase
     public function it_records_events_and_can_be_reconstituted_by_them()
     {
         $eventApplyMap = [
-            'UserWasRegistered' => function(array $arState, array $userWasRegistered) {
+            'UserWasRegistered' => function(array $userWasRegistered) {
                 $arState['username'] = $userWasRegistered['username'];
                 return $arState;
             },
@@ -31,7 +31,7 @@ class GenericAggregateRootTest extends BasicTestCase
 
         $arId = Uuid::uuid4()->toString();
 
-        $user = new GenericAggregateRoot($arId, $eventApplyMap);
+        $user = new GenericAggregateRoot($arId, AggregateType::fromString('User'), $eventApplyMap);
 
         $userWasRegistered = new GenericJsonSchemaEvent(
             'UserWasRegistered',

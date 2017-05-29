@@ -72,8 +72,8 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
         if (null === $this->aggregateReconstructor) {
             $arId = $this->aggregateId;
             $eventApplyMap = $this->eventApplyMap;
-            $this->aggregateReconstructor = function ($historyEvents) use($arId, $eventApplyMap) {
-                return static::reconstituteFromHistory($arId, $eventApplyMap, $historyEvents);
+            $this->aggregateReconstructor = function ($historyEvents) use($arId, $aggregateType, $eventApplyMap) {
+                return static::reconstituteFromHistory($arId, $aggregateType, $eventApplyMap, $historyEvents);
             };
         }
 

@@ -4,15 +4,22 @@ declare(strict_types = 1);
 namespace Prooph\EventMachine\Aggregate;
 
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventSourcing\Aggregate\AggregateType;
+use Prooph\EventSourcing\Aggregate\AggregateTypeProvider;
 use Prooph\EventSourcing\Aggregate\Exception\RuntimeException;
 use Prooph\EventSourcing\AggregateChanged;
 
-final class GenericAggregateRoot
+final class GenericAggregateRoot implements AggregateTypeProvider
 {
     /**
      * @var string
      */
     private $aggregateId;
+
+    /**
+     * @var AggregateType
+     */
+    private $aggregateType;
 
     /**
      * Map with event name being the key and callable apply method for that event being the value
@@ -22,9 +29,9 @@ final class GenericAggregateRoot
     private $eventApplyMap;
 
     /**
-     * @var array
+     * @var mixed
      */
-    private $aggregateState = [];
+    private $aggregateState;
 
     /**
      * Current version
@@ -43,17 +50,18 @@ final class GenericAggregateRoot
     /**
      * @throws RuntimeException
      */
-    protected static function reconstituteFromHistory(string $aggregateId, array $eventApplyMap, \Iterator $historyEvents): self
+    protected static function reconstituteFromHistory(string $aggregateId, AggregateType $aggregateType, array $eventApplyMap, \Iterator $historyEvents): self
     {
-        $instance = new self($aggregateId, $eventApplyMap);
+        $instance = new self($aggregateId, $aggregateType, $eventApplyMap);
         $instance->replay($historyEvents);
 
         return $instance;
     }
 
-    public function __construct(string  $aggregateId, array $eventApplyMap)
+    public function __construct(string  $aggregateId, AggregateType $aggregateType, array $eventApplyMap)
     {
         $this->aggregateId = $aggregateId;
+        $this->aggregateType = $aggregateType;
         $this->eventApplyMap = $eventApplyMap;
     }
 
@@ -75,7 +83,7 @@ final class GenericAggregateRoot
         $this->apply($event);
     }
 
-    public function currentState(): array
+    public function currentState()
     {
         return $this->aggregateState;
     }
@@ -118,12 +126,22 @@ final class GenericAggregateRoot
     {
         $apply = $this->eventApplyMap[$event->messageName()];
 
-        $newArState = $apply($this->aggregateState, $event->payload());
+        if($this->aggregateState === null) {
+            $newArState = $apply($event->payload());
+        } else {
+            $newArState = $apply($this->aggregateState, $event->payload());
+        }
 
-        if(!is_array($newArState)) {
-            throw new \RuntimeException("Apply function for " . $event->messageName() . " did not return aggregate state as array. Got " . gettype($newArState));
+
+        if(null === $newArState) {
+            throw new \RuntimeException("Apply function for " . $event->messageName() . " did not return a new aggregate state.");
         }
 
         $this->aggregateState = $newArState;
+    }
+
+    public function aggregateType(): AggregateType
+    {
+        return $this->aggregateType;
     }
 }

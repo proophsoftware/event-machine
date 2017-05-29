@@ -6,7 +6,7 @@ namespace ProophExample\Aggregate;
 
 final class Aggregate
 {
-    const USER = "user";
+    const USER = "User";
 
     private function __construct()
     {

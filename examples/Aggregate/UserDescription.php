@@ -5,96 +5,72 @@ namespace ProophExample\Aggregate;
 
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
 use ProophExample\Messaging\Command;
 use ProophExample\Messaging\Event;
 
+/**
+ * Class UserDescription
+ *
+ * Tell EventMachine how to handle commands with aggregates, which events are yielded by the handle methods
+ * and how to apply the yielded events to the aggregate state.
+ *
+ * @package ProophExample\Aggregate
+ */
 final class UserDescription implements EventMachineDescription
 {
     const IDENTIFIER = 'userId';
+    const USERNAME = 'username';
+    const EMAIL = 'email';
+
+    const STATE_CLASS = UserState::class;
 
     public static function describe(EventMachine $eventMachine): void
     {
-        self::describeMessages($eventMachine);
-        self::describeUserAggregate($eventMachine);
+        self::describeRegisterUser($eventMachine);
+        self::describeChangeUsername($eventMachine);
     }
 
-    protected static function describeMessages(EventMachine $eventMachine): void
-    {
-        $userId = [
-            'type' => 'string',
-            'minLength' => 36
-        ];
-
-        $username = [
-            'type' => 'string',
-            'minLength' => 1
-        ];
-
-        $userDataSchema = [
-            'type' => 'object',
-            'properties' => [
-                'userId' => $userId,
-                'username' => $username,
-                'email' => [
-                    'type' => 'string',
-                    'format' => 'email'
-                ]
-            ],
-            'required' => [
-                'userId',
-                'username',
-                'email'
-            ]
-        ];
-
-
-        $eventMachine->registerCommand(Command::REGISTER_USER, $userDataSchema);
-        $eventMachine->registerCommand(Command::CHANGE_USERNAME, [
-            'type' => 'object',
-            'properties' => [
-                'userId' => $userId,
-                'username' => $username
-            ],
-            'required' => ['userId', 'username']
-        ]);
-
-        $eventMachine->registerEvent(Event::USER_WAS_REGISTERED, $userDataSchema);
-        $eventMachine->registerEvent(Event::USERNAME_WAS_CHANGED, [
-            'type' => 'object',
-            'properties' => [
-                'userId' => $userId,
-                'oldName' => $username,
-                'newName' => $username,
-            ],
-            'required' => ['userId', 'oldName', 'newName']
-        ]);
-    }
-
-    protected static function describeUserAggregate(EventMachine $eventMachine): void
+    private static function describeRegisterUser(EventMachine $eventMachine): void
     {
         $eventMachine->process(Command::REGISTER_USER)
-            ->withNew(Aggregate::USER, function(array $userData) {
-                return $userData;
-            })
+            ->withNew(Aggregate::USER)
+            //Every command for that aggregate SHOULD include the identifier property specified here
+            //If not called, identifier defaults to "id"
             ->identifiedBy(self::IDENTIFIER)
+            //If command is handled with a new aggregate no state is passed only the command
+            ->handle(function(array $registerUser) {
+                //We just turn the command payload into event payload by yielding it
+                yield $registerUser;
+            })
             ->recordThat(Event::USER_WAS_REGISTERED)
-            ->apply(function (array $aggregateState, array $eventData) {
-                return $eventData;
+            //Apply callback of the first recorded event don't get aggregate state injected
+            //what you return in an apply method will be passed to the next pair of handle & apply methods as aggregate state
+            //you can use anything for aggregate state - we use a simple class with public properties
+            ->apply(function (array $userWasRegistered) {
+                $user = new UserState();
+                $user->id = $userWasRegistered[self::IDENTIFIER];
+                $user->username = $userWasRegistered['username'];
+                $user->email = $userWasRegistered['email'];
+                return $user;
             });
+    }
 
+    private static function describeChangeUsername(EventMachine $eventMachine): void
+    {
         $eventMachine->process(Command::CHANGE_USERNAME)
-            ->withExisting(Aggregate::USER, function (array $aggregateState, array $changeUsername) {
-                return [
-                    'userId' => $changeUsername['userId'],
-                    'oldName' => $aggregateState['username'],
+            ->withExisting(Aggregate::USER)
+            ->handle(function (UserState $user, array $changeUsername) {
+                yield [
+                    self::IDENTIFIER => $user->id,
+                    'oldName' => $user->username,
                     'newName' => $changeUsername['username']
                 ];
             })
-            ->identifiedBy(self::IDENTIFIER)
             ->recordThat(Event::USERNAME_WAS_CHANGED)
-            ->apply(function (array $aggregateState, array $usernameWasChanged) {
-                $aggregateState['username'] = $usernameWasChanged['newName'];
-                return $aggregateState;
+            ->apply(function (UserState $user, array $usernameWasChanged) {
+                $user->username = $usernameWasChanged['newName'];
+                return $user;
             });
     }
 
