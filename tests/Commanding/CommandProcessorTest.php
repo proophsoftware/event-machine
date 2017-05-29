@@ -17,6 +17,7 @@ use ProophExample\Messaging\Command;
 use ProophExample\Messaging\Event;
 use ProophExample\Messaging\MessageDescription;
 use Prophecy\Argument;
+use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
 
 final class CommandProcessorTest extends BasicTestCase
@@ -31,8 +32,14 @@ final class CommandProcessorTest extends BasicTestCase
         $eventMachine->load(MessageDescription::class);
         $eventMachine->load(CacheableUserDescription::class);
 
-        $commandRouting = $eventMachine->commandRouting();
-        $aggregateDescriptions = $eventMachine->aggregateDescriptions();
+        $container = $this->prophesize(ContainerInterface::class);
+
+        $eventMachine->initialize($container->reveal());
+
+        $config = $eventMachine->compileCacheableConfig();
+
+        $commandRouting = $config['compiledCommandRouting'];
+        $aggregateDescriptions = $config['aggregateDescriptions'];
 
         $recordedEvents = [];
 
@@ -84,15 +91,14 @@ final class CommandProcessorTest extends BasicTestCase
         $eventMachine->load(MessageDescription::class);
         $eventMachine->load(CacheableUserDescription::class);
 
-        $commandRouting = $eventMachine->commandRouting();
-        $aggregateDescriptions = $eventMachine->aggregateDescriptions();
+        $container = $this->prophesize(ContainerInterface::class);
 
-        /*
-        file_put_contents('test.json', json_encode([
-            'commandRouting' => $commandRouting,
-            'aggregateDescriptions' => $aggregateDescriptions
-        ]));
-        */
+        $eventMachine->initialize($container->reveal());
+
+        $config = $eventMachine->compileCacheableConfig();
+
+        $commandRouting = $config['compiledCommandRouting'];
+        $aggregateDescriptions = $config['aggregateDescriptions'];
 
         $userId = Uuid::uuid4()->toString();
 

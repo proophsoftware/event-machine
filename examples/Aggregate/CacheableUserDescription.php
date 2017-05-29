@@ -11,7 +11,7 @@ use ProophExample\Messaging\Event;
  * Class CacheableUserDescription
  *
  * CacheableUserDescription illustrates an alternative way to describe aggregate behaviour. Advantage of the shown style
- * is that you can make use of EventMachine::cacheableConfig(). See note of UserDescription for more details.
+ * is that you can make use of EventMachine::compileCacheableConfig(). See note of UserDescription for more details.
  *
  * @package ProophExample\Aggregate
  */

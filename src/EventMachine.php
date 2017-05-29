@@ -4,18 +4,24 @@ declare(strict_types = 1);
 namespace Prooph\EventMachine;
 
 use Interop\Http\Middleware\ServerMiddlewareInterface;
+use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
+use Prooph\EventMachine\JsonSchema\WebmozartJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\CommandBus;
+use Prooph\ServiceBus\EventBus;
 use Prooph\SnapshotStore\SnapshotStore;
 use Psr\Container\ContainerInterface;
 
 final class EventMachine
 {
+    const SERVICE_ID_MESSAGE_FACTORY = 'EventMachine.MessageFactory';
+    const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
+
     /**
      * Map of command names and corresponding json schema of payload
      *
@@ -65,6 +71,11 @@ final class EventMachine
      * @var MessageFactory
      */
     private $messageFactory;
+
+    /**
+     * @var JsonSchemaAssertion
+     */
+    private $jsonSchemaAssertion;
 
     public static function fromCachedConfig(array $config, ContainerInterface $container): self
     {
@@ -183,22 +194,20 @@ final class EventMachine
         return $this;
     }
 
-    public function commandRouting(): array
+    public function dispatch(Message $message): void
     {
-        if(null === $this->compiledCommandRouting) {
-            $this->determineAggregateAndRoutingDescriptions();
+        $this->assertBootstrapped(__METHOD__);
+
+        switch ($message->messageType()) {
+            case Message::TYPE_COMMAND:
+                $this->container->get(CommandBus::class)->dispatch($message);
+                break;
+            case Message::TYPE_EVENT:
+                $this->container->get(EventBus::class)->dispatch($message);
+                break;
+            default:
+                throw new \RuntimeException("Unsupported message type: " . $message->messageType());
         }
-
-        return $this->compiledCommandRouting;
-    }
-
-    public function aggregateDescriptions(): array
-    {
-        if(null === $this->aggregateDescriptions) {
-            $this->determineAggregateAndRoutingDescriptions();
-        }
-
-        return $this->aggregateDescriptions;
     }
 
     public function compileCacheableConfig(): array
@@ -217,9 +226,33 @@ final class EventMachine
         return [
             'commandMap' => $this->commandMap,
             'eventMap' => $this->eventMap,
-            'compiledCommandRouting' => $this->commandRouting,
+            'compiledCommandRouting' => $this->compiledCommandRouting,
             'aggregateDescriptions' => $this->aggregateDescriptions
         ];
+    }
+
+    public function messageFactory(): GenericJsonSchemaMessageFactory
+    {
+        $this->assertInitialized(__METHOD__);
+
+        if(null === $this->messageFactory) {
+            $this->messageFactory = new GenericJsonSchemaMessageFactory(
+                $this->commandMap,
+                $this->eventMap,
+                $this->container->get(self::SERVICE_ID_JSON_SCHEMA_ASSERTION)
+            );
+        }
+
+        return $this->messageFactory;
+    }
+
+    public function jsonSchemaAssertion(): JsonSchemaAssertion
+    {
+        if(null === $this->jsonSchemaAssertion) {
+            $this->jsonSchemaAssertion = new WebmozartJsonSchemaAssertion();
+        }
+
+        return $this->jsonSchemaAssertion;
     }
 
     public function httpMessageBox(): ServerMiddlewareInterface
@@ -265,7 +298,6 @@ final class EventMachine
     {
         /** @var CommandBus $commandBus */
         $commandBus = $this->container->get(CommandBus::class);
-        $eventStore = $this->container->get(EventStore::class);
         $snapshotStore = null;
 
         if($this->container->has(SnapshotStore::class)) {
@@ -273,29 +305,14 @@ final class EventMachine
         }
 
         $router = new CommandToProcessorRouter(
-            $this->commandRouting,
+            $this->compiledCommandRouting,
             $this->aggregateDescriptions,
-            $this->getMessageFactory(),
-            $eventStore,
+            $this->container->get(self::SERVICE_ID_MESSAGE_FACTORY),
+            $this->container->get(EventStore::class),
             $snapshotStore
         );
 
         $router->attachToMessageBus($commandBus);
-    }
-
-    private function getMessageFactory(): GenericJsonSchemaMessageFactory
-    {
-        $this->assertInitialized(__METHOD__);
-
-        if(null === $this->messageFactory) {
-            $this->messageFactory = new GenericJsonSchemaMessageFactory(
-                $this->commandMap,
-                $this->eventMap,
-                $this->container->get(JsonSchemaAssertion::class)
-            );
-        }
-
-        return $this->messageFactory;
     }
 
     private function assertNotInitialized(string $method)
@@ -307,7 +324,7 @@ final class EventMachine
 
     private function assertInitialized(string $method)
     {
-        if($this->initialized) {
+        if(!$this->initialized) {
             throw new \BadMethodCallException("Method $method cannot be called before event machine is initialized");
         }
     }
@@ -321,7 +338,7 @@ final class EventMachine
 
     private function assertBootstrapped(string $method)
     {
-        if($this->bootstrapped) {
+        if(!$this->bootstrapped) {
             throw new \BadMethodCallException("Method $method cannot be called before event machine is bootstrapped");
         }
     }

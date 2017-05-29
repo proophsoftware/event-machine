@@ -9,7 +9,7 @@ final class WebmozartJsonSchemaAssertion implements JsonSchemaAssertion
 {
     private static $jsonValidator;
 
-    public function assert(array $data, array $jsonSchema)
+    public function assert(string $messageName, array $data, array $jsonSchema)
     {
         $enforcedObjectData = json_decode(json_encode($data));
         $jsonSchema = json_decode(json_encode($jsonSchema));
@@ -18,7 +18,7 @@ final class WebmozartJsonSchemaAssertion implements JsonSchemaAssertion
 
         if (count($errors)) {
             throw new \InvalidArgumentException(
-                "Message validation failed: " . implode("\n", $errors),
+                "Payload validation of $messageName failed: " . implode("\n", $errors),
                 400
             );
         }

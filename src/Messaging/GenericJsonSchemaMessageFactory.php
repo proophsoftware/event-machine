@@ -52,6 +52,8 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
         $messageType = null;
         $payloadSchema = null;
 
+        GenericJsonSchemaMessage::assertMessageName($messageName);
+
         if(array_key_exists($messageName, $this->commandMap)) {
             $messageType = DomainMessage::TYPE_COMMAND;
             $payloadSchema = $this->commandMap[$messageName];
@@ -70,7 +72,7 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
             $messageData['payload'] = [];
         }
 
-        $this->jsonSchemaAssertion->assert($messageData['payload'], $payloadSchema);
+        $this->jsonSchemaAssertion->assert($messageName, $messageData['payload'], $payloadSchema);
 
         $messageData['message_name'] = $messageName;
 

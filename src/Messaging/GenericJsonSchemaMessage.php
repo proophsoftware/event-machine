@@ -20,8 +20,9 @@ abstract class GenericJsonSchemaMessage extends DomainMessage
         JsonSchemaAssertion $jsonSchemaAssertion
     )
     {
-        $jsonSchemaAssertion->assert($payload, $payloadSchema);
+        self::assertMessageName($messageName);
         $this->messageName = $messageName;
+        $jsonSchemaAssertion->assert($messageName, $payload, $payloadSchema);
         $this->init();
         $this->setPayload($payload);
     }
@@ -34,6 +35,13 @@ abstract class GenericJsonSchemaMessage extends DomainMessage
     public function payload(): array
     {
         return $this->payload;
+    }
+
+    public static function assertMessageName(string $messageName)
+    {
+        if(!preg_match('/^[A-Za-z0-9_.-\/]+$/', $messageName)) {
+            throw new \InvalidArgumentException("Invalid message name.");
+        }
     }
 }
 

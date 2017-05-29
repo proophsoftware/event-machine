@@ -57,7 +57,7 @@ class BasicTestCase extends TestCase
 
             $schemaAssertion = $this->prophesize(JsonSchemaAssertion::class);
 
-            $schemaAssertion->assert(Argument::any(), Argument::any())->will(function () {});
+            $schemaAssertion->assert(Argument::any(), Argument::any(), Argument::any())->will(function () {});
 
             $messageFactory->createMessageFromArray(Argument::any(), Argument::any())->will(function ($args) use($schemaAssertion) {
                 list($commandName, $commandData) = $args;
@@ -84,7 +84,7 @@ class BasicTestCase extends TestCase
 
             $schemaAssertion = $this->prophesize(JsonSchemaAssertion::class);
 
-            $schemaAssertion->assert(Argument::any(), Argument::any())->will(function () {});
+            $schemaAssertion->assert(Argument::any(), Argument::any(), Argument::any())->will(function () {});
 
             $messageFactory->createMessageFromArray(Argument::any(), Argument::any())->will(function ($args) use($schemaAssertion) {
                 list($eventName, $eventData) = $args;
