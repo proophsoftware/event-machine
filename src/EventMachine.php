@@ -4,17 +4,13 @@ declare(strict_types = 1);
 namespace Prooph\EventMachine;
 
 use Interop\Http\Middleware\ServerMiddlewareInterface;
-use Prooph\Common\Event\ActionEvent;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
-use Prooph\EventMachine\Container\ContainerChain;
-use Prooph\EventMachine\Container\FactoriesContainer;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\CommandBus;
-use Prooph\ServiceBus\MessageBus;
 use Prooph\SnapshotStore\SnapshotStore;
 use Psr\Container\ContainerInterface;
 
@@ -61,6 +57,8 @@ final class EventMachine
     /**
      * @var bool
      */
+    private $initialized = false;
+
     private $bootstrapped = false;
 
     /**
@@ -68,26 +66,47 @@ final class EventMachine
      */
     private $messageFactory;
 
-    public function __construct(ContainerInterface $applicationContainer = null)
+    public static function fromCachedConfig(array $config, ContainerInterface $container): self
     {
-        $container = new FactoriesContainer();
+        $self = new self();
 
-        if(null !== $applicationContainer) {
-            $container = new ContainerChain($applicationContainer, $container);
+        if(!array_key_exists('commandMap', $config)) {
+            throw new \InvalidArgumentException("Missing key commandMap in cached event machine config");
         }
 
-        $this->container = $container;
+        if(!array_key_exists('eventMap', $config)) {
+            throw new \InvalidArgumentException("Missing key eventMap in cached event machine config");
+        }
+
+        if(!array_key_exists('compiledCommandRouting', $config)) {
+            throw new \InvalidArgumentException("Missing key compiledCommandRouting in cached event machine config");
+        }
+
+        if(!array_key_exists('aggregateDescriptions', $config)) {
+            throw new \InvalidArgumentException("Missing key aggregateDescriptions in cached event machine config");
+        }
+
+        $self->commandMap = $config['commandMap'];
+        $self->eventMap = $config['eventMap'];
+        $self->compiledCommandRouting = $config['compiledCommandRouting'];
+        $self->aggregateDescriptions = $config['aggregateDescriptions'];
+
+        $self->initialized = true;
+
+        $self->container = $container;
+
+        return $self;
     }
 
     public function load(string $description): void
     {
-        $this->assertNotBootstrapped(__METHOD__);
+        $this->assertNotInitialized(__METHOD__);
         call_user_func([$description, 'describe'], $this);
     }
 
     public function registerCommand(string $commandName, $schemaOrPath): self
     {
-        $this->assertNotBootstrapped(__METHOD__);
+        $this->assertNotInitialized(__METHOD__);
         if(array_key_exists($commandName, $this->commandMap)) {
             throw new \RuntimeException("Command $commandName was already registered.");
         }
@@ -103,7 +122,7 @@ final class EventMachine
 
     public function registerEvent(string $eventName, $schemaOrPath): self
     {
-        $this->assertNotBootstrapped(__METHOD__);
+        $this->assertNotInitialized(__METHOD__);
 
         if(array_key_exists($eventName, $this->eventMap)) {
             throw new \RuntimeException("Event $eventName was already registered.");
@@ -120,7 +139,7 @@ final class EventMachine
 
     public function process(string $commandName): CommandProcessorDescription
     {
-        $this->assertNotBootstrapped(__METHOD__);
+        $this->assertNotInitialized(__METHOD__);
         if(array_key_exists($commandName, $this->commandRouting)) {
             throw new \BadMethodCallException("Method process was called twice for the same command: " . $commandName);
         }
@@ -139,30 +158,35 @@ final class EventMachine
         return array_key_exists($eventName, $this->eventMap);
     }
 
+    public function initialize(ContainerInterface $container): self
+    {
+        $this->assertNotInitialized(__METHOD__);
+
+        $this->determineAggregateAndRoutingDescriptions();
+
+        $this->initialized = true;
+
+        $this->container = $container;
+
+        return $this;
+    }
+
     public function bootstrap(): self
     {
+        $this->assertInitialized(__METHOD__);
         $this->assertNotBootstrapped(__METHOD__);
 
-        $this->determineAggregateDescriptions();
         $this->attachRouterToCommandBus();
-
 
         $this->bootstrapped = true;
 
         return $this;
     }
 
-    public function httpMessageBox(): ServerMiddlewareInterface
-    {
-        $this->assertBootstrapped(__METHOD__);
-
-
-    }
-
     public function commandRouting(): array
     {
         if(null === $this->compiledCommandRouting) {
-            $this->determineAggregateDescriptions();
+            $this->determineAggregateAndRoutingDescriptions();
         }
 
         return $this->compiledCommandRouting;
@@ -171,13 +195,39 @@ final class EventMachine
     public function aggregateDescriptions(): array
     {
         if(null === $this->aggregateDescriptions) {
-            $this->determineAggregateDescriptions();
+            $this->determineAggregateAndRoutingDescriptions();
         }
 
         return $this->aggregateDescriptions;
     }
 
-    private function determineAggregateDescriptions(): void
+    public function compileCacheableConfig(): array
+    {
+        $this->assertInitialized(__METHOD__);
+
+        $assertClosure = function($val) {
+            if($val instanceof \Closure) {
+                throw new \RuntimeException("At least one EventMachineDescription contains a Closure and is therefor not cacheable!");
+            }
+        };
+
+        array_walk_recursive($this->compiledCommandRouting, $assertClosure);
+        array_walk_recursive($this->aggregateDescriptions, $assertClosure);
+
+        return [
+            'commandMap' => $this->commandMap,
+            'eventMap' => $this->eventMap,
+            'compiledCommandRouting' => $this->commandRouting,
+            'aggregateDescriptions' => $this->aggregateDescriptions
+        ];
+    }
+
+    public function httpMessageBox(): ServerMiddlewareInterface
+    {
+        $this->assertBootstrapped(__METHOD__);
+    }
+
+    private function determineAggregateAndRoutingDescriptions(): void
     {
         $aggregateDescriptions = [];
 
@@ -235,6 +285,8 @@ final class EventMachine
 
     private function getMessageFactory(): GenericJsonSchemaMessageFactory
     {
+        $this->assertInitialized(__METHOD__);
+
         if(null === $this->messageFactory) {
             $this->messageFactory = new GenericJsonSchemaMessageFactory(
                 $this->commandMap,
@@ -244,6 +296,20 @@ final class EventMachine
         }
 
         return $this->messageFactory;
+    }
+
+    private function assertNotInitialized(string $method)
+    {
+        if($this->initialized) {
+            throw new \BadMethodCallException("Method $method cannot be called after event machine is initialized");
+        }
+    }
+
+    private function assertInitialized(string $method)
+    {
+        if($this->initialized) {
+            throw new \BadMethodCallException("Method $method cannot be called before event machine is initialized");
+        }
     }
 
     private function assertNotBootstrapped(string $method)

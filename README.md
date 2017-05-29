@@ -30,7 +30,7 @@ development of event sourced applications and increase the fun. It can be used f
 ## Ok, got the cons, but what are the pros?
 
 - Event Machine ships with a default set up based on the rich features provided by prooph components
-- you can start with just spinning up the docker containers and writing your aggregate functions
+- you can start with a ready-to-use skeleton 
 - No command and event classes needed
 - No aggregate classes, repositories and no configuration needed
 - programmatic message routing, again zero configuration
@@ -48,8 +48,3 @@ development of event sourced applications and increase the fun. It can be used f
 
 *This package is under heavy development and not ready for usage. Watch the repo and keep up with the development. We'll tag a first dev version soon.*
 
-```bash
-docker run --rm -it -v $(pwd):/app prooph/composer:7.1 install
-docker-compose up -d
-docker-compose run php php scripts/create_event_stream.php
-```
