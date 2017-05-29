@@ -8,6 +8,8 @@ prooph you wrong :)
 prooph software Event Machine takes away all the boring, time consuming parts of event sourcing to speed up
 development of event sourced applications and increase the fun. It can be used for prototypes as well as full featured applications.
 
+## Beginner friendly
+
 > The Dreyfus model distinguishes five levels of competence, from novice to mastery. At the absolute beginner level people execute tasks based on “rigid adherence to taught rules or plans”. Beginners need recipes. They don’t need a list of parts, or a dozen different ways to do the same thing. Instead what works are step by step instructions that they can internalize. As they practice them over time they learn the reasoning behind them, and learn to deviate from them and improvise, but they first need to feel like they’re doing something.
 
 (source: https://lambdaisland.com/blog/25-05-2017-simple-and-happy-is-clojure-dying-and-what-has-ruby-got-to-do-with-it)
