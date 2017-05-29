@@ -8,3 +8,4 @@ nbproject
 .project
 .settings
 vendor
+composer.lock

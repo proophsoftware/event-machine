@@ -1,7 +1,7 @@
 {
-  "name": "proophsoftware/es-workshop",
-  "description": "Event Sourcing Workshop",
-  "homepage": "http://getprooph.org/",
+  "name": "proophsoftware/event-machine",
+  "description": "Opinionated Event Sourcing Framework",
+  "homepage": "http://prooph.de/",
   "license": "BSD-3-Clause",
   "authors": [
     {
