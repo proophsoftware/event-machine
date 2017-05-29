@@ -15,6 +15,15 @@ use ProophExample\Messaging\Event;
  * Tell EventMachine how to handle commands with aggregates, which events are yielded by the handle methods
  * and how to apply the yielded events to the aggregate state.
  *
+ * Please note:
+ * UserDescription uses closures. It is the fastest and most readable way of describing
+ * aggregate behaviour BUT closures cannot be serialized/cached.
+ * So the closure style is useful for learning and prototyping but if you want to use Event Machine for
+ * production, you should consider using a cacheable description like illustrated with CacheableUserDescription.
+ * Also see EventMachine::cacheableConfig() which throws an exception if it detects usage of closure
+ * The returned array can be used to call EventMachine::fromCachedConfig(). You can json_encode the config and store it
+ * in a json file.
+ *
  * @package ProophExample\Aggregate
  */
 final class UserDescription implements EventMachineDescription
@@ -35,18 +44,18 @@ final class UserDescription implements EventMachineDescription
     {
         $eventMachine->process(Command::REGISTER_USER)
             ->withNew(Aggregate::USER)
-            //Every command for that aggregate SHOULD include the identifier property specified here
-            //If not called, identifier defaults to "id"
+            // Every command for that aggregate SHOULD include the identifier property specified here
+            // If not called, identifier defaults to "id"
             ->identifiedBy(self::IDENTIFIER)
-            //If command is handled with a new aggregate no state is passed only the command
+            // If command is handled with a new aggregate no state is passed only the command
             ->handle(function(array $registerUser) {
                 //We just turn the command payload into event payload by yielding it
                 yield $registerUser;
             })
             ->recordThat(Event::USER_WAS_REGISTERED)
-            //Apply callback of the first recorded event don't get aggregate state injected
-            //what you return in an apply method will be passed to the next pair of handle & apply methods as aggregate state
-            //you can use anything for aggregate state - we use a simple class with public properties
+            // Apply callback of the first recorded event don't get aggregate state injected
+            // what you return in an apply method will be passed to the next pair of handle & apply methods as aggregate state
+            // you can use anything for aggregate state - we use a simple class with public properties
             ->apply(function (array $userWasRegistered) {
                 $user = new UserState();
                 $user->id = $userWasRegistered[self::IDENTIFIER];
@@ -60,6 +69,7 @@ final class UserDescription implements EventMachineDescription
     {
         $eventMachine->process(Command::CHANGE_USERNAME)
             ->withExisting(Aggregate::USER)
+            // This time we handle command with existing aggregate, hence we get current user state injected
             ->handle(function (UserState $user, array $changeUsername) {
                 yield [
                     self::IDENTIFIER => $user->id,
@@ -68,6 +78,7 @@ final class UserDescription implements EventMachineDescription
                 ];
             })
             ->recordThat(Event::USERNAME_WAS_CHANGED)
+            // Same here, UsernameWasChanged is NOT the first event, so current user state is injected
             ->apply(function (UserState $user, array $usernameWasChanged) {
                 $user->username = $usernameWasChanged['newName'];
                 return $user;

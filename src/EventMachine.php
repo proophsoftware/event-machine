@@ -20,10 +20,6 @@ use Psr\Container\ContainerInterface;
 
 final class EventMachine
 {
-    const DEP_EVENT_STORE = 'eventStore';
-    const DEP_COMMAND_BUS = 'commandBus';
-    const DEP_EVENT_BUS = 'eventBus';
-
     /**
      * Map of command names and corresponding json schema of payload
      *

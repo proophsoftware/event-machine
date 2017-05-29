@@ -11,6 +11,7 @@ use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Metadata\MetadataMatcher;
 use Prooph\EventStore\StreamName;
 use ProophExample\Aggregate\Aggregate;
+use ProophExample\Aggregate\CacheableUserDescription;
 use ProophExample\Aggregate\UserDescription;
 use ProophExample\Messaging\Command;
 use ProophExample\Messaging\Event;
@@ -28,7 +29,7 @@ final class CommandProcessorTest extends BasicTestCase
         $eventMachine = new EventMachine();
 
         $eventMachine->load(MessageDescription::class);
-        $eventMachine->load(UserDescription::class);
+        $eventMachine->load(CacheableUserDescription::class);
 
         $commandRouting = $eventMachine->commandRouting();
         $aggregateDescriptions = $eventMachine->aggregateDescriptions();
@@ -81,10 +82,17 @@ final class CommandProcessorTest extends BasicTestCase
         $eventMachine = new EventMachine();
 
         $eventMachine->load(MessageDescription::class);
-        $eventMachine->load(UserDescription::class);
+        $eventMachine->load(CacheableUserDescription::class);
 
         $commandRouting = $eventMachine->commandRouting();
         $aggregateDescriptions = $eventMachine->aggregateDescriptions();
+
+        /*
+        file_put_contents('test.json', json_encode([
+            'commandRouting' => $commandRouting,
+            'aggregateDescriptions' => $aggregateDescriptions
+        ]));
+        */
 
         $userId = Uuid::uuid4()->toString();
 
