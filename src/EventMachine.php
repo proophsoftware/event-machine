@@ -264,6 +264,8 @@ final class EventMachine
     {
         $aggregateDescriptions = [];
 
+        $this->compiledCommandRouting = [];
+
         foreach ($this->commandRouting as $commandName => $commandProcessorDesc) {
             $descArr = $commandProcessorDesc();
 
