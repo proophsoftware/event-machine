@@ -17,20 +17,22 @@ development of event sourced applications and increase the fun. It can be used f
 
 ## Nothing comes for free
 
-**Be warned!** You have to pay a high price for RAD. Please consider the following cons before doing anything with Event Machine
+**Be warned!** You have to pay a high price for RAD. Please consider the following facts before doing anything with Event Machine
 
-- high coupling to Event Machine
-- Event Machine has slower execution time, needs more CPU cycles and has a higher memory footprint than a normal event sourced application developed with prooph
-- domain model is not designed with objects but with functions executed by Event Machine
-- Event Machine only supports a single event stream for all events
+- Highly opinionated
+- Tight coupling to Event Machine
+- Slower execution time by default, needs more CPU cycles and has a higher memory footprint (can be optimized through caching)
+- Domain model is not designed with objects but with functions executed by Event Machine
 - Command and Event validation is based on Json Schema, no other validation mechanism available
 - You only get access to command and event payload, everything else is handled by Event Machine internally
 - You cannot use one aggregate as a factory for another aggregate
+- Read model has to be eventually consistent
+- Pure aggregates without any dependencies
 
 ## Ok, got the cons, but what are the pros?
 
 - Event Machine ships with a default set up based on the rich features provided by prooph components
-- you can start with a ready-to-use skeleton 
+- you can start with a ready-to-use [skeleton](https://github.com/proophsoftware/event-machine-skeleton) 
 - No command and event classes needed
 - No aggregate classes, repositories and no configuration needed
 - programmatic message routing, again zero configuration
@@ -46,5 +48,4 @@ development of event sourced applications and increase the fun. It can be used f
 
 ## Installation
 
-*This package is under heavy development and not ready for usage. Watch the repo and keep up with the development. We'll tag a first dev version soon.*
-
+Head over to the [skeleton](https://github.com/proophsoftware/event-machine-skeleton)!
