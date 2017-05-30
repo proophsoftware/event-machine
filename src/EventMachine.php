@@ -12,10 +12,14 @@ use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\WebmozartJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventStoreBusBridge\EventPublisher;
+use Prooph\Psr7Middleware\MessageMiddleware;
+use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\Plugin\Router\AsyncSwitchMessageRouter;
 use Prooph\ServiceBus\Plugin\Router\EventRouter;
+use Prooph\ServiceBus\QueryBus;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
 
 final class EventMachine
 {
@@ -27,6 +31,7 @@ final class EventMachine
     const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
     const SERVICE_ID_MESSAGE_FACTORY = 'EventMachine.MessageFactory';
     const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
+    const SERVICE_ID_HTTP_MESSAGE_BOX_RESPONSE_STRATEGY = 'EventMachine.HttpMessageBox.ResponseStrategy';
 
     /**
      * Map of command names and corresponding json schema of payload
@@ -89,6 +94,11 @@ final class EventMachine
      * @var JsonSchemaAssertion
      */
     private $jsonSchemaAssertion;
+
+    /**
+     * @var MiddlewareInterface
+     */
+    private $httpMessageBox;
 
     public static function fromCachedConfig(array $config, ContainerInterface $container): self
     {
@@ -293,6 +303,50 @@ final class EventMachine
     public function httpMessageBox(): MiddlewareInterface
     {
         $this->assertBootstrapped(__METHOD__);
+
+        if($this->container->has(self::SERVICE_ID_QUERY_BUS)) {
+            $queryBus = $this->container->get(self::SERVICE_ID_QUERY_BUS);
+        } else {
+            $queryBus = new QueryBus();
+        }
+
+        if(null === $this->httpMessageBox) {
+            $this->httpMessageBox = new MessageMiddleware(
+                $this->container->get(self::SERVICE_ID_COMMAND_BUS),
+                $queryBus,
+                $this->container->get(self::SERVICE_ID_EVENT_BUS),
+                $this->messageFactory(),
+                $this->httpResponseStrategy()
+            );
+        }
+
+        return $this->httpMessageBox;
+    }
+
+    private function httpResponseStrategy(): ResponseStrategy
+    {
+        return $this->container->has(self::SERVICE_ID_HTTP_MESSAGE_BOX_RESPONSE_STRATEGY)
+            ?
+            $this->container->get(self::SERVICE_ID_HTTP_MESSAGE_BOX_RESPONSE_STRATEGY)
+            :
+            new class() implements ResponseStrategy
+            {
+                public function fromPromise(\React\Promise\PromiseInterface $promise): ResponseInterface
+                {
+                    $data = null;
+
+                    $promise->done(function($result) use (&$data) {
+                         $data = $result;
+                     });
+
+                    return new \Zend\Diactoros\Response\JsonResponse($data);
+                }
+
+                public function withStatus(int $statusCode): ResponseInterface
+                {
+                    return new \Zend\Diactoros\Response\JsonResponse([], $statusCode);
+                }
+            };
     }
 
     private function determineAggregateAndRoutingDescriptions(): void
