@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachine\Messaging;
 
+use Fig\Http\Message\StatusCodeInterface;
 use Prooph\Common\Messaging\DomainMessage;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -65,7 +66,10 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
         }
 
         if(null === $messageType) {
-            throw new \RuntimeException("Unknown message received. Got message with name: $messageName");
+            throw new \RuntimeException(
+                "Unknown message received. Got message with name: $messageName",
+                StatusCodeInterface::STATUS_NOT_FOUND
+            );
         }
 
         if (! isset($messageData['payload'])) {
