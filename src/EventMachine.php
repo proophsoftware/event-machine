@@ -255,12 +255,14 @@ final class EventMachine
 
         array_walk_recursive($this->compiledCommandRouting, $assertClosure);
         array_walk_recursive($this->aggregateDescriptions, $assertClosure);
+        array_walk_recursive($this->eventRouting, $assertClosure);
 
         return [
             'commandMap' => $this->commandMap,
             'eventMap' => $this->eventMap,
             'compiledCommandRouting' => $this->compiledCommandRouting,
-            'aggregateDescriptions' => $this->aggregateDescriptions
+            'aggregateDescriptions' => $this->aggregateDescriptions,
+            'eventRouting' => $this->eventRouting,
         ];
     }
 
