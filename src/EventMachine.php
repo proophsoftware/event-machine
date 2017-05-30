@@ -3,7 +3,7 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachine;
 
-use Interop\Http\Middleware\ServerMiddlewareInterface;
+use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Commanding\CommandProcessorDescription;
@@ -11,14 +11,20 @@ use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\WebmozartJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
-use Prooph\EventStore\EventStore;
+use Prooph\EventStoreBusBridge\EventPublisher;
 use Prooph\ServiceBus\CommandBus;
-use Prooph\ServiceBus\EventBus;
-use Prooph\SnapshotStore\SnapshotStore;
+use Prooph\ServiceBus\Plugin\Router\AsyncSwitchMessageRouter;
+use Prooph\ServiceBus\Plugin\Router\EventRouter;
 use Psr\Container\ContainerInterface;
 
 final class EventMachine
 {
+    const SERVICE_ID_EVENT_STORE = 'EventMachine.EventStore';
+    const SERVICE_ID_SNAPSHOT_STORE = 'EventMachine.SnapshotStore';
+    const SERVICE_ID_COMMAND_BUS = 'EventMachine.CommandBus';
+    const SERVICE_ID_EVENT_BUS = 'EventMachine.EventBus';
+    const SERVICE_ID_QUERY_BUS = 'EventMachine.QueryBus';
+    const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
     const SERVICE_ID_MESSAGE_FACTORY = 'EventMachine.MessageFactory';
     const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
 
@@ -54,6 +60,13 @@ final class EventMachine
      * @var array
      */
     private $eventMap = [];
+
+    /**
+     * Map of event names and corresponding list of listeners given as either service id string or callable
+     *
+     * @var string|callable[]
+     */
+    private $eventRouting = [];
 
     /**
      * @var ContainerInterface
@@ -164,6 +177,24 @@ final class EventMachine
         return $this->commandRouting[$commandName];
     }
 
+    public function on(string $eventName, $listener): self
+    {
+        $this->assertNotInitialized(__METHOD__);
+
+        if(!$this->isKnownEvent($eventName)) {
+            throw new \InvalidArgumentException("Listener attached to unknown event $eventName. You should register the event first");
+        }
+
+        if(!is_string($listener) && !is_callable($listener)) {
+            throw new \InvalidArgumentException("Listener should be either a service id given as string or a callable. Got "
+                . (is_object($listener)? get_class($listener) : gettype($listener)));
+        }
+
+        $this->eventRouting[$eventName][] = $listener;
+
+        return $this;
+    }
+
     public function isKnownEvent(string $eventName): bool
     {
         return array_key_exists($eventName, $this->eventMap);
@@ -188,6 +219,8 @@ final class EventMachine
         $this->assertNotBootstrapped(__METHOD__);
 
         $this->attachRouterToCommandBus();
+        $this->attachRouterToEventBus();
+        $this->attachEventPublisherToEventStore();
 
         $this->bootstrapped = true;
 
@@ -200,10 +233,10 @@ final class EventMachine
 
         switch ($message->messageType()) {
             case Message::TYPE_COMMAND:
-                $this->container->get(CommandBus::class)->dispatch($message);
+                $this->container->get(self::SERVICE_ID_COMMAND_BUS)->dispatch($message);
                 break;
             case Message::TYPE_EVENT:
-                $this->container->get(EventBus::class)->dispatch($message);
+                $this->container->get(self::SERVICE_ID_EVENT_BUS)->dispatch($message);
                 break;
             default:
                 throw new \RuntimeException("Unsupported message type: " . $message->messageType());
@@ -255,7 +288,7 @@ final class EventMachine
         return $this->jsonSchemaAssertion;
     }
 
-    public function httpMessageBox(): ServerMiddlewareInterface
+    public function httpMessageBox(): MiddlewareInterface
     {
         $this->assertBootstrapped(__METHOD__);
     }
@@ -299,22 +332,48 @@ final class EventMachine
     private function attachRouterToCommandBus(): void
     {
         /** @var CommandBus $commandBus */
-        $commandBus = $this->container->get(CommandBus::class);
+        $commandBus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
         $snapshotStore = null;
 
-        if($this->container->has(SnapshotStore::class)) {
-            $snapshotStore = $this->container->get(SnapshotStore::class);
+        if($this->container->has(self::SERVICE_ID_SNAPSHOT_STORE)) {
+            $snapshotStore = $this->container->get(self::SERVICE_ID_SNAPSHOT_STORE);
         }
 
         $router = new CommandToProcessorRouter(
             $this->compiledCommandRouting,
             $this->aggregateDescriptions,
             $this->container->get(self::SERVICE_ID_MESSAGE_FACTORY),
-            $this->container->get(EventStore::class),
+            $this->container->get(self::SERVICE_ID_EVENT_STORE),
             $snapshotStore
         );
 
         $router->attachToMessageBus($commandBus);
+    }
+
+    private function attachRouterToEventBus(): void
+    {
+        $eventRouter = new EventRouter($this->eventRouting);
+
+        if($this->container->has(self::SERVICE_ID_ASYNC_EVENT_PRODUCER)) {
+            $eventProducer = $this->container->get(self::SERVICE_ID_ASYNC_EVENT_PRODUCER);
+
+            $eventRouter = new AsyncSwitchMessageRouter(
+                $eventRouter,
+                $eventProducer
+            );
+        }
+
+        $eventBus = $this->container->get(self::SERVICE_ID_EVENT_BUS);
+
+        $eventRouter->attachToMessageBus($eventBus);
+    }
+
+    private function attachEventPublisherToEventStore(): void
+    {
+        $eventPublisher = new EventPublisher($this->container->get(self::SERVICE_ID_EVENT_BUS));
+        $eventStore = $this->container->get(self::SERVICE_ID_EVENT_STORE);
+
+        $eventPublisher->attachToEventStore($eventStore);
     }
 
     private function assertNotInitialized(string $method)
