@@ -24,7 +24,7 @@
     "prooph/snapshot-store": "^1.0",
     "prooph/service-bus": "^6.0",
     "prooph/event-store-bus-bridge": "^3.0",
-    "prooph/psr7-middleware": "^0.5",
+    "prooph/psr7-middleware": "^0.6",
     "psr/container": "^1.0",
     "zendframework/zend-diactoros": "^1.3",
     "webmozart/json": "^1.2.2"
