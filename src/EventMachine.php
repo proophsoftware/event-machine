@@ -17,6 +17,7 @@ use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\Plugin\Router\AsyncSwitchMessageRouter;
 use Prooph\ServiceBus\Plugin\Router\EventRouter;
+use Prooph\ServiceBus\Plugin\ServiceLocatorPlugin;
 use Prooph\ServiceBus\QueryBus;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -229,7 +230,7 @@ final class EventMachine
         $this->assertNotBootstrapped(__METHOD__);
 
         $this->attachRouterToCommandBus();
-        $this->attachRouterToEventBus();
+        $this->setUpEventBus();
         $this->attachEventPublisherToEventStore();
 
         $this->bootstrapped = true;
@@ -406,7 +407,7 @@ final class EventMachine
         $router->attachToMessageBus($commandBus);
     }
 
-    private function attachRouterToEventBus(): void
+    private function setUpEventBus(): void
     {
         $eventRouter = new EventRouter($this->eventRouting);
 
@@ -422,6 +423,10 @@ final class EventMachine
         $eventBus = $this->container->get(self::SERVICE_ID_EVENT_BUS);
 
         $eventRouter->attachToMessageBus($eventBus);
+
+        $serviceLocatorPlugin = new ServiceLocatorPlugin($this->container);
+
+        $serviceLocatorPlugin->attachToMessageBus($eventBus);
     }
 
     private function attachEventPublisherToEventStore(): void
