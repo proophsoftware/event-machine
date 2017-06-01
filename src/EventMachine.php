@@ -243,19 +243,32 @@ final class EventMachine
         return $this;
     }
 
-    public function dispatch(Message $message): void
+    /**
+     * @param string|Message $messageOrName
+     * @param array $payload
+     */
+    public function dispatch($messageOrName, array $payload = []): void
     {
         $this->assertBootstrapped(__METHOD__);
 
-        switch ($message->messageType()) {
+        if(is_string($messageOrName)) {
+            $messageOrName = $this->messageFactory()->createMessageFromArray($messageOrName, ['payload' => $payload]);
+        }
+
+        if(!$messageOrName instanceof Message) {
+            throw new \InvalidArgumentException('Invalid message received. Must be either a known message name or an instance of prooph message. Got '
+                . (is_object($messageOrName)? get_class($messageOrName):gettype($messageOrName)));
+        }
+
+        switch ($messageOrName->messageType()) {
             case Message::TYPE_COMMAND:
-                $this->container->get(self::SERVICE_ID_COMMAND_BUS)->dispatch($message);
+                $this->container->get(self::SERVICE_ID_COMMAND_BUS)->dispatch($messageOrName);
                 break;
             case Message::TYPE_EVENT:
-                $this->container->get(self::SERVICE_ID_EVENT_BUS)->dispatch($message);
+                $this->container->get(self::SERVICE_ID_EVENT_BUS)->dispatch($messageOrName);
                 break;
             default:
-                throw new \RuntimeException("Unsupported message type: " . $message->messageType());
+                throw new \RuntimeException("Unsupported message type: " . $messageOrName->messageType());
         }
     }
 

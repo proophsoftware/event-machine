@@ -167,6 +167,41 @@ class EventMachineTest extends BasicTestCase
     /**
      * @test
      */
+    public function it_creates_message_on_dispatch_if_only_name_and_payload_is_given()
+    {
+        $recordedEvents = [];
+
+        $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
+            $recordedEvents = iterator_to_array($args[1]);
+        });
+
+        $publishedEvents = [];
+
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function (Message $event) use (&$publishedEvents) {
+            $publishedEvents[] = $event;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $this->eventMachine->bootstrap()->dispatch(Command::REGISTER_USER, [
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => 'Alex',
+            UserDescription::EMAIL => 'contact@prooph.de',
+        ]);
+
+        self::assertCount(1, $recordedEvents);
+        self::assertCount(1, $publishedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
+        self::assertSame($event, $publishedEvents[0]);
+    }
+
+    /**
+     * @test
+     */
     public function it_enables_async_switch_message_router_if_container_has_a_producer()
     {
         $producedEvents = [];
