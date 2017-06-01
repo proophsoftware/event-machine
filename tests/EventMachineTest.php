@@ -13,6 +13,7 @@ use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\StreamName;
 use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
+use Prooph\EventStore\TransactionalEventStore;
 use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
@@ -319,5 +320,53 @@ class EventMachineTest extends BasicTestCase
 
         self::assertInstanceOf(UserState::class, $userState);
         self::assertEquals('Tester', $userState->username);
+    }
+
+    /**
+     * @test
+     */
+    public function it_sets_up_transaction_manager_if_event_store_supports_transactions()
+    {
+        $this->eventStore = $this->prophesize(TransactionalEventStore::class);
+
+        $this->actionEventEmitterEventStore = new TransactionalActionEventEmitterEventStore(
+            $this->eventStore->reveal(),
+            new ProophActionEventEmitter(TransactionalActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $recordedEvents = [];
+
+        $this->eventStore->beginTransaction()->shouldBeCalled();
+
+        $this->eventStore->inTransaction()->willReturn(true);
+
+        $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
+            $recordedEvents = iterator_to_array($args[1]);
+        });
+
+        $this->eventStore->commit()->shouldBeCalled();
+
+        $publishedEvents = [];
+
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function (Message $event) use (&$publishedEvents) {
+            $publishedEvents[] = $event;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $this->eventMachine->bootstrap()->dispatch(Command::REGISTER_USER, [
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => 'Alex',
+            UserDescription::EMAIL => 'contact@prooph.de',
+        ]);
+
+        self::assertCount(1, $recordedEvents);
+        self::assertCount(1, $publishedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
+        self::assertSame($event, $publishedEvents[0]);
     }
 }

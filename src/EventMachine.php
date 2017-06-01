@@ -16,7 +16,9 @@ use Prooph\EventMachine\JsonSchema\WebmozartJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
+use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
 use Prooph\EventStoreBusBridge\EventPublisher;
+use Prooph\EventStoreBusBridge\TransactionManager;
 use Prooph\Psr7Middleware\MessageMiddleware;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
@@ -486,6 +488,12 @@ final class EventMachine
         $eventStore = $this->container->get(self::SERVICE_ID_EVENT_STORE);
 
         $eventPublisher->attachToEventStore($eventStore);
+
+        if($eventStore instanceof TransactionalActionEventEmitterEventStore) {
+            $transactionManager = new TransactionManager($eventStore);
+            $commandBus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
+            $transactionManager->attachToMessageBus($commandBus);
+        }
     }
 
     private function assertNotInitialized(string $method)
