@@ -16,8 +16,10 @@ use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
 use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
+use ProophExample\Aggregate\Aggregate;
 use ProophExample\Aggregate\CacheableUserDescription;
 use ProophExample\Aggregate\UserDescription;
+use ProophExample\Aggregate\UserState;
 use ProophExample\Messaging\Command;
 use ProophExample\Messaging\Event;
 use ProophExample\Messaging\MessageDescription;
@@ -249,5 +251,38 @@ class EventMachineTest extends BasicTestCase
         self::expectExceptionMessage('At least one EventMachineDescription contains a Closure and is therefor not cacheable!');
 
         $eventMachine->compileCacheableConfig();
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_load_aggregate_state()
+    {
+        $this->eventMachine->initialize($this->containerChain);
+        $eventMachine = $this->eventMachine;
+        $userId = Uuid::uuid4()->toString();
+
+        $this->eventStore->load(new StreamName('event_stream'), 1, null, Argument::any())->will(function ($args) use ($userId, $eventMachine) {
+                return new \ArrayIterator([
+                    $eventMachine->messageFactory()->createMessageFromArray(Event::USER_WAS_REGISTERED, [
+                        'payload' => [
+                            'userId' => $userId,
+                            'username' => 'Tester',
+                            'email' => 'tester@test.com'
+                        ],
+                        'metadata' => [
+                            '_aggregate_id' => $userId,
+                            '_aggregate_type' => Aggregate::USER,
+                            '_aggregate_version' => 1
+                        ]
+                    ])
+                ]);
+        });
+
+        /** @var UserState $userState */
+        $userState = $eventMachine->bootstrap()->loadAggregateState(Aggregate::USER, $userId);
+
+        self::assertInstanceOf(UserState::class, $userState);
+        self::assertEquals('Tester', $userState->username);
     }
 }

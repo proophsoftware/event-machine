@@ -6,11 +6,16 @@ namespace Prooph\EventMachine;
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
+use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
+use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
+use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\WebmozartJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
+use Prooph\EventSourcing\Aggregate\AggregateRepository;
+use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStoreBusBridge\EventPublisher;
 use Prooph\Psr7Middleware\MessageMiddleware;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
@@ -252,6 +257,39 @@ final class EventMachine
             default:
                 throw new \RuntimeException("Unsupported message type: " . $message->messageType());
         }
+    }
+
+    public function loadAggregateState(string $aggregateType, string $aggregateId)
+    {
+        $this->assertBootstrapped(__METHOD__);
+
+        if(!array_key_exists($aggregateType, $this->aggregateDescriptions)) {
+            throw new \InvalidArgumentException('Unknown aggregate type: ' . $aggregateType);
+        }
+
+        $aggregateDesc = $this->aggregateDescriptions[$aggregateType];
+
+        $snapshotStore = null;
+
+        if($this->container->has(self::SERVICE_ID_SNAPSHOT_STORE)) {
+            $snapshotStore = $this->container->get(self::SERVICE_ID_SNAPSHOT_STORE);
+        }
+
+        $arRepository = new AggregateRepository(
+            $this->container->get(self::SERVICE_ID_EVENT_STORE),
+            AggregateType::fromString($aggregateType),
+            new ClosureAggregateTranslator($aggregateId, $aggregateDesc['eventApplyMap']),
+            $snapshotStore
+        );
+
+        /** @var GenericAggregateRoot $aggregate */
+        $aggregate = $arRepository->getAggregateRoot($aggregateId);
+
+        if(!$aggregate) {
+            throw AggregateNotFound::with($aggregateType, $aggregateId);
+        }
+
+        return $aggregate->currentState();
     }
 
     public function compileCacheableConfig(): array
