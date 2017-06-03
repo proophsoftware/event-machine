@@ -377,6 +377,16 @@ final class EventMachine
         return $this->httpMessageBox;
     }
 
+    public function messageSchemas(): array
+    {
+        $this->assertInitialized(__METHOD__);
+
+        return [
+            'commands' => $this->commandMap,
+            'events' => $this->eventMap
+        ];
+    }
+
     private function httpResponseStrategy(): ResponseStrategy
     {
         return $this->container->has(self::SERVICE_ID_HTTP_MESSAGE_BOX_RESPONSE_STRATEGY)

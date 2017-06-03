@@ -9,6 +9,7 @@ use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\StreamName;
@@ -368,5 +369,52 @@ class EventMachineTest extends BasicTestCase
         $event = $recordedEvents[0];
         self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
         self::assertSame($event, $publishedEvents[0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_provides_message_schemas()
+    {
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = [
+            'type' => 'string',
+            'minLength' => 36
+        ];
+
+        $username = [
+            'type' => 'string',
+            'minLength' => 1
+        ];
+
+        $userDataSchema = JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => $username,
+            UserDescription::EMAIL => [
+                'type' => 'string',
+                'format' => 'email'
+            ]
+        ]);
+
+        self::assertEquals([
+            'commands' => [
+                Command::REGISTER_USER => $userDataSchema,
+                Command::CHANGE_USERNAME => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                    UserDescription::USERNAME => $username
+                ]),
+            ],
+            'events' => [
+                Event::USER_WAS_REGISTERED => $userDataSchema,
+                Event::USERNAME_WAS_CHANGED => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                    'oldName' => $username,
+                    'newName' => $username,
+                ])
+            ]
+            ],
+            $this->eventMachine->messageSchemas()
+        );
     }
 }
