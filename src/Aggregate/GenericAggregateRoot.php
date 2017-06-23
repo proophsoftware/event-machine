@@ -127,9 +127,9 @@ final class GenericAggregateRoot implements AggregateTypeProvider
         $apply = $this->eventApplyMap[$event->messageName()];
 
         if($this->aggregateState === null) {
-            $newArState = $apply($event->payload());
+            $newArState = $apply($event);
         } else {
-            $newArState = $apply($this->aggregateState, $event->payload());
+            $newArState = $apply($this->aggregateState, $event);
         }
 
 

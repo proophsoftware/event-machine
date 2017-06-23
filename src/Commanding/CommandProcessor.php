@@ -162,7 +162,7 @@ final class CommandProcessor
 
         if($this->createAggregate) {
             $aggregate = new GenericAggregateRoot($arId, AggregateType::fromString($this->aggregateType), $this->eventApplyMap);
-            $arFuncArgs[] = $command->payload();
+            $arFuncArgs[] = $command;
         } else {
             /** @var GenericAggregateRoot $aggregate */
             $aggregate = $arRepository->getAggregateRoot($arId);
@@ -172,7 +172,7 @@ final class CommandProcessor
             }
 
             $arFuncArgs[] = $aggregate->currentState();
-            $arFuncArgs[] = $command->payload();
+            $arFuncArgs[] = $command;
         }
 
         $arFunc = $this->aggregateFunction;
