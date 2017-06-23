@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachineTest\Aggregate;
 
+use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
@@ -19,12 +20,12 @@ class GenericAggregateRootTest extends BasicTestCase
     public function it_records_events_and_can_be_reconstituted_by_them()
     {
         $eventApplyMap = [
-            'UserWasRegistered' => function(array $userWasRegistered) {
-                $arState['username'] = $userWasRegistered['username'];
+            'UserWasRegistered' => function(Message $userWasRegistered) {
+                $arState['username'] = $userWasRegistered->payload()['username'];
                 return $arState;
             },
-            'UsernameWasChanged' => function(array $arState, array $usernameWasChanged) {
-                $arState['username'] = $usernameWasChanged['newUsername'];
+            'UsernameWasChanged' => function(array $arState, Message $usernameWasChanged) {
+                $arState['username'] = $usernameWasChanged->payload()['newUsername'];
                 return $arState;
             }
         ];

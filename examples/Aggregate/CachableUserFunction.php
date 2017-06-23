@@ -14,7 +14,7 @@ final class CachableUserFunction
 
     public static function whenUserWasRegistered(Message $userWasRegistered) {
         $user = new UserState();
-        $user->id = $userWasRegistered[CacheableUserDescription::IDENTIFIER];
+        $user->id = $userWasRegistered->payload()[CacheableUserDescription::IDENTIFIER];
         $user->username = $userWasRegistered->payload()['username'];
         $user->email = $userWasRegistered->payload()['email'];
         return $user;
