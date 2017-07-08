@@ -4,24 +4,32 @@ declare(strict_types = 1);
 namespace Prooph\EventMachine;
 
 use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Prooph\Common\Event\ActionEvent;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
+use Prooph\EventMachine\Aggregate\AggregateTestHistoryEventEnricher;
 use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
+use Prooph\EventMachine\Container\ContainerChain;
+use Prooph\EventMachine\Container\TestEnvContainer;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\WebmozartJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
+use Prooph\EventStore\ActionEventEmitterEventStore;
+use Prooph\EventStore\EventStore;
+use Prooph\EventStore\StreamName;
 use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
 use Prooph\EventStoreBusBridge\EventPublisher;
 use Prooph\EventStoreBusBridge\TransactionManager;
 use Prooph\Psr7Middleware\MessageMiddleware;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
+use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\Plugin\Router\AsyncSwitchMessageRouter;
 use Prooph\ServiceBus\Plugin\Router\EventRouter;
 use Prooph\ServiceBus\Plugin\ServiceLocatorPlugin;
@@ -86,12 +94,11 @@ final class EventMachine
      */
     private $container;
 
-    /**
-     * @var bool
-     */
     private $initialized = false;
 
     private $bootstrapped = false;
+
+    private $testMode = false;
 
     /**
      * @var MessageFactory
@@ -107,6 +114,8 @@ final class EventMachine
      * @var MiddlewareInterface
      */
     private $httpMessageBox;
+
+    private $testSessionEvents = [];
 
     public static function fromCachedConfig(array $config, ContainerInterface $container): self
     {
@@ -387,6 +396,55 @@ final class EventMachine
         ];
     }
 
+    public function bootstrapInTestMode(array $history): self
+    {
+        $this->assertInitialized(__METHOD__);
+        $this->assertNotBootstrapped(__METHOD__);
+
+        $this->container = new ContainerChain(new TestEnvContainer(), $this->container);
+
+        /** @var ActionEventEmitterEventStore $es */
+        $es = $this->container->get(self::SERVICE_ID_EVENT_STORE);
+
+        $history = AggregateTestHistoryEventEnricher::enrichHistory($history, $this->aggregateDescriptions);
+
+        $es->appendTo(new StreamName('event_stream'), new \ArrayIterator($history));
+
+        $es->attach(
+            ActionEventEmitterEventStore::EVENT_APPEND_TO,
+            function (ActionEvent $event): void {
+                $recordedEvents = $event->getParam('streamEvents', new \ArrayIterator());
+                $this->testSessionEvents = array_merge($this->testSessionEvents, iterator_to_array($recordedEvents));
+            }
+        );
+
+        $es->attach(
+            ActionEventEmitterEventStore::EVENT_CREATE,
+            function (ActionEvent $event): void {
+                $stream = $event->getParam('stream');
+                $recordedEvents = $stream->streamEvents();
+                $this->testSessionEvents = array_merge($this->testSessionEvents, iterator_to_array($recordedEvents));
+            }
+        );
+
+        $this->testMode = true;
+
+        $this->bootstrap();
+
+        return $this;
+    }
+
+    public function popRecordedEventsOfTestSession(): array
+    {
+        $this->assertTestMode(__METHOD__);
+
+        $recordedEvents = $this->testSessionEvents;
+
+        $this->testSessionEvents = [];
+
+        return $recordedEvents;
+    }
+
     private function httpResponseStrategy(): ResponseStrategy
     {
         return $this->container->has(self::SERVICE_ID_HTTP_MESSAGE_BOX_RESPONSE_STRATEGY)
@@ -531,6 +589,13 @@ final class EventMachine
     {
         if(!$this->bootstrapped) {
             throw new \BadMethodCallException("Method $method cannot be called before event machine is bootstrapped");
+        }
+    }
+
+    private function assertTestMode(string $method)
+    {
+        if(!$this->testMode) {
+            throw new \BadMethodCallException("Method $method cannot be called if event machine is not bootstrapped in test mode");
         }
     }
 }
