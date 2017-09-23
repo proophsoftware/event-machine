@@ -178,7 +178,15 @@ final class CommandProcessor
         $arFunc = $this->aggregateFunction;
         $eventNameList = array_keys($this->eventRecorderMap);
 
-        foreach ($arFunc(...$arFuncArgs) as $i => $eventPayload) {
+        $eventPayloads = $arFunc(...$arFuncArgs);
+        if(!$eventPayloads instanceof \Generator) {
+            throw new \InvalidArgumentException(
+                'Expected aggregateFunction to be of type Generator. ' .
+                'Did you forget the yield keyword in your command handler?'
+            );
+        }
+
+        foreach ($eventPayloads as $i => $eventPayload) {
             if(!array_key_exists($i, $eventNameList)) {
                 throw new \RuntimeException(sprintf(
                     "eventRecorderMap of aggregate type %s and command %s contains too few events.",
