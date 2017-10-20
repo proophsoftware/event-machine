@@ -10,7 +10,7 @@ use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
-use Prooph\EventMachine\JsonSchema\WebmozartJsonSchemaAssertion;
+use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prophecy\Argument;
 
 class BasicTestCase extends TestCase
@@ -44,7 +44,7 @@ class BasicTestCase extends TestCase
     protected function getJsonSchemaAssertion(): JsonSchemaAssertion
     {
         if(null === $this->jsonSchemaAssertion) {
-            $this->jsonSchemaAssertion = new WebmozartJsonSchemaAssertion();
+            $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
         }
 
         return $this->jsonSchemaAssertion;

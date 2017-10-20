@@ -16,7 +16,7 @@ use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\TestEnvContainer;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
-use Prooph\EventMachine\JsonSchema\WebmozartJsonSchemaAssertion;
+use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
@@ -357,7 +357,7 @@ final class EventMachine
     public function jsonSchemaAssertion(): JsonSchemaAssertion
     {
         if(null === $this->jsonSchemaAssertion) {
-            $this->jsonSchemaAssertion = new WebmozartJsonSchemaAssertion();
+            $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
         }
 
         return $this->jsonSchemaAssertion;
