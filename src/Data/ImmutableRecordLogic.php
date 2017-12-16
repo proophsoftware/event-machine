@@ -67,7 +67,7 @@ trait ImmutableRecordLogic
                     $nativeData[$key] = $this->{$key};
                     break;
                 default:
-                    $nativeData[$key] = $this->{$key}->toArray();
+                    $nativeData[$key] = $this->voTypeToNative($this->{$key}, $key, $type);
             }
         }
 
@@ -105,7 +105,7 @@ trait ImmutableRecordLogic
                     $recordData[$key] = $val;
                     break;
                 default:
-                    $recordData[$key] = $type::fromArray($val);
+                    $recordData[$key] = $this->fromType($val, $type);
             }
         }
 
@@ -153,7 +153,7 @@ trait ImmutableRecordLogic
                 $isType = is_array($value);
                 break;
             default:
-                $isType = $value instanceof $type && $value instanceof ImmutableRecord;
+                $isType = $value instanceof $type;
         }
 
         if(!$isType) {
@@ -163,7 +163,7 @@ trait ImmutableRecordLogic
                 $key,
                 $type,
                 (is_object($value)
-                    ? get_class($value) . '. Note: objects have to implement ImmutableRecord'
+                    ? get_class($value)
                     : gettype($value))
             ));
         }
@@ -204,5 +204,53 @@ trait ImmutableRecordLogic
 
             $this->propTypeMap[$prop->getName()] = (string)$method->getReturnType();
         }
+    }
+
+    private function fromType($value, string $type)
+    {
+        if(!class_exists($type)) {
+            throw new \RuntimeException("Type class $type not found");
+        }
+
+        switch (gettype($value)) {
+            case 'array':
+                return $type::fromArray($value);
+            case 'string':
+                return $type::fromString($value);
+            case 'integer':
+                return $type::fromInt($value);
+            case 'float':
+            case 'double':
+                return $type::fromFloat($value);
+            case 'boolean':
+                return $type::fromBool($value);
+            default:
+                throw new \RuntimeException("Cannot convert value to $type, because native type of value is not supported. Got " . gettype($value));
+        }
+    }
+
+    private function voTypeToNative($value, string $key, string $type)
+    {
+        if(method_exists($value, 'toArray')) {
+            return $value->toArray();
+        }
+
+        if(method_exists($value, 'toString')) {
+            return $value->toString();
+        }
+
+        if(method_exists($value, 'toInt')) {
+            return $value->toInt();
+        }
+
+        if(method_exists($value, 'toFloat')) {
+            return $value->toFloat();
+        }
+
+        if(method_exists($value, 'toBool')) {
+            return $value->toBool();
+        }
+
+        throw new \RuntimeException("Cannot convert property $key to its native counterpart. Missing to{nativeType}() method in the type class $type.");
     }
 }
