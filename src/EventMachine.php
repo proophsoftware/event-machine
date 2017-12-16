@@ -444,7 +444,7 @@ final class EventMachine
         $this->assertInitialized(__METHOD__);
         $this->assertNotBootstrapped(__METHOD__);
 
-        $this->container = new ContainerChain(new TestEnvContainer(), $this->container);
+        $this->container = new ContainerChain(new TestEnvContainer($serviceMap), $this->container);
 
         /** @var ActionEventEmitterEventStore $es */
         $es = $this->container->get(self::SERVICE_ID_EVENT_STORE);
