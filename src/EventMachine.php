@@ -439,7 +439,7 @@ final class EventMachine
         ];
     }
 
-    public function bootstrapInTestMode(array $history): self
+    public function bootstrapInTestMode(array $history, array $serviceMap = []): self
     {
         $this->assertInitialized(__METHOD__);
         $this->assertNotBootstrapped(__METHOD__);

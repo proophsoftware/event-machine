@@ -28,6 +28,16 @@ final class TestEnvContainer implements ContainerInterface
     private $eventStore;
 
     /**
+     * @var array
+     */
+    private $services;
+
+    public function __construct(array $services = [])
+    {
+        $this->services = $services;
+    }
+
+    /**
      * Finds an entry of the container by its identifier and returns it.
      *
      * @param string $id Identifier of the entry to look for.
@@ -60,7 +70,11 @@ final class TestEnvContainer implements ContainerInterface
             case EventMachine::SERVICE_ID_SNAPSHOT_STORE:
                 return $this->getSnapshotStore();
             default:
-                throw ServiceNotFound::withServiceId($id);
+                if(!array_key_exists($id, $this->services)) {
+                    throw ServiceNotFound::withServiceId($id);
+                }
+
+                return $this->services[$id];
         }
     }
 
@@ -84,7 +98,7 @@ final class TestEnvContainer implements ContainerInterface
             case EventMachine::SERVICE_ID_EVENT_BUS:
                 return true;
             default:
-                return false;
+                return array_key_exists($id, $this->services);
         }
     }
 
