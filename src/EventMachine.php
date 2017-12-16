@@ -11,6 +11,7 @@ use Prooph\EventMachine\Aggregate\AggregateTestHistoryEventEnricher;
 use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
+use Prooph\EventMachine\Commanding\CommandPreProcessor;
 use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\Container\ContainerChain;
@@ -21,7 +22,6 @@ use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\ActionEventEmitterEventStore;
-use Prooph\EventStore\EventStore;
 use Prooph\EventStore\StreamName;
 use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
 use Prooph\EventStoreBusBridge\EventPublisher;
@@ -29,7 +29,6 @@ use Prooph\EventStoreBusBridge\TransactionManager;
 use Prooph\Psr7Middleware\MessageMiddleware;
 use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
-use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\Plugin\Router\AsyncSwitchMessageRouter;
 use Prooph\ServiceBus\Plugin\Router\EventRouter;
 use Prooph\ServiceBus\Plugin\ServiceLocatorPlugin;
@@ -57,6 +56,13 @@ final class EventMachine
      * @var array
      */
     private $commandMap = [];
+
+    /**
+     * Map of command names and corresponding list of preprocessors given as either service id string or callable
+     *
+     * @var string[]|CommandPreProcessor[]
+     */
+    private $commandPreProcessors = [];
 
     /**
      * @var array
@@ -188,6 +194,24 @@ final class EventMachine
         return $this;
     }
 
+    public function preProcess(string $commandName, $preProcessor): self
+    {
+        $this->assertNotInitialized(__METHOD__);
+
+        if(!$this->isKnownCommand($commandName)) {
+            throw new \InvalidArgumentException("Preprocessor attached to unknown command $commandName. You should register the command first");
+        }
+
+        if(!is_string($preProcessor) && !$preProcessor instanceof CommandPreProcessor) {
+            throw new \InvalidArgumentException("PreProcessor should either be a service id given as string or an instance of ".CommandPreProcessor::class.". Got "
+                . (is_object($preProcessor)? get_class($preProcessor) : gettype($preProcessor)));
+        }
+
+        $this->commandPreProcessors[$commandName][] = $preProcessor;
+
+        return $this;
+    }
+
     public function process(string $commandName): CommandProcessorDescription
     {
         $this->assertNotInitialized(__METHOD__);
@@ -220,6 +244,11 @@ final class EventMachine
         $this->eventRouting[$eventName][] = $listener;
 
         return $this;
+    }
+
+    public function isKnownCommand(string $commandName): bool
+    {
+        return array_key_exists($commandName, $this->commandMap);
     }
 
     public function isKnownEvent(string $eventName): bool
@@ -273,6 +302,20 @@ final class EventMachine
 
         switch ($messageOrName->messageType()) {
             case Message::TYPE_COMMAND:
+                $preProcessors = $this->commandPreProcessors[$messageOrName->messageName()] ?? [];
+
+                foreach ($preProcessors as $preProcessorOrStr) {
+                    if(is_string($preProcessorOrStr)) {
+                        $preProcessorOrStr = $this->container->get($preProcessorOrStr);
+                    }
+
+                    if(!$preProcessorOrStr instanceof CommandPreProcessor) {
+                        throw new \RuntimeException("PreProcessor should be an instance of " . CommandPreProcessor::class . ". Got " . get_class($preProcessorOrStr));
+                    }
+
+                    $messageOrName = $preProcessorOrStr->preProcess($messageOrName);
+                }
+
                 $this->container->get(self::SERVICE_ID_COMMAND_BUS)->dispatch($messageOrName);
                 break;
             case Message::TYPE_EVENT:
