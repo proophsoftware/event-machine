@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Http;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Interop\Http\ServerMiddleware\DelegateInterface;
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
+use Interop\Http\Server\RequestHandlerInterface;
 use Prooph\EventMachine\EventMachine;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use Zend\Diactoros\Response\EmptyResponse;
@@ -17,7 +17,7 @@ use Zend\Diactoros\Response\EmptyResponse;
  *
  * This class handles event, command and query messages depending on given request body data.
  */
-final class MessageBox implements MiddlewareInterface
+final class MessageBox implements RequestHandlerInterface
 {
     /**
      * @var EventMachine
@@ -29,7 +29,7 @@ final class MessageBox implements MiddlewareInterface
         $this->eventMachine = $eventMachine;
     }
 
-    public function process(ServerRequestInterface $request, DelegateInterface $delegate)
+    public function handle(ServerRequestInterface $request): ResponseInterface
     {
         $payload = null;
         $messageName = 'UNKNOWN';
