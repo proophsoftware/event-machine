@@ -16,6 +16,7 @@ use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\TestEnvContainer;
+use Prooph\EventMachine\Http\MessageBox;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
@@ -406,24 +407,12 @@ final class EventMachine
         return $this->jsonSchemaAssertion;
     }
 
-    public function httpMessageBox(): MiddlewareInterface
+    public function httpMessageBox(): MessageBox
     {
         $this->assertBootstrapped(__METHOD__);
 
-        if($this->container->has(self::SERVICE_ID_QUERY_BUS)) {
-            $queryBus = $this->container->get(self::SERVICE_ID_QUERY_BUS);
-        } else {
-            $queryBus = new QueryBus();
-        }
-
         if(null === $this->httpMessageBox) {
-            $this->httpMessageBox = new MessageMiddleware(
-                $this->container->get(self::SERVICE_ID_COMMAND_BUS),
-                $queryBus,
-                $this->container->get(self::SERVICE_ID_EVENT_BUS),
-                $this->messageFactory(),
-                $this->httpResponseStrategy()
-            );
+            $this->httpMessageBox = new MessageBox($this);
         }
 
         return $this->httpMessageBox;
@@ -486,32 +475,6 @@ final class EventMachine
         $this->testSessionEvents = [];
 
         return $recordedEvents;
-    }
-
-    private function httpResponseStrategy(): ResponseStrategy
-    {
-        return $this->container->has(self::SERVICE_ID_HTTP_MESSAGE_BOX_RESPONSE_STRATEGY)
-            ?
-            $this->container->get(self::SERVICE_ID_HTTP_MESSAGE_BOX_RESPONSE_STRATEGY)
-            :
-            new class() implements ResponseStrategy
-            {
-                public function fromPromise(\React\Promise\PromiseInterface $promise): ResponseInterface
-                {
-                    $data = null;
-
-                    $promise->done(function($result) use (&$data) {
-                         $data = $result;
-                     });
-
-                    return new \Zend\Diactoros\Response\JsonResponse($data);
-                }
-
-                public function withStatus(int $statusCode): ResponseInterface
-                {
-                    return new \Zend\Diactoros\Response\JsonResponse([], $statusCode);
-                }
-            };
     }
 
     private function determineAggregateAndRoutingDescriptions(): void
