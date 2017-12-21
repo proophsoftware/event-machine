@@ -38,7 +38,9 @@ final class CacheableUserDescription
             //A modern IDE like PHPStorm is able to resolve this reference so that it is found by usage/refactoring look ups
             ->handle([CachableUserFunction::class, 'registerUser'])
             ->recordThat(Event::USER_WAS_REGISTERED)
-            ->apply([CachableUserFunction::class, 'whenUserWasRegistered']);
+            ->apply([CachableUserFunction::class, 'whenUserWasRegistered'])
+            ->orRecordThat(Event::USER_REGISTRATION_FAILED)
+            ->apply([CachableUserFunction::class, 'whenUserRegistrationFailed']);
     }
 
     private static function describeChangeUsername(EventMachine $eventMachine): void

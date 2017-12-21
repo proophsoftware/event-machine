@@ -160,4 +160,65 @@ final class CommandProcessorTest extends BasicTestCase
             '_aggregate_type' => 'User',
         ], $event->metadata());
     }
+
+    /**
+     * @test
+     */
+    public function it_prcoesses_alternative_event_recording()
+    {
+        $eventMachine = new EventMachine();
+
+        $eventMachine->load(MessageDescription::class);
+        $eventMachine->load(CacheableUserDescription::class);
+
+        $container = $this->prophesize(ContainerInterface::class);
+
+        $eventMachine->initialize($container->reveal());
+
+        $config = $eventMachine->compileCacheableConfig();
+
+        $commandRouting = $config['compiledCommandRouting'];
+        $aggregateDescriptions = $config['aggregateDescriptions'];
+
+        $recordedEvents = [];
+
+        $eventStore = $this->prophesize(EventStore::class);
+
+        $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
+            $recordedEvents = iterator_to_array($args[1]);
+        });
+
+        $processorDesc = $commandRouting[Command::REGISTER_USER];
+        $processorDesc['eventApplyMap'] = $aggregateDescriptions[Aggregate::USER]['eventApplyMap'];
+
+        $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $processorDesc,
+            $this->getMockedEventMessageFactory(),
+            $eventStore->reveal()
+        );
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->getMockedCommandMessageFactory()->createMessageFromArray(Command::REGISTER_USER, [
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => 'Alex',
+            UserDescription::EMAIL => 'contact@prooph.de',
+            //Force failing of user registration
+            'shouldFail' => true
+        ]);
+
+        $commandProcessor($registerUser);
+
+        self::assertCount(1, $recordedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        self::assertEquals(Event::USER_REGISTRATION_FAILED, $event->messageName());
+        self::assertEquals([
+            '_causation_id' => $registerUser->uuid()->toString(),
+            '_causation_name' => $registerUser->messageName(),
+            '_aggregate_version' => 1,
+            '_aggregate_id' => $userId,
+            '_aggregate_type' => 'User',
+        ], $event->metadata());
+    }
 }
