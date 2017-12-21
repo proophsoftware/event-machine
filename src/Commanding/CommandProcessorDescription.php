@@ -104,6 +104,16 @@ final class CommandProcessorDescription
         return $this->eventRecorderMap[$eventName];
     }
 
+    public function orRecordThat(string $eventName): EventRecorderDescription
+    {
+        return $this->recordThat($eventName);
+    }
+
+    public function andRecordThat(string $eventName): EventRecorderDescription
+    {
+        return $this->recordThat($eventName);
+    }
+
     public function __invoke(): array
     {
         $this->assertWithAggregateWasCalled('EventMachine::bootstrap');

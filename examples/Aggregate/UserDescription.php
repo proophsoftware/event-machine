@@ -49,8 +49,8 @@ final class UserDescription implements EventMachineDescription
             ->identifiedBy(self::IDENTIFIER)
             // If command is handled with a new aggregate no state is passed only the command
             ->handle(function(Message $registerUser) {
-                //We just turn the command payload into event payload by yielding it
-                yield $registerUser->payload();
+                //We just turn the command payload into event payload by yielding an event tuple
+                yield [Event::USER_WAS_REGISTERED, $registerUser->payload()];
             })
             ->recordThat(Event::USER_WAS_REGISTERED)
             // Apply callback of the first recorded event don't get aggregate state injected
@@ -71,11 +71,11 @@ final class UserDescription implements EventMachineDescription
             ->withExisting(Aggregate::USER)
             // This time we handle command with existing aggregate, hence we get current user state injected
             ->handle(function (UserState $user, Message $changeUsername) {
-                yield [
+                yield [Event::USERNAME_WAS_CHANGED, [
                     self::IDENTIFIER => $user->id,
                     'oldName' => $user->username,
                     'newName' => $changeUsername->payload()['username']
-                ];
+                ]];
             })
             ->recordThat(Event::USERNAME_WAS_CHANGED)
             // Same here, UsernameWasChanged is NOT the first event, so current user state is injected

@@ -42,6 +42,12 @@ final class MessageDescription implements EventMachineDescription
                 'type' => 'string',
                 'format' => 'email'
             ]
+        ], [
+            //If it is set to true user registration handler will record a UserRegistrationFailed event
+            //when using CachableUserFunction
+            'shouldFail' => [
+                'type' => 'boolean'
+            ]
         ]);
 
         /* Message Registration */
@@ -56,6 +62,10 @@ final class MessageDescription implements EventMachineDescription
             UserDescription::IDENTIFIER => $userId,
             'oldName' => $username,
             'newName' => $username,
+        ]));
+
+        $eventMachine->registerEvent(Event::USER_REGISTRATION_FAILED, JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
         ]));
     }
 }

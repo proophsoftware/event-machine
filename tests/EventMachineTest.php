@@ -395,6 +395,10 @@ class EventMachineTest extends BasicTestCase
                 'type' => 'string',
                 'format' => 'email'
             ]
+        ], [
+            'shouldFail' => [
+                'type' => 'boolean',
+            ]
         ]);
 
         self::assertEquals([
@@ -411,6 +415,9 @@ class EventMachineTest extends BasicTestCase
                     UserDescription::IDENTIFIER => $userId,
                     'oldName' => $username,
                     'newName' => $username,
+                ]),
+                Event::USER_REGISTRATION_FAILED => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
                 ])
             ]
             ],
