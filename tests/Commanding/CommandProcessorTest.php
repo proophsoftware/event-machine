@@ -221,4 +221,73 @@ final class CommandProcessorTest extends BasicTestCase
             '_aggregate_type' => 'User',
         ], $event->metadata());
     }
+
+    /**
+     * @test
+     */
+    public function it_does_nothing_if_aggregate_function_yields_null_to_indicate_that_no_event_should_be_recorded()
+    {
+        $eventMachine = new EventMachine();
+
+        $eventMachine->load(MessageDescription::class);
+        $eventMachine->load(CacheableUserDescription::class);
+
+        $container = $this->prophesize(ContainerInterface::class);
+
+        $eventMachine->initialize($container->reveal());
+
+        $config = $eventMachine->compileCacheableConfig();
+
+        $commandRouting = $config['compiledCommandRouting'];
+        $aggregateDescriptions = $config['aggregateDescriptions'];
+
+        $userId = Uuid::uuid4()->toString();
+
+        $recordedEvents = [];
+
+        $eventStore = $this->prophesize(EventStore::class);
+
+        $eventFactory = $this->getMockedEventMessageFactory();
+
+        $eventStore->load(new StreamName('event_stream'), 1, null, Argument::type(MetadataMatcher::class))
+            ->will(function ($args) use($userId, $eventFactory) {
+                $event = $eventFactory->createMessageFromArray('UserWasRegistered', [
+                    'payload' => [
+                        UserDescription::IDENTIFIER => $userId,
+                        UserDescription::USERNAME => 'Alex',
+                        UserDescription::EMAIL => 'contact@prooph.de'
+                    ],
+                    'metadata' => [
+                        '_causation_id' => Uuid::uuid4()->toString(),
+                        '_causation_name' => 'RegisterUser',
+                        '_aggregate_version' => 1,
+                        '_aggregate_id' => $userId,
+                        '_aggregate_type' => 'User',
+                    ]
+                ]);
+
+                return new \ArrayIterator([$event]);
+            });
+
+        $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
+            $recordedEvents = iterator_to_array($args[1]);
+        });
+
+        $processorDesc = $commandRouting[Command::DO_NOTHING];
+        $processorDesc['eventApplyMap'] = $aggregateDescriptions[Aggregate::USER]['eventApplyMap'];
+
+        $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $processorDesc,
+            $this->getMockedEventMessageFactory(),
+            $eventStore->reveal()
+        );
+
+        $doNothing = $this->getMockedCommandMessageFactory()->createMessageFromArray(Command::DO_NOTHING, [
+            UserDescription::IDENTIFIER => $userId,
+        ]);
+
+        $commandProcessor($doNothing);
+
+        self::assertCount(0, $recordedEvents);
+    }
 }

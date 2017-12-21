@@ -27,6 +27,7 @@ final class CacheableUserDescription
     {
         self::describeRegisterUser($eventMachine);
         self::describeChangeUsername($eventMachine);
+        self::describeDoNothing($eventMachine);
     }
 
     private static function describeRegisterUser(EventMachine $eventMachine): void
@@ -49,6 +50,15 @@ final class CacheableUserDescription
             ->withExisting(Aggregate::USER)
             ->handle([CachableUserFunction::class, 'changeUsername'])
             ->recordThat(Event::USERNAME_WAS_CHANGED)
+            ->apply([CachableUserFunction::class, 'whenUsernameWasChanged']);
+    }
+
+    private static function describeDoNothing(EventMachine $eventMachine): void
+    {
+        $eventMachine->process(Command::DO_NOTHING)
+            ->withExisting(Aggregate::USER)
+            ->handle([CachableUserFunction::class, 'doNothing'])
+            ->orRecordThat(Event::USERNAME_WAS_CHANGED)
             ->apply([CachableUserFunction::class, 'whenUsernameWasChanged']);
     }
 

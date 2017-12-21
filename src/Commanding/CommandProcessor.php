@@ -178,6 +178,7 @@ final class CommandProcessor
         $arFunc = $this->aggregateFunction;
 
         $events = $arFunc(...$arFuncArgs);
+
         if(!$events instanceof \Generator) {
             throw new \InvalidArgumentException(
                 'Expected aggregateFunction to be of type Generator. ' .
@@ -186,7 +187,11 @@ final class CommandProcessor
         }
 
         foreach ($events as $event) {
-            if(!array_key_exists(0, $event) || !array_key_exists(1, $event)
+            if(!$event) {
+                continue;
+            }
+
+            if(!is_array($event) || !array_key_exists(0, $event) || !array_key_exists(1, $event)
                 || !is_string($event[0])  || !is_array($event[1])) {
                 throw new \RuntimeException(sprintf(
                     "Event returned by aggregate of type %s while handling command %s does not has the format [string eventName, array payload]!",

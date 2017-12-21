@@ -408,6 +408,9 @@ class EventMachineTest extends BasicTestCase
                     UserDescription::IDENTIFIER => $userId,
                     UserDescription::USERNAME => $username
                 ]),
+                Command::DO_NOTHING => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                ]),
             ],
             'events' => [
                 Event::USER_WAS_REGISTERED => $userDataSchema,
