@@ -46,6 +46,10 @@ final class CachableUserFunction
         return $user;
     }
 
+    public static function doNothing(UserState $user, Message $doNothing) {
+        yield null;
+    }
+
     private function __construct()
     {
         //static class only

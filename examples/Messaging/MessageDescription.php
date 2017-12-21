@@ -56,6 +56,9 @@ final class MessageDescription implements EventMachineDescription
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username
         ]));
+        $eventMachine->registerCommand(Command::DO_NOTHING, JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+        ]));
 
         $eventMachine->registerEvent(Event::USER_WAS_REGISTERED, $userDataSchema);
         $eventMachine->registerEvent(Event::USERNAME_WAS_CHANGED, JsonSchema::object([
