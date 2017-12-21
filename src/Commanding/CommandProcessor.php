@@ -176,28 +176,30 @@ final class CommandProcessor
         }
 
         $arFunc = $this->aggregateFunction;
-        $eventNameList = array_keys($this->eventRecorderMap);
 
-        $eventPayloads = $arFunc(...$arFuncArgs);
-        if(!$eventPayloads instanceof \Generator) {
+        $events = $arFunc(...$arFuncArgs);
+        if(!$events instanceof \Generator) {
             throw new \InvalidArgumentException(
                 'Expected aggregateFunction to be of type Generator. ' .
                 'Did you forget the yield keyword in your command handler?'
             );
         }
 
-        foreach ($eventPayloads as $i => $eventPayload) {
-            if(!array_key_exists($i, $eventNameList)) {
+        foreach ($events as $event) {
+            if(!array_key_exists(0, $event) || !array_key_exists(1, $event)
+                || !is_string($event[0])  || !is_array($event[1])) {
                 throw new \RuntimeException(sprintf(
-                    "eventRecorderMap of aggregate type %s and command %s contains too few events.",
+                    "Event returned by aggregate of type %s while handling command %s does not has the format [string eventName, array payload]!",
                     $this->aggregateType,
                     $this->commandName
                 ));
             }
 
+            [$eventName, $payload] = $event;
+
             /** @var GenericJsonSchemaEvent $event */
-            $event = $this->messageFactory->createMessageFromArray($eventNameList[$i], [
-                'payload' => $eventPayload,
+            $event = $this->messageFactory->createMessageFromArray($eventName, [
+                'payload' => $payload,
                 'metadata' => [
                     '_causation_id' => $command->uuid()->toString(),
                     '_causation_name' => $this->commandName
