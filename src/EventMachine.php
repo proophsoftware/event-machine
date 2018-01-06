@@ -97,6 +97,13 @@ final class EventMachine
     private $eventRouting = [];
 
     /**
+     * Map of projection names and corresponding projection descriptions
+     *
+     * @var array
+     */
+    private $projectionMap = [];
+
+    /**
      * @var ContainerInterface
      */
     private $container;
@@ -118,7 +125,7 @@ final class EventMachine
     private $jsonSchemaAssertion;
 
     /**
-     * @var MiddlewareInterface
+     * @var MessageBox
      */
     private $httpMessageBox;
 
@@ -255,6 +262,11 @@ final class EventMachine
     public function isKnownEvent(string $eventName): bool
     {
         return array_key_exists($eventName, $this->eventMap);
+    }
+
+    public function isKnownProjection(string $projectionName): bool
+    {
+        return array_key_exists($projectionName, $this->projectionMap);
     }
 
     public function initialize(ContainerInterface $container): self
