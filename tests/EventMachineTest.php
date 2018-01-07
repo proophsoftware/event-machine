@@ -10,8 +10,13 @@ use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
+use Prooph\EventMachine\Persistence\Stream;
+use Prooph\EventMachine\Projecting\AggregateProjector;
 use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\EventStore;
+use Prooph\EventStore\InMemoryEventStore;
+use Prooph\EventStore\Projection\InMemoryProjectionManager;
 use Prooph\EventStore\StreamName;
 use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
 use Prooph\EventStore\TransactionalEventStore;
@@ -19,6 +24,7 @@ use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use ProophExample\Aggregate\Aggregate;
+use ProophExample\Aggregate\CachableUserFunction;
 use ProophExample\Aggregate\CacheableUserDescription;
 use ProophExample\Aggregate\UserDescription;
 use ProophExample\Aggregate\UserState;
@@ -102,6 +108,8 @@ class EventMachineTest extends BasicTestCase
         $this->appContainer->has(EventMachine::SERVICE_ID_JSON_SCHEMA_ASSERTION)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_SNAPSHOT_STORE)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_ASYNC_EVENT_PRODUCER)->willReturn(false);
+        $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(false);
+        $this->appContainer->has(EventMachine::SERVICE_ID_DOCUMENT_STORE)->willReturn(false);
 
         $this->containerChain = new ContainerChain(
             $this->appContainer->reveal(),
@@ -426,5 +434,78 @@ class EventMachineTest extends BasicTestCase
             ],
             $this->eventMachine->messageSchemas()
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_watches_write_model_stream()
+    {
+        $documentStore = new InMemoryDocumentStore();
+
+        $aggregateProjector = new AggregateProjector($documentStore, $this->eventMachine);
+
+        $eventStore = new ActionEventEmitterEventStore(
+            new InMemoryEventStore(),
+            new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $eventStore->create(new \Prooph\EventStore\Stream(new StreamName('event_stream'), new \ArrayIterator([])));
+
+        $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(true);
+        $this->appContainer->get(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(new InMemoryProjectionManager(
+            $eventStore
+        ));
+        $this->appContainer->get(EventMachine::SERVICE_ID_EVENT_STORE)->will(function ($args) use ($eventStore) {
+            return $eventStore;
+        });
+
+        $this->appContainer->has(AggregateProjector::class)->willReturn(true);
+        $this->appContainer->get(AggregateProjector::class)->will(function ($args) use ($aggregateProjector) {
+            return $aggregateProjector;
+        });
+
+        $this->eventMachine->watch(Stream::ofWriteModel())
+            ->with(AggregateProjector::generateProjectionName(Aggregate::USER), AggregateProjector::class)
+            ->filterAggregateType(Aggregate::USER)
+            ->documentQuerySchema(JsonSchema::object([
+                'id' => ['type' => 'string'],
+                'username' => ['type' => 'string'],
+                'email' => ['type' => 'string'],
+                'failed' => ['type' => ["boolean", "null"]]
+            ]));
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Command::REGISTER_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ]]
+        );
+
+        $this->eventMachine->bootstrap()->dispatch($registerUser);
+
+        $this->eventMachine->runProjections(false);
+
+        $collection = AggregateProjector::generateCollectionName(
+            $this->eventMachine->appVersion(),
+            AggregateProjector::generateProjectionName(Aggregate::USER)
+        );
+
+        $userState = $documentStore->getDoc($collection, $userId);
+
+        $this->assertNotNull($userState);
+
+        $this->assertEquals([
+            'id' => $userId,
+            'username' => 'Alex',
+            'email' => 'contact@prooph.de',
+            'failed' => null
+        ], $userState);
     }
 }

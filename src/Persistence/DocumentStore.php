@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence;
 
+use Prooph\EventMachine\Persistence\DocumentStore\Filter\Filter;
 use Prooph\EventMachine\Persistence\DocumentStore\Index;
 
 interface DocumentStore
@@ -19,6 +20,11 @@ interface DocumentStore
      */
     public function filterCollectionsByPrefix(string $prefix): array;
 
+    /**
+     * @param string $collectionName
+     * @return bool
+     */
+    public function hasCollection(string $collectionName): bool;
 
     /**
      * @param string $collectionName
@@ -50,11 +56,11 @@ interface DocumentStore
 
     /**
      * @param string $collectionName
-     * @param array $filter
+     * @param Filter[] $filters
      * @param array $set
      * @throws \Throwable in case of connection error or other issues
      */
-    public function updateMany(string $collectionName, array $filter, array $set): void;
+    public function updateMany(string $collectionName, array $filters, array $set): void;
 
     /**
      * Same as updateDoc except that doc is added to collection if it does not exist.
@@ -75,10 +81,10 @@ interface DocumentStore
 
     /**
      * @param string $collectionName
-     * @param array $filter
+     * @param Filter[] $filters
      * @throws \Throwable in case of connection error or other issues
      */
-    public function deleteMany(string $collectionName, array $filter): void;
+    public function deleteMany(string $collectionName, array $filters): void;
 
     /**
      * @param string $collectionName
@@ -89,8 +95,8 @@ interface DocumentStore
 
     /**
      * @param string $collectionName
-     * @param array $filter
-     * @return array[] of documents
+     * @param Filter[] $filters
+     * @return \Traversable list of docs
      */
-    public function filterDocs(string $collectionName, array $filter): array;
+    public function filterDocs(string $collectionName, array $filters): \Traversable;
 }

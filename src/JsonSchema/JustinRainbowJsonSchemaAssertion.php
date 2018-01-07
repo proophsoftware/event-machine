@@ -9,7 +9,7 @@ final class JustinRainbowJsonSchemaAssertion implements JsonSchemaAssertion
 {
     private static $jsonValidator;
 
-    public function assert(string $messageName, array $data, array $jsonSchema)
+    public function assert(string $objectName, array $data, array $jsonSchema)
     {
         $enforcedObjectData = json_decode(json_encode($data));
         $jsonSchema = json_decode(json_encode($jsonSchema));
@@ -26,7 +26,7 @@ final class JustinRainbowJsonSchemaAssertion implements JsonSchemaAssertion
             }
 
             throw new \InvalidArgumentException(
-                "Payload validation of $messageName failed: " . implode("\n", $errors),
+                "Validation of $objectName failed: " . implode("\n", $errors),
                 400
             );
         }

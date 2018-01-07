@@ -70,7 +70,7 @@ final class ReflectionBasedContainerTest extends BasicTestCase
 
         //Test if config is passed correctly to message factory by checking that validation fails!
         $this->expectException(\InvalidArgumentException::class);
-        $this->expectExceptionMessage('Payload validation of RegisterUser failed: [userId] Must be at least 2 characters long');
+        $this->expectExceptionMessage('Validation of RegisterUser failed: [userId] Must be at least 2 characters long');
 
         $command = $messageFactory->createMessageFromArray(Command::REGISTER_USER, [
             'payload' => [UserDescription::IDENTIFIER => '1']

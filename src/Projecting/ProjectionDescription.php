@@ -4,10 +4,18 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Projecting;
 
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\Persistence\Stream;
 
 final class ProjectionDescription
 {
+    public const PROJECTION_NAME = 'projection_name';
+    public const SOURCE_STREAM = 'source_stream';
+    public const PROJECTOR_SERVICE_ID = 'projector_service_id';
+    public const AGGREGATE_TYPE_FILTER = 'aggregate_type_filter';
+    public const EVENTS_FILTER = 'events_filter';
+    public const DOCUMENT_SCHEMA = 'document_schema';
+
     /**
      * @var Stream
      */
@@ -34,6 +42,11 @@ final class ProjectionDescription
     private $eventsFilter;
 
     /**
+     * @var array|null
+     */
+    private $documentSchema;
+
+    /**
      * @var EventMachine
      */
     private $eventMachine;
@@ -41,6 +54,7 @@ final class ProjectionDescription
     public function __construct(Stream $stream, EventMachine $eventMachine)
     {
         $this->sourceStream = $stream;
+        $this->eventMachine = $eventMachine;
     }
 
     public function with(string $projectionName, string $projectorServiceId): self
@@ -59,6 +73,8 @@ final class ProjectionDescription
 
         $this->projectionName = $projectionName;
         $this->projectorServiceId = $projectorServiceId;
+
+        $this->eventMachine->registerProjection($projectionName, $this);
 
         return $this;
     }
@@ -91,16 +107,26 @@ final class ProjectionDescription
         return $this;
     }
 
+    public function documentQuerySchema(array $schema): self
+    {
+        $this->eventMachine->jsonSchemaAssertion()->assert($this->projectionName . ' Document Schema', $schema, JsonSchema::metaSchema());
+
+        $this->documentSchema = $schema;
+
+        return $this;
+    }
+
     public function __invoke()
     {
-        $this->assertWithProjectionIsCalled('EventMachine::bootstrap');
+        $this->assertWithProjectionIsCalled('EventMachine::initialize');
 
         return [
-            'projection_name' => $this->projectionName,
-            'projector_service_id' => $this->projectorServiceId,
-            'source_stream' => $this->sourceStream->toArray(),
-            'aggregate_type_filter' => $this->aggregateTypeFilter,
-            'events_filter' => $this->eventsFilter,
+            self::PROJECTION_NAME=> $this->projectionName,
+            self::PROJECTOR_SERVICE_ID => $this->projectorServiceId,
+            self::SOURCE_STREAM => $this->sourceStream->toArray(),
+            self::AGGREGATE_TYPE_FILTER => $this->aggregateTypeFilter,
+            self::EVENTS_FILTER => $this->eventsFilter,
+            self::DOCUMENT_SCHEMA => $this->documentSchema,
         ];
     }
 

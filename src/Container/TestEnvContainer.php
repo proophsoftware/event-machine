@@ -5,8 +5,10 @@ namespace Prooph\EventMachine\Container;
 
 use Prooph\Common\Event\ProophActionEventEmitter;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
 use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\InMemoryEventStore;
+use Prooph\EventStore\Projection\InMemoryProjectionManager;
 use Prooph\EventStore\Stream;
 use Prooph\EventStore\StreamName;
 use Prooph\ServiceBus\CommandBus;
@@ -26,6 +28,10 @@ final class TestEnvContainer implements ContainerInterface
     private $snapshotStore;
 
     private $eventStore;
+
+    private $projectionManager;
+
+    private $documentStore;
 
     /**
      * @var array
@@ -69,6 +75,16 @@ final class TestEnvContainer implements ContainerInterface
                 return $this->eventBus;
             case EventMachine::SERVICE_ID_SNAPSHOT_STORE:
                 return $this->getSnapshotStore();
+            case EventMachine::SERVICE_ID_PROJECTION_MANAGER:
+                if(null === $this->projectionManager) {
+                    $this->projectionManager = new InMemoryProjectionManager($this->get(EventMachine::SERVICE_ID_EVENT_STORE));
+                }
+                return $this->projectionManager;
+            case EventMachine::SERVICE_ID_DOCUMENT_STORE:
+                if(null === $this->documentStore) {
+                    $this->documentStore = new InMemoryDocumentStore();
+                }
+                return $this->documentStore;
             default:
                 if(!array_key_exists($id, $this->services)) {
                     throw ServiceNotFound::withServiceId($id);
@@ -96,6 +112,8 @@ final class TestEnvContainer implements ContainerInterface
             case EventMachine::SERVICE_ID_EVENT_STORE:
             case EventMachine::SERVICE_ID_COMMAND_BUS:
             case EventMachine::SERVICE_ID_EVENT_BUS:
+            case EventMachine::SERVICE_ID_PROJECTION_MANAGER:
+            case EventMachine::SERVICE_ID_DOCUMENT_STORE:
                 return true;
             default:
                 return array_key_exists($id, $this->services);
