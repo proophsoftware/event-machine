@@ -17,7 +17,7 @@ use Prooph\EventMachine\Persistence\DocumentStore;
  * $eventMachine->watch(Stream::ofWriteModel())
  *  ->with(AggregateProjector::generateProjectionName('My.AR'), AggregateProjector::class)
  *  ->filterAggregateType('My.AR')
- *  ->storeDocuments(JsonSchema::object(...))
+ *  ->documentQuerySchema(JsonSchema::object(...))
  * </code>
 */
 final class AggregateProjector implements Projector
