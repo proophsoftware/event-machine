@@ -5,5 +5,5 @@ namespace Prooph\EventMachine\JsonSchema;
 
 interface JsonSchemaAssertion
 {
-    public function assert(string $messageName, array $data, array $jsonSchema);
+    public function assert(string $objectName, array $data, array $jsonSchema);
 }

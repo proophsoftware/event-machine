@@ -20,6 +20,10 @@ use Prooph\EventMachine\Http\MessageBox;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
+use Prooph\EventMachine\Persistence\Stream;
+use Prooph\EventMachine\Projecting\ProjectionDescription;
+use Prooph\EventMachine\Projecting\ProjectionRunner;
+use Prooph\EventMachine\Projecting\Projector;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\ActionEventEmitterEventStore;
@@ -44,10 +48,11 @@ final class EventMachine
     const SERVICE_ID_COMMAND_BUS = 'EventMachine.CommandBus';
     const SERVICE_ID_EVENT_BUS = 'EventMachine.EventBus';
     const SERVICE_ID_QUERY_BUS = 'EventMachine.QueryBus';
+    const SERVICE_ID_PROJECTION_MANAGER = 'EventMachine.ProjectionManager';
+    const SERVICE_ID_DOCUMENT_STORE = 'EventMachine.DocumentStore';
     const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
     const SERVICE_ID_MESSAGE_FACTORY = 'EventMachine.MessageFactory';
     const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
-    const SERVICE_ID_HTTP_MESSAGE_BOX_RESPONSE_STRATEGY = 'EventMachine.HttpMessageBox.ResponseStrategy';
 
     /**
      * Map of command names and corresponding json schema of payload
@@ -97,6 +102,18 @@ final class EventMachine
     private $eventRouting = [];
 
     /**
+     * Map of projection names and corresponding projection descriptions
+     *
+     * @var ProjectionDescription[] indexed by projection name
+     */
+    private $projectionMap = [];
+
+    /**
+     * @var array
+     */
+    private $compiledProjectionDescriptions = [];
+
+    /**
      * @var ContainerInterface
      */
     private $container;
@@ -106,6 +123,8 @@ final class EventMachine
     private $bootstrapped = false;
 
     private $testMode = false;
+
+    private $appVersion = '';
 
     /**
      * @var MessageFactory
@@ -118,11 +137,13 @@ final class EventMachine
     private $jsonSchemaAssertion;
 
     /**
-     * @var MiddlewareInterface
+     * @var MessageBox
      */
     private $httpMessageBox;
 
     private $testSessionEvents = [];
+
+    private $projectionRunner;
 
     public static function fromCachedConfig(array $config, ContainerInterface $container): self
     {
@@ -148,6 +169,8 @@ final class EventMachine
         $self->eventMap = $config['eventMap'];
         $self->compiledCommandRouting = $config['compiledCommandRouting'];
         $self->aggregateDescriptions = $config['aggregateDescriptions'];
+        $self->compiledProjectionDescriptions = $config['compiledProjectionDescriptions'];
+        $self->appVersion = $config['appVersion'];
 
         $self->initialized = true;
 
@@ -193,6 +216,11 @@ final class EventMachine
         $this->eventMap[$eventName] = $schemaOrPath;
 
         return $this;
+    }
+
+    public function registerProjection(string $projectionName, ProjectionDescription $projectionDescription): void
+    {
+        $this->projectionMap[$projectionName] = $projectionDescription;
     }
 
     public function preProcess(string $commandName, $preProcessor): self
@@ -247,6 +275,12 @@ final class EventMachine
         return $this;
     }
 
+    public function watch(Stream $stream): ProjectionDescription
+    {
+        //ProjectionDescriptions register itself using EventMachine::registerProjection within ProjectionDescription::with call
+        return new ProjectionDescription($stream, $this);
+    }
+
     public function isKnownCommand(string $commandName): bool
     {
         return array_key_exists($commandName, $this->commandMap);
@@ -257,11 +291,22 @@ final class EventMachine
         return array_key_exists($eventName, $this->eventMap);
     }
 
-    public function initialize(ContainerInterface $container): self
+    public function isKnownProjection(string $projectionName): bool
+    {
+        return array_key_exists($projectionName, $this->projectionMap);
+    }
+
+    public function isTestMode(): bool
+    {
+        return $this->testMode;
+    }
+
+    public function initialize(ContainerInterface $container, string $appVersion = '0.1.0'): self
     {
         $this->assertNotInitialized(__METHOD__);
 
         $this->determineAggregateAndRoutingDescriptions();
+        $this->compileProjectionDescriptions();
 
         $this->initialized = true;
 
@@ -360,6 +405,31 @@ final class EventMachine
         return $aggregate->currentState();
     }
 
+    public function runProjections(bool $keepRunning = true, array $projectionOptions = null): void
+    {
+        $this->assertBootstrapped(__METHOD__);
+
+        if(null === $this->projectionRunner) {
+            $this->projectionRunner = new ProjectionRunner(
+                $this->container->get(self::SERVICE_ID_PROJECTION_MANAGER),
+                $this->compiledProjectionDescriptions,
+                $this
+            );
+        }
+
+        $this->projectionRunner->run($keepRunning, $projectionOptions);
+    }
+
+    public function appVersion(): string
+    {
+        return $this->appVersion;
+    }
+
+    public function loadProjector(string $projectorServiceId): Projector
+    {
+        return $this->container->get($projectorServiceId);
+    }
+
     public function compileCacheableConfig(): array
     {
         $this->assertInitialized(__METHOD__);
@@ -373,6 +443,7 @@ final class EventMachine
         array_walk_recursive($this->compiledCommandRouting, $assertClosure);
         array_walk_recursive($this->aggregateDescriptions, $assertClosure);
         array_walk_recursive($this->eventRouting, $assertClosure);
+        array_walk_recursive($this->projectionMap, $assertClosure);
 
         return [
             'commandMap' => $this->commandMap,
@@ -380,6 +451,8 @@ final class EventMachine
             'compiledCommandRouting' => $this->compiledCommandRouting,
             'aggregateDescriptions' => $this->aggregateDescriptions,
             'eventRouting' => $this->eventRouting,
+            'compiledProjectionDescriptions' => $this->compiledProjectionDescriptions,
+            'appVersion' => $this->appVersion,
         ];
     }
 
@@ -511,6 +584,13 @@ final class EventMachine
         }
 
         $this->aggregateDescriptions = $aggregateDescriptions;
+    }
+
+    private function compileProjectionDescriptions(): void
+    {
+        foreach ($this->projectionMap as $prjName => $projectionDesc) {
+            $this->compiledProjectionDescriptions[$prjName] = $projectionDesc();
+        }
     }
 
     private function attachRouterToCommandBus(): void
