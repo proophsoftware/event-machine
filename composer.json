@@ -29,11 +29,11 @@
     "fig/http-message-util": "^1.1",
     "zendframework/zend-diactoros": "^1.3",
     "justinrainbow/json-schema": "^5.2",
-    "http-interop/http-middleware": "^0.5"
+    "http-interop/http-middleware": "^0.5",
+    "codeliner/array-reader": "^1.2"
   },
   "require-dev": {
-    "phpunit/phpunit": "^6.0",
-    "codeliner/array-reader": "^1.2"
+    "phpunit/phpunit": "^6.0"
   },
   "autoload": {
     "psr-4": {
