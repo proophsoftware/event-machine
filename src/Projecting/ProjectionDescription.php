@@ -14,7 +14,6 @@ final class ProjectionDescription
     public const PROJECTOR_SERVICE_ID = 'projector_service_id';
     public const AGGREGATE_TYPE_FILTER = 'aggregate_type_filter';
     public const EVENTS_FILTER = 'events_filter';
-    public const DOCUMENT_SCHEMA = 'document_schema';
 
     /**
      * @var Stream
@@ -107,11 +106,9 @@ final class ProjectionDescription
         return $this;
     }
 
-    public function documentQuerySchema(array $schema): self
+    public function storeDocumentsOfType(string $typeName, array $schema): self
     {
-        $this->eventMachine->jsonSchemaAssertion()->assert($this->projectionName . ' Document Schema', $schema, JsonSchema::metaSchema());
-
-        $this->documentSchema = $schema;
+        $this->eventMachine->registerType($typeName, $schema);
 
         return $this;
     }
@@ -126,7 +123,6 @@ final class ProjectionDescription
             self::SOURCE_STREAM => $this->sourceStream->toArray(),
             self::AGGREGATE_TYPE_FILTER => $this->aggregateTypeFilter,
             self::EVENTS_FILTER => $this->eventsFilter,
-            self::DOCUMENT_SCHEMA => $this->documentSchema,
         ];
     }
 
