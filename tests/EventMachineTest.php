@@ -468,7 +468,7 @@ class EventMachineTest extends BasicTestCase
         $this->eventMachine->watch(Stream::ofWriteModel())
             ->with(AggregateProjector::generateProjectionName(Aggregate::USER), AggregateProjector::class)
             ->filterAggregateType(Aggregate::USER)
-            ->documentQuerySchema(JsonSchema::object([
+            ->storeDocumentsOfType('User', JsonSchema::object([
                 'id' => ['type' => 'string'],
                 'username' => ['type' => 'string'],
                 'email' => ['type' => 'string'],
