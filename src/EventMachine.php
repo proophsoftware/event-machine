@@ -506,15 +506,13 @@ final class EventMachine
     public function jsonSchemaAssertion(): JsonSchemaAssertion
     {
         if(null === $this->jsonSchemaAssertion) {
-            $schemaTypes = $this->schemaTypes;
-
-            $this->jsonSchemaAssertion = new class($schemaTypes) implements JsonSchemaAssertion {
+            $this->jsonSchemaAssertion = new class($this->schemaTypes) implements JsonSchemaAssertion {
                 private $jsonSchemaAssertion;
                 private $types;
-                public function __construct(array $types)
+                public function __construct(array &$types)
                 {
                     $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
-                    $this->types = $types;
+                    $this->types = &$types;
                 }
 
                 public function assert(string $objectName, array $data, array $jsonSchema)
@@ -524,13 +522,6 @@ final class EventMachine
                     $this->jsonSchemaAssertion->assert($objectName, $data, $jsonSchema);
                 }
             };
-        }
-
-        if(!$this->initialized) {
-            //Maybe not all types are registered yet, so we reset internal cache as long as we are in init phase
-            $assertion = $this->jsonSchemaAssertion;
-            $this->jsonSchemaAssertion = null;
-            return $assertion;
         }
 
         return $this->jsonSchemaAssertion;
