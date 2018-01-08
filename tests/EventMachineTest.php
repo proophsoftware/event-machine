@@ -508,4 +508,36 @@ class EventMachineTest extends BasicTestCase
             'failed' => null
         ], $userState);
     }
+
+    /**
+     * @test
+     */
+    public function it_passes_registered_types_to_json_schema_assertion()
+    {
+        $this->eventMachine->registerType('User', JsonSchema::object([
+            'id' => JsonSchema::string(['minLength' => 3]),
+            'email' => JsonSchema::string(['format' => 'email'])
+        ], [], true));
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $this->eventMachine->bootstrap();
+
+        $visitorSchema = JsonSchema::object(['role' => JsonSchema::enum(['guest'])], [], true);
+
+        $identifiedVisitorSchema = ['allOf' => [
+            JsonSchema::typeRef('User'),
+            $visitorSchema
+        ]];
+
+        $guest = ['id' => '123', 'role' => 'guest'];
+
+        $this->eventMachine->jsonSchemaAssertion()->assert('Guest', $guest, $visitorSchema);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Validation of IdentifiedVisitor failed: \[email\] The property email is required/');
+
+        $this->eventMachine->jsonSchemaAssertion()->assert('IdentifiedVisitor', $guest, $identifiedVisitorSchema);
+
+    }
 }

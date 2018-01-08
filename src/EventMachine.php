@@ -17,6 +17,7 @@ use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\TestEnvContainer;
 use Prooph\EventMachine\Http\MessageBox;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
@@ -109,6 +110,11 @@ final class EventMachine
     private $projectionMap = [];
 
     /**
+     * @var array list of type definitions indexed by type name
+     */
+    private $schemaTypes = [];
+
+    /**
      * @var array
      */
     private $compiledProjectionDescriptions = [];
@@ -170,6 +176,7 @@ final class EventMachine
         $self->compiledCommandRouting = $config['compiledCommandRouting'];
         $self->aggregateDescriptions = $config['aggregateDescriptions'];
         $self->compiledProjectionDescriptions = $config['compiledProjectionDescriptions'];
+        $self->schemaTypes = $config['schemaTypes'];
         $self->appVersion = $config['appVersion'];
 
         $self->initialized = true;
@@ -220,7 +227,26 @@ final class EventMachine
 
     public function registerProjection(string $projectionName, ProjectionDescription $projectionDescription): void
     {
+        $this->assertNotInitialized(__METHOD__);
+
+        if($this->isKnownProjection($projectionName)) {
+            throw new \RuntimeException("Projection with name $projectionName is already registered.");
+        }
         $this->projectionMap[$projectionName] = $projectionDescription;
+    }
+
+    public function registerType(string $name, array $schema): void
+    {
+        $this->assertNotInitialized(__METHOD__);
+
+        if($this->isKnownType($name)) {
+            throw new \RuntimeException("Type $name is already registered");
+        }
+
+        //@TODO: assert that type can be converted to GraphQL type language
+        $this->jsonSchemaAssertion()->assert("Type $name", $schema, JsonSchema::metaSchema());
+
+        $this->schemaTypes[$name] = $schema;
     }
 
     public function preProcess(string $commandName, $preProcessor): self
@@ -294,6 +320,11 @@ final class EventMachine
     public function isKnownProjection(string $projectionName): bool
     {
         return array_key_exists($projectionName, $this->projectionMap);
+    }
+
+    public function isKnownType(string $typeName): bool
+    {
+        return array_key_exists($typeName, $this->schemaTypes);
     }
 
     public function isTestMode(): bool
@@ -452,6 +483,7 @@ final class EventMachine
             'aggregateDescriptions' => $this->aggregateDescriptions,
             'eventRouting' => $this->eventRouting,
             'compiledProjectionDescriptions' => $this->compiledProjectionDescriptions,
+            'schemaTypes' => $this->schemaTypes,
             'appVersion' => $this->appVersion,
         ];
     }
@@ -474,7 +506,22 @@ final class EventMachine
     public function jsonSchemaAssertion(): JsonSchemaAssertion
     {
         if(null === $this->jsonSchemaAssertion) {
-            $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
+            $this->jsonSchemaAssertion = new class($this->schemaTypes) implements JsonSchemaAssertion {
+                private $jsonSchemaAssertion;
+                private $types;
+                public function __construct(array &$types)
+                {
+                    $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
+                    $this->types = &$types;
+                }
+
+                public function assert(string $objectName, array $data, array $jsonSchema)
+                {
+                    $jsonSchema['definitions'] = array_merge($jsonSchema['definitions'] ?? [], $this->types);
+
+                    $this->jsonSchemaAssertion->assert($objectName, $data, $jsonSchema);
+                }
+            };
         }
 
         return $this->jsonSchemaAssertion;
