@@ -16,6 +16,81 @@ final class JsonSchema
         ];
     }
 
+    public static function array(array $itemSchema, array $validation = null): array
+    {
+        $schema = [
+            'type' => 'array',
+            'items' => $itemSchema,
+        ];
+
+        if($validation) {
+            $schema = array_merge($schema, $validation);
+        }
+
+        return $schema;
+    }
+
+    public static function string(array $validation = null): array
+    {
+        $schema = ['type' => 'string'];
+
+        if($validation) {
+            $schema = array_merge($schema, $validation);
+        }
+
+        return $schema;
+    }
+
+    public static function integer(array $validation = null): array
+    {
+        $schema = ['type' => 'integer'];
+
+        if($validation) {
+            $schema = array_merge($schema, $validation);
+        }
+
+        return $schema;
+    }
+
+    public static function float(array $validation = null): array
+    {
+        $schema = ['type' => 'float'];
+
+        if($validation) {
+            $schema = array_merge($schema, $validation);
+        }
+
+        return $schema;
+    }
+
+    public static function boolean(): array
+    {
+        return ['type' => 'boolean'];
+    }
+
+    public static function enum(array $entries): array
+    {
+        return ['enum' => $entries];
+    }
+
+    public static function nullOr(array $schema): array
+    {
+        if(!is_string($schema['type'])) {
+            throw new \InvalidArgumentException("Schema should have type defined as string. Got " . json_encode($schema));
+        }
+
+        $schema['type'] = [$schema['type'], 'null'];
+
+        return $schema;
+    }
+
+    public static function typeRef(string $typeName): array
+    {
+        return [
+            '$ref' => '#/definitions/'.$typeName,
+        ];
+    }
+
     public static function metaSchema(): array
     {
         static $schema = [
