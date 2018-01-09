@@ -3,7 +3,6 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachine;
 
-use Interop\Http\ServerMiddleware\MiddlewareInterface;
 use Prooph\Common\Event\ActionEvent;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -25,6 +24,7 @@ use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
 use Prooph\EventMachine\Projecting\ProjectionRunner;
 use Prooph\EventMachine\Projecting\Projector;
+use Prooph\EventMachine\Querying\QueryDescription;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\ActionEventEmitterEventStore;
@@ -32,15 +32,11 @@ use Prooph\EventStore\StreamName;
 use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
 use Prooph\EventStoreBusBridge\EventPublisher;
 use Prooph\EventStoreBusBridge\TransactionManager;
-use Prooph\Psr7Middleware\MessageMiddleware;
-use Prooph\Psr7Middleware\Response\ResponseStrategy;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\Plugin\Router\AsyncSwitchMessageRouter;
 use Prooph\ServiceBus\Plugin\Router\EventRouter;
 use Prooph\ServiceBus\Plugin\ServiceLocatorPlugin;
-use Prooph\ServiceBus\QueryBus;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ResponseInterface;
 
 final class EventMachine
 {
@@ -48,7 +44,6 @@ final class EventMachine
     const SERVICE_ID_SNAPSHOT_STORE = 'EventMachine.SnapshotStore';
     const SERVICE_ID_COMMAND_BUS = 'EventMachine.CommandBus';
     const SERVICE_ID_EVENT_BUS = 'EventMachine.EventBus';
-    const SERVICE_ID_QUERY_BUS = 'EventMachine.QueryBus';
     const SERVICE_ID_PROJECTION_MANAGER = 'EventMachine.ProjectionManager';
     const SERVICE_ID_DOCUMENT_STORE = 'EventMachine.DocumentStore';
     const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
@@ -108,6 +103,21 @@ final class EventMachine
      * @var ProjectionDescription[] indexed by projection name
      */
     private $projectionMap = [];
+
+    /**
+     * @var QueryDescription[] list of QueryDescription indexed by query name
+     */
+    private $queryDescriptions = [];
+
+    /**
+     * @var array list of compiled query descriptions indexed by query name
+     */
+    private $compiledQueryDescriptions = [];
+
+    /**
+     * @var array list of query names and corresponding payload schemas
+     */
+    private $queryMap = [];
 
     /**
      * @var array list of type definitions indexed by type name
@@ -178,6 +188,8 @@ final class EventMachine
         $self->compiledProjectionDescriptions = $config['compiledProjectionDescriptions'];
         $self->schemaTypes = $config['schemaTypes'];
         $self->appVersion = $config['appVersion'];
+        $self->compiledQueryDescriptions = $config['compiledQueryDescriptions'];
+        $self->queryMap = $config['queryMap'];
 
         $self->initialized = true;
 
@@ -223,6 +235,21 @@ final class EventMachine
         $this->eventMap[$eventName] = $schemaOrPath;
 
         return $this;
+    }
+
+    public function registerQuery(string $queryName, array $payloadSchema): QueryDescription
+    {
+        $this->jsonSchemaAssertion()->assert("Query $queryName payload schema", $payloadSchema, JsonSchema::metaSchema());
+
+        if($this->isKnownQuery($queryName)) {
+            throw new \RuntimeException("Query $queryName was already registered");
+        }
+
+        $this->queryMap[$queryName] = $payloadSchema;
+        $queryDesc = new QueryDescription($queryName, $this);
+        $this->queryDescriptions[$queryName] = $queryDesc;
+
+        return $queryDesc;
     }
 
     public function registerProjection(string $projectionName, ProjectionDescription $projectionDescription): void
@@ -317,6 +344,11 @@ final class EventMachine
         return array_key_exists($eventName, $this->eventMap);
     }
 
+    public function isKnownQuery(string $queryName): bool
+    {
+        return array_key_exists($queryName, $this->queryMap);
+    }
+
     public function isKnownProjection(string $projectionName): bool
     {
         return array_key_exists($projectionName, $this->projectionMap);
@@ -338,6 +370,7 @@ final class EventMachine
 
         $this->determineAggregateAndRoutingDescriptions();
         $this->compileProjectionDescriptions();
+        $this->compileQueryDescriptions();
 
         $this->initialized = true;
 
@@ -475,6 +508,7 @@ final class EventMachine
         array_walk_recursive($this->aggregateDescriptions, $assertClosure);
         array_walk_recursive($this->eventRouting, $assertClosure);
         array_walk_recursive($this->projectionMap, $assertClosure);
+        array_walk_recursive($this->compiledQueryDescriptions, $assertClosure);
 
         return [
             'commandMap' => $this->commandMap,
@@ -483,6 +517,8 @@ final class EventMachine
             'aggregateDescriptions' => $this->aggregateDescriptions,
             'eventRouting' => $this->eventRouting,
             'compiledProjectionDescriptions' => $this->compiledProjectionDescriptions,
+            'compiledQueryDescriptions' => $this->compiledQueryDescriptions,
+            'queryMap' => $this->queryMap,
             'schemaTypes' => $this->schemaTypes,
             'appVersion' => $this->appVersion,
         ];
@@ -637,6 +673,13 @@ final class EventMachine
     {
         foreach ($this->projectionMap as $prjName => $projectionDesc) {
             $this->compiledProjectionDescriptions[$prjName] = $projectionDesc();
+        }
+    }
+
+    private function compileQueryDescriptions(): void
+    {
+        foreach ($this->queryDescriptions as $name => $description) {
+            $this->compiledQueryDescriptions[$name] = $description();
         }
     }
 
