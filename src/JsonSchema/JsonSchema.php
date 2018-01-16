@@ -6,6 +6,17 @@ namespace Prooph\EventMachine\JsonSchema;
 
 final class JsonSchema
 {
+    public const DEFINITIONS = 'definitions';
+
+    public const TYPE_STRING = 'string';
+    public const TYPE_INT = 'integer';
+    public const TYPE_FLOAT = 'number';
+    public const TYPE_BOOL = 'boolean';
+    public const TYPE_ARRAY = 'array';
+    public const TYPE_OBJECT = 'object';
+
+    public const KEYWORD_ENUM = 'enum';
+
     public static function object(array $requiredProps, array $optionalProps = [], $additionalProperties = false): array
     {
         return [
@@ -54,7 +65,7 @@ final class JsonSchema
 
     public static function float(array $validation = null): array
     {
-        $schema = ['type' => 'float'];
+        $schema = ['type' => 'number'];
 
         if($validation) {
             $schema = array_merge($schema, $validation);
@@ -79,7 +90,16 @@ final class JsonSchema
             throw new \InvalidArgumentException("Schema should have type defined as string. Got " . json_encode($schema));
         }
 
-        $schema['type'] = [$schema['type'], 'null'];
+        $schema['type'] = [$schema['type'], null];
+
+        return $schema;
+    }
+
+    public static function implementTypes(array $schema, string ...$types): array
+    {
+        $schema['allOf'] = array_map(function (string $type): array {
+            return JsonSchema::typeRef($type);
+        }, $types);
 
         return $schema;
     }
@@ -87,8 +107,55 @@ final class JsonSchema
     public static function typeRef(string $typeName): array
     {
         return [
-            '$ref' => '#/definitions/'.$typeName,
+            '$ref' => '#/'.self::DEFINITIONS.'/'.$typeName,
         ];
+    }
+
+    public static function isArrayType(array $typeSchema): bool
+    {
+        return self::isType('array', $typeSchema);
+    }
+
+    public static function isObjectType(array $typeSchema): bool
+    {
+        return self::isType('object', $typeSchema);
+    }
+
+    public static function isStringEnum(array $typeSchema): bool
+    {
+        if(!array_key_exists(self::KEYWORD_ENUM, $typeSchema)) {
+            return false;
+        }
+
+        foreach ($typeSchema[self::KEYWORD_ENUM] as $val) {
+            if(!is_string($val)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    public static function isType(string $type, array $typeSchema): bool
+    {
+        if(array_key_exists('type', $typeSchema)) {
+            if(is_array($typeSchema['type'])) {
+                foreach ($typeSchema['type'] as $possibleType) {
+                    if($possibleType === $type) {
+                        return true;
+                    }
+                }
+            } else if (is_string($typeSchema['type'])) {
+                return $typeSchema['type'] === $type;
+            }
+        }
+
+        return false;
+    }
+
+    public static function extractTypeFromRef(string $ref): string
+    {
+        return str_replace('#/' . JsonSchema::DEFINITIONS . '/', '', $ref);
     }
 
     public static function metaSchema(): array

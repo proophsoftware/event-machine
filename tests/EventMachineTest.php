@@ -430,6 +430,8 @@ class EventMachineTest extends BasicTestCase
                 Event::USER_REGISTRATION_FAILED => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
                 ])
+            ],
+            'queries' => [
             ]
             ],
             $this->eventMachine->messageSchemas()

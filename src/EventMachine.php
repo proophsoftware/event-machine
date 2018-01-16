@@ -125,6 +125,11 @@ final class EventMachine
     private $schemaTypes = [];
 
     /**
+     * @var array List of input type definitions indexed by type name
+     */
+    private $schemaInputTypes = [];
+
+    /**
      * @var array
      */
     private $compiledProjectionDescriptions = [];
@@ -185,11 +190,13 @@ final class EventMachine
         $self->eventMap = $config['eventMap'];
         $self->compiledCommandRouting = $config['compiledCommandRouting'];
         $self->aggregateDescriptions = $config['aggregateDescriptions'];
+        $self->eventRouting = $config['eventRouting'];
         $self->compiledProjectionDescriptions = $config['compiledProjectionDescriptions'];
-        $self->schemaTypes = $config['schemaTypes'];
-        $self->appVersion = $config['appVersion'];
         $self->compiledQueryDescriptions = $config['compiledQueryDescriptions'];
         $self->queryMap = $config['queryMap'];
+        $self->schemaTypes = $config['schemaTypes'];
+        $self->schemaInputTypes = $config['schemaInputTypes'];
+        $self->appVersion = $config['appVersion'];
 
         $self->initialized = true;
 
@@ -237,9 +244,11 @@ final class EventMachine
         return $this;
     }
 
-    public function registerQuery(string $queryName, array $payloadSchema): QueryDescription
+    public function registerQuery(string $queryName, array $payloadSchema = null): QueryDescription
     {
-        $this->jsonSchemaAssertion()->assert("Query $queryName payload schema", $payloadSchema, JsonSchema::metaSchema());
+        if($payloadSchema) {
+            $this->jsonSchemaAssertion()->assert("Query $queryName payload schema", $payloadSchema, JsonSchema::metaSchema());
+        }
 
         if($this->isKnownQuery($queryName)) {
             throw new \RuntimeException("Query $queryName was already registered");
@@ -270,10 +279,20 @@ final class EventMachine
             throw new \RuntimeException("Type $name is already registered");
         }
 
-        //@TODO: assert that type can be converted to GraphQL type language
         $this->jsonSchemaAssertion()->assert("Type $name", $schema, JsonSchema::metaSchema());
 
         $this->schemaTypes[$name] = $schema;
+    }
+
+    public function registerInputType(string $name, array $schema): void
+    {
+        $this->assertNotInitialized(__METHOD__);
+
+        if($this->isKnownType($name)) {
+            throw new \RuntimeException("Input type $name is already registered. If you have a return type with the same name then add a Input suffix.");
+        }
+
+        $this->jsonSchemaAssertion()->assert("Input type $name", $schema, JsonSchema::metaSchema());
     }
 
     public function preProcess(string $commandName, $preProcessor): self
@@ -356,7 +375,7 @@ final class EventMachine
 
     public function isKnownType(string $typeName): bool
     {
-        return array_key_exists($typeName, $this->schemaTypes);
+        return array_key_exists($typeName, $this->schemaTypes) || array_key_exists($typeName, $this->schemaInputTypes);
     }
 
     public function isTestMode(): bool
@@ -520,6 +539,7 @@ final class EventMachine
             'compiledQueryDescriptions' => $this->compiledQueryDescriptions,
             'queryMap' => $this->queryMap,
             'schemaTypes' => $this->schemaTypes,
+            'schemaInputTypes' => $this->schemaInputTypes,
             'appVersion' => $this->appVersion,
         ];
     }
@@ -542,18 +562,20 @@ final class EventMachine
     public function jsonSchemaAssertion(): JsonSchemaAssertion
     {
         if(null === $this->jsonSchemaAssertion) {
-            $this->jsonSchemaAssertion = new class($this->schemaTypes) implements JsonSchemaAssertion {
+            $this->jsonSchemaAssertion = new class($this->schemaTypes, $this->schemaInputTypes) implements JsonSchemaAssertion {
                 private $jsonSchemaAssertion;
-                private $types;
-                public function __construct(array &$types)
+                private $schemaTypes;
+                private $schemaInputTypes;
+                public function __construct(array &$schemaTypes, array &$schemaInputTypes)
                 {
                     $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
-                    $this->types = &$types;
+                    $this->schemaTypes = &$schemaTypes;
+                    $this->schemaInputTypes = &$schemaInputTypes;
                 }
 
                 public function assert(string $objectName, array $data, array $jsonSchema)
                 {
-                    $jsonSchema['definitions'] = array_merge($jsonSchema['definitions'] ?? [], $this->types);
+                    $jsonSchema['definitions'] = array_merge($jsonSchema['definitions'] ?? [], $this->schemaTypes, $this->schemaInputTypes);
 
                     $this->jsonSchemaAssertion->assert($objectName, $data, $jsonSchema);
                 }
@@ -580,7 +602,8 @@ final class EventMachine
 
         return [
             'commands' => $this->commandMap,
-            'events' => $this->eventMap
+            'events' => $this->eventMap,
+            'queries' => $this->queryMap,
         ];
     }
 
