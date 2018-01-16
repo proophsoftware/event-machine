@@ -245,7 +245,7 @@ final class TypeLanguage
                 }
 
                 foreach ($schemaType['type'] as $t) {
-                    if($t === null) {
+                    if($t === "null") {
                         $nullable = true;
                         continue;
                     }

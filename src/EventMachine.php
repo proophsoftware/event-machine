@@ -3,6 +3,9 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachine;
 
+use GraphQL\Language\Parser;
+use GraphQL\Utils\AST;
+use GraphQL\Utils\BuildSchema;
 use Prooph\Common\Event\ActionEvent;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -15,6 +18,13 @@ use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\TestEnvContainer;
+use Prooph\EventMachine\GraphQL\ArraySourceFieldResolver;
+use Prooph\EventMachine\GraphQL\FieldResolverChain;
+use Prooph\EventMachine\GraphQL\FieldResolverProxy;
+use Prooph\EventMachine\GraphQL\MessageFieldResolver;
+use Prooph\EventMachine\GraphQL\Server;
+use Prooph\EventMachine\GraphQL\TypeConfigDecoratorProxy;
+use Prooph\EventMachine\GraphQL\TypeLanguage;
 use Prooph\EventMachine\Http\MessageBox;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
@@ -43,6 +53,10 @@ use React\Promise\Promise;
 
 final class EventMachine
 {
+    const ENV_PROD = 'prod';
+    const ENV_DEV = 'dev';
+    const ENV_TEST = 'test';
+
     const SERVICE_ID_EVENT_STORE = 'EventMachine.EventStore';
     const SERVICE_ID_SNAPSHOT_STORE = 'EventMachine.SnapshotStore';
     const SERVICE_ID_COMMAND_BUS = 'EventMachine.CommandBus';
@@ -53,6 +67,8 @@ final class EventMachine
     const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
     const SERVICE_ID_MESSAGE_FACTORY = 'EventMachine.MessageFactory';
     const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
+    const SERVICE_ID_GRAPHQL_FIELD_RESOLVER = 'EventMachine.GraphQLFieldResolver';
+    const SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR = 'EventMachine.TypeConfigDecorator';
 
     /**
      * Map of command names and corresponding json schema of payload
@@ -138,6 +154,8 @@ final class EventMachine
      */
     private $compiledProjectionDescriptions = [];
 
+    private $graphQlSchemaDocument;
+
     /**
      * @var ContainerInterface
      */
@@ -146,6 +164,10 @@ final class EventMachine
     private $initialized = false;
 
     private $bootstrapped = false;
+
+    private $debugMode = false;
+
+    private $env = self::ENV_PROD;
 
     private $testMode = false;
 
@@ -165,6 +187,11 @@ final class EventMachine
      * @var MessageBox
      */
     private $httpMessageBox;
+
+    /**
+     * @var Server
+     */
+    private $graphqlServer;
 
     private $testSessionEvents = [];
 
@@ -201,6 +228,7 @@ final class EventMachine
         $self->schemaTypes = $config['schemaTypes'];
         $self->schemaInputTypes = $config['schemaInputTypes'];
         $self->appVersion = $config['appVersion'];
+        $self->graphQlSchemaDocument = AST::fromArray($config['graphQlSchemaDocument']);
 
         $self->initialized = true;
 
@@ -394,6 +422,7 @@ final class EventMachine
         $this->determineAggregateAndRoutingDescriptions();
         $this->compileProjectionDescriptions();
         $this->compileQueryDescriptions();
+        $this->compileGraphQlSchema();
 
         $this->initialized = true;
 
@@ -402,8 +431,12 @@ final class EventMachine
         return $this;
     }
 
-    public function bootstrap(): self
+    public function bootstrap(string $env = self::ENV_PROD, $debugMode = false): self
     {
+        $envModes = [self::ENV_PROD, self::ENV_DEV, self::ENV_TEST];
+        if(!in_array($env, $envModes)) {
+            throw new \InvalidArgumentException("Invalid env. Got $env but expected is one of " . implode(", ", $envModes));
+        }
         $this->assertInitialized(__METHOD__);
         $this->assertNotBootstrapped(__METHOD__);
 
@@ -413,6 +446,8 @@ final class EventMachine
         $this->attachEventPublisherToEventStore();
 
         $this->bootstrapped = true;
+        $this->debugMode = $debugMode;
+        $this->env = $env;
 
         return $this;
     }
@@ -518,6 +553,17 @@ final class EventMachine
         return $this->appVersion;
     }
 
+    public function env(): string
+    {
+        return $this->env;
+    }
+
+    public function debugMode(): bool
+    {
+        $this->assertBootstrapped(__METHOD__);
+        return $this->debugMode;
+    }
+
     public function loadProjector(string $projectorServiceId): Projector
     {
         return $this->container->get($projectorServiceId);
@@ -551,6 +597,7 @@ final class EventMachine
             'schemaTypes' => $this->schemaTypes,
             'schemaInputTypes' => $this->schemaInputTypes,
             'appVersion' => $this->appVersion,
+            'graphQlSchemaDocument' => AST::toArray($this->graphQlSchemaDocument),
         ];
     }
 
@@ -607,6 +654,38 @@ final class EventMachine
         return $this->httpMessageBox;
     }
 
+    public function graphqlServer(): Server
+    {
+        $this->assertBootstrapped(__METHOD__);
+
+        if(null === $this->graphqlServer) {
+            $typeDecorator = null;
+
+            if($this->container->has(self::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR)) {
+                $typeDecorator = new TypeConfigDecoratorProxy($this->container->get(self::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR));
+            }
+
+            $schema = BuildSchema::build($this->graphQlSchemaDocument, $typeDecorator);
+
+            if($this->container->has(self::SERVICE_ID_GRAPHQL_FIELD_RESOLVER)) {
+                $fieldResolver = new FieldResolverChain(
+                    $this->container->get(self::SERVICE_ID_GRAPHQL_FIELD_RESOLVER),
+                    new MessageFieldResolver($this),
+                    new ArraySourceFieldResolver()
+                );
+            } else {
+                $fieldResolver = new FieldResolverChain(
+                    new MessageFieldResolver($this),
+                    new ArraySourceFieldResolver()
+                );
+            }
+
+            $this->graphqlServer = new Server($schema, new FieldResolverProxy($fieldResolver), $this->debugMode());
+        }
+
+        return $this->graphqlServer;
+    }
+
     public function messageSchemas(): array
     {
         $this->assertInitialized(__METHOD__);
@@ -651,7 +730,7 @@ final class EventMachine
 
         $this->testMode = true;
 
-        $this->bootstrap();
+        $this->bootstrap(self::ENV_TEST, true);
 
         return $this;
     }
@@ -715,6 +794,29 @@ final class EventMachine
         foreach ($this->queryDescriptions as $name => $description) {
             $this->compiledQueryDescriptions[$name] = $description();
         }
+    }
+
+    private function compileGraphQlSchema(): void
+    {
+        $queryReturnTypes = [];
+
+        foreach ($this->compiledQueryDescriptions as $name => $description) {
+            if($description['returnType']) {
+                $queryReturnTypes[$name] = $description['returnType'];
+            }
+        }
+
+        $typeSchemaStr = TypeLanguage::fromEventMachineDescriptions(
+            $this->queryMap,
+            $this->schemaInputTypes,
+            $queryReturnTypes,
+            $this->schemaTypes,
+            $this->commandMap
+        );
+
+        $document = Parser::parse($typeSchemaStr);
+
+        $this->graphQlSchemaDocument = $document;
     }
 
     private function attachRouterToCommandBus(): void

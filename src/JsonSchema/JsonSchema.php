@@ -14,6 +14,7 @@ final class JsonSchema
     public const TYPE_BOOL = 'boolean';
     public const TYPE_ARRAY = 'array';
     public const TYPE_OBJECT = 'object';
+    public const TYPE_NULL = "null";
 
     public const KEYWORD_ENUM = 'enum';
 
@@ -90,7 +91,7 @@ final class JsonSchema
             throw new \InvalidArgumentException("Schema should have type defined as string. Got " . json_encode($schema));
         }
 
-        $schema['type'] = [$schema['type'], null];
+        $schema['type'] = [$schema['type'], self::TYPE_NULL];
 
         return $schema;
     }
