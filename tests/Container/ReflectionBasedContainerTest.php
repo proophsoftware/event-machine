@@ -140,6 +140,7 @@ final class ReflectionBasedContainerTest extends BasicTestCase
                     return new GenericJsonSchemaMessageFactory(
                         $this->appConfig->arrayValue('event_machine.command_map', []),
                         $this->appConfig->arrayValue('event_machine.event_map', []),
+                        $this->appConfig->arrayValue('event_machine.query_map', []),
                         $this->jsonSchemaAssertion()
                     );
                 });

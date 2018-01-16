@@ -73,6 +73,8 @@ final class QueryDescription
         $this->eventMachine->jsonSchemaAssertion()->assert("Query return type {$this->queryName}", $typeSchema, JsonSchema::metaSchema());
 
         $this->returnType = $typeSchema;
+
+        return $this;
     }
 
     private function assertResolverAndReturnTypeAreSet(): void

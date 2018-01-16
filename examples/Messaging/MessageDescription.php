@@ -7,6 +7,7 @@ use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\EventMachineDescription;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use ProophExample\Aggregate\UserDescription;
+use ProophExample\Resolver\GetUserResolver;
 
 /**
  * You're free to organize EventMachineDescriptions in the way that best fits your personal preferences
@@ -70,5 +71,13 @@ final class MessageDescription implements EventMachineDescription
         $eventMachine->registerEvent(Event::USER_REGISTRATION_FAILED, JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
         ]));
+
+        //Register user state as a Type so that we can reference it as query return type
+        $eventMachine->registerType('User', $userDataSchema);
+        $eventMachine->registerQuery(Query::GET_USER, JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+        ]))
+        ->resolveWith(GetUserResolver::class)
+        ->returnType(JsonSchema::typeRef('User'));
     }
 }

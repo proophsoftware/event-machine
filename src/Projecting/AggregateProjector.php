@@ -5,6 +5,8 @@ namespace Prooph\EventMachine\Projecting;
 
 use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
+use Prooph\EventMachine\Data\DataConverter;
+use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
 use Prooph\EventMachine\Data\ImmutableRecord;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Persistence\DocumentStore;
@@ -37,6 +39,11 @@ final class AggregateProjector implements Projector
      */
     private $indices;
 
+    /**
+     * @var DataConverter
+     */
+    private $dataConverter;
+
     public static function generateProjectionName(string $aggregateType): string
     {
         return $aggregateType . '.Projection';
@@ -52,6 +59,15 @@ final class AggregateProjector implements Projector
         $this->documentStore = $documentStore;
         $this->eventMachine = $eventMachine;
         $this->indices = $indices;
+    }
+
+    public function setDataConverter(DataConverter $dataConverter): void
+    {
+        if(null !== $this->dataConverter) {
+            throw new \BadMethodCallException("Cannot set data converter because another instance is already set.");
+        }
+
+        $this->dataConverter = $dataConverter;
     }
 
     public function handle(string $appVersion, string $projectionName, Message $event): void
@@ -109,14 +125,10 @@ final class AggregateProjector implements Projector
 
     private function convertAggregateStateToArray($aggregateState): array
     {
-        if(is_array($aggregateState)) {
-            return $aggregateState;
+        if(null === $this->dataConverter) {
+            $this->dataConverter = new ImmutableRecordDataConverter();
         }
 
-        if($aggregateState instanceof ImmutableRecord) {
-            return $aggregateState->toArray();
-        }
-
-        return (array)json_decode(json_encode($aggregateState), true);
+        return $this->dataConverter->convertDataToArray($aggregateState);
     }
 }

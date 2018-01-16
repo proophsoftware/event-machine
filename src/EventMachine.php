@@ -35,8 +35,11 @@ use Prooph\EventStoreBusBridge\TransactionManager;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\Plugin\Router\AsyncSwitchMessageRouter;
 use Prooph\ServiceBus\Plugin\Router\EventRouter;
+use Prooph\ServiceBus\Plugin\Router\QueryRouter;
 use Prooph\ServiceBus\Plugin\ServiceLocatorPlugin;
+use Prooph\ServiceBus\QueryBus;
 use Psr\Container\ContainerInterface;
+use React\Promise\Promise;
 
 final class EventMachine
 {
@@ -44,6 +47,7 @@ final class EventMachine
     const SERVICE_ID_SNAPSHOT_STORE = 'EventMachine.SnapshotStore';
     const SERVICE_ID_COMMAND_BUS = 'EventMachine.CommandBus';
     const SERVICE_ID_EVENT_BUS = 'EventMachine.EventBus';
+    const SERVICE_ID_QUERY_BUS = 'EventMachine.QueryBus';
     const SERVICE_ID_PROJECTION_MANAGER = 'EventMachine.ProjectionManager';
     const SERVICE_ID_DOCUMENT_STORE = 'EventMachine.DocumentStore';
     const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
@@ -404,6 +408,7 @@ final class EventMachine
         $this->assertNotBootstrapped(__METHOD__);
 
         $this->attachRouterToCommandBus();
+        $this->setUpQueryBus();
         $this->setUpEventBus();
         $this->attachEventPublisherToEventStore();
 
@@ -415,8 +420,9 @@ final class EventMachine
     /**
      * @param string|Message $messageOrName
      * @param array $payload
+     * @return null|Promise Promise is returned in case of a Query otherwise return type is null
      */
-    public function dispatch($messageOrName, array $payload = []): void
+    public function dispatch($messageOrName, array $payload = []): ?Promise
     {
         $this->assertBootstrapped(__METHOD__);
 
@@ -450,9 +456,13 @@ final class EventMachine
             case Message::TYPE_EVENT:
                 $this->container->get(self::SERVICE_ID_EVENT_BUS)->dispatch($messageOrName);
                 break;
+            case Message::TYPE_QUERY:
+                return $this->container->get(self::SERVICE_ID_QUERY_BUS)->dispatch($messageOrName);
             default:
                 throw new \RuntimeException("Unsupported message type: " . $messageOrName->messageType());
         }
+
+        return null;
     }
 
     public function loadAggregateState(string $aggregateType, string $aggregateId)
@@ -552,6 +562,7 @@ final class EventMachine
             $this->messageFactory = new GenericJsonSchemaMessageFactory(
                 $this->commandMap,
                 $this->eventMap,
+                $this->queryMap,
                 $this->container->get(self::SERVICE_ID_JSON_SCHEMA_ASSERTION)
             );
         }
@@ -725,6 +736,26 @@ final class EventMachine
         );
 
         $router->attachToMessageBus($commandBus);
+    }
+
+    private function setUpQueryBus(): void
+    {
+        $queryRouting = [];
+
+        foreach ($this->compiledQueryDescriptions as $queryName => $desc) {
+            $queryRouting[$queryName] = $desc['resolver'];
+        }
+
+        $queryRouter = new QueryRouter($queryRouting);
+
+        /** @var QueryBus $queryBus */
+        $queryBus = $this->container->get(self::SERVICE_ID_QUERY_BUS);
+
+        $queryRouter->attachToMessageBus($queryBus);
+
+        $serviceLocatorPlugin = new ServiceLocatorPlugin($this->container);
+
+        $serviceLocatorPlugin->attachToMessageBus($queryBus);
     }
 
     private function setUpEventBus(): void
