@@ -13,6 +13,7 @@ use Prooph\EventStore\Stream;
 use Prooph\EventStore\StreamName;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
+use Prooph\ServiceBus\QueryBus;
 use Prooph\SnapshotStore\Snapshot;
 use Prooph\SnapshotStore\SnapshotStore;
 use Psr\Container\ContainerExceptionInterface;
@@ -24,6 +25,8 @@ final class TestEnvContainer implements ContainerInterface
     private $commandBus;
 
     private $eventBus;
+
+    private $queryBus;
 
     private $snapshotStore;
 
@@ -73,6 +76,11 @@ final class TestEnvContainer implements ContainerInterface
                     $this->eventBus = new EventBus();
                 }
                 return $this->eventBus;
+            case EventMachine::SERVICE_ID_QUERY_BUS:
+                if (null === $this->queryBus) {
+                    $this->queryBus = new QueryBus();
+                }
+                return $this->queryBus;
             case EventMachine::SERVICE_ID_SNAPSHOT_STORE:
                 return $this->getSnapshotStore();
             case EventMachine::SERVICE_ID_PROJECTION_MANAGER:
@@ -112,6 +120,7 @@ final class TestEnvContainer implements ContainerInterface
             case EventMachine::SERVICE_ID_EVENT_STORE:
             case EventMachine::SERVICE_ID_COMMAND_BUS:
             case EventMachine::SERVICE_ID_EVENT_BUS:
+            case EventMachine::SERVICE_ID_QUERY_BUS:
             case EventMachine::SERVICE_ID_PROJECTION_MANAGER:
             case EventMachine::SERVICE_ID_DOCUMENT_STORE:
                 return true;

@@ -30,7 +30,9 @@
     "zendframework/zend-diactoros": "^1.3",
     "justinrainbow/json-schema": "^5.2",
     "http-interop/http-middleware": "^0.5",
-    "codeliner/array-reader": "^1.2"
+    "codeliner/array-reader": "^1.2",
+    "webonyx/graphql-php": "^0.11.5",
+    "react/promise": "^2.5"
   },
   "require-dev": {
     "phpunit/phpunit": "^6.0"

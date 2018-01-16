@@ -6,11 +6,15 @@ namespace Prooph\EventMachine\Http;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Interop\Http\Server\RequestHandlerInterface;
+use Prooph\EventMachine\Data\DataConverter;
+use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
 use Prooph\EventMachine\EventMachine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use React\Promise\Promise;
 use Zend\Diactoros\Response\EmptyResponse;
+use Zend\Diactoros\Response\JsonResponse;
 
 /**
  * One middleware for all commands and events
@@ -24,9 +28,15 @@ final class MessageBox implements RequestHandlerInterface
      */
     private $eventMachine;
 
-    public function __construct(EventMachine $eventMachine)
+    /**
+     * @var DataConverter
+     */
+    private $dataConverter;
+
+    public function __construct(EventMachine $eventMachine, DataConverter $dataConverter = null)
     {
         $this->eventMachine = $eventMachine;
+        $this->dataConverter = $dataConverter;
     }
 
     public function handle(ServerRequestInterface $request): ResponseInterface
@@ -59,7 +69,16 @@ final class MessageBox implements RequestHandlerInterface
 
             $message = $this->eventMachine->messageFactory()->createMessageFromArray($messageName, $payload);
 
-            $this->eventMachine->dispatch($message);
+            $result = $this->eventMachine->dispatch($message);
+
+            if($result instanceof Promise) {
+                $response = null;
+                $result->done(function ($result) use (&$response) {
+                    $response = new JsonResponse($this->dataConverter()->convertDataToArray($result));
+                });
+
+                return $response;
+            }
 
             return new EmptyResponse(StatusCodeInterface::STATUS_ACCEPTED);
         } catch (\Assert\InvalidArgumentException | \InvalidArgumentException $e) {
@@ -81,5 +100,14 @@ final class MessageBox implements RequestHandlerInterface
                 $e
             );
         }
+    }
+
+    private function dataConverter(): DataConverter
+    {
+        if(null === $this->dataConverter) {
+            $this->dataConverter = new ImmutableRecordDataConverter();
+        }
+
+        return $this->dataConverter;
     }
 }

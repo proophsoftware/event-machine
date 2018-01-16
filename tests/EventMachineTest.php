@@ -3,6 +3,7 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachineTest;
 
+use Interop\Http\Server\RequestHandlerInterface;
 use Prooph\Common\Event\ProophActionEventEmitter;
 use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\Container\ContainerChain;
@@ -23,17 +24,23 @@ use Prooph\EventStore\TransactionalEventStore;
 use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
+use Prooph\ServiceBus\QueryBus;
 use ProophExample\Aggregate\Aggregate;
-use ProophExample\Aggregate\CachableUserFunction;
 use ProophExample\Aggregate\CacheableUserDescription;
 use ProophExample\Aggregate\UserDescription;
 use ProophExample\Aggregate\UserState;
 use ProophExample\Messaging\Command;
 use ProophExample\Messaging\Event;
 use ProophExample\Messaging\MessageDescription;
+use ProophExample\Messaging\Query;
+use ProophExample\Resolver\GetUserResolver;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
+use React\Promise\Deferred;
+use Zend\Diactoros\Request;
+use Zend\Diactoros\ServerRequest;
 
 class EventMachineTest extends BasicTestCase
 {
@@ -56,6 +63,12 @@ class EventMachineTest extends BasicTestCase
      * @var EventBus
      */
     private $eventBus;
+
+    /**
+     * @var QueryBus
+     */
+    private $queryBus;
+
     /**
      * @var ContainerInterface
      */
@@ -85,6 +98,7 @@ class EventMachineTest extends BasicTestCase
         );
         $this->commandBus = new CommandBus();
         $this->eventBus = new EventBus();
+        $this->queryBus = new QueryBus();
 
         $this->appContainer = $this->prophesize(ContainerInterface::class);
 
@@ -104,12 +118,19 @@ class EventMachineTest extends BasicTestCase
             return $self->eventBus;
         });
 
+        $this->appContainer->has(EventMachine::SERVICE_ID_QUERY_BUS)->willReturn(true);
+        $this->appContainer->get(EventMachine::SERVICE_ID_QUERY_BUS)->will(function ($args) use ($self) {
+            return $self->queryBus;
+        });
+
         $this->appContainer->has(EventMachine::SERVICE_ID_MESSAGE_FACTORY)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_JSON_SCHEMA_ASSERTION)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_SNAPSHOT_STORE)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_ASYNC_EVENT_PRODUCER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_DOCUMENT_STORE)->willReturn(false);
+        $this->appContainer->has(EventMachine::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR)->willReturn(false);
+        $this->appContainer->has(EventMachine::SERVICE_ID_GRAPHQL_FIELD_RESOLVER)->willReturn(false);
 
         $this->containerChain = new ContainerChain(
             $this->appContainer->reveal(),
@@ -123,6 +144,8 @@ class EventMachineTest extends BasicTestCase
         $this->eventMachine = null;
         $this->eventStore = null;
         $this->commandBus = null;
+        $this->eventBus = null;
+        $this->queryBus = null;
         $this->appContainer = null;
     }
 
@@ -172,6 +195,51 @@ class EventMachineTest extends BasicTestCase
         ], $event->metadata());
 
         self::assertSame($event, $publishedEvents[0]);
+    }
+
+    /**
+     * @test
+     */
+    public function it_dispatches_a_known_query()
+    {
+        $getUserResolver = new class() {
+            public function __invoke(Message $getUser, Deferred $deferred)
+            {
+                $deferred->resolve([
+                    UserDescription::IDENTIFIER => $getUser->payload()[UserDescription::IDENTIFIER],
+                    UserDescription::USERNAME => 'Alex',
+                ]);
+            }
+        };
+
+        $this->appContainer->has(GetUserResolver::class)->willReturn(true);
+        $this->appContainer->get(GetUserResolver::class)->will(function ($args) use ($getUserResolver) {
+            return $getUserResolver;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $getUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Query::GET_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+            ]]
+        );
+
+        $promise = $this->eventMachine->bootstrap()->dispatch($getUser);
+
+        $userData = null;
+
+        $promise->done(function (array $data) use (&$userData) {
+            $userData = $data;
+        });
+
+        self::assertEquals([
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => 'Alex',
+        ], $userData);
     }
 
     /**
@@ -430,6 +498,11 @@ class EventMachineTest extends BasicTestCase
                 Event::USER_REGISTRATION_FAILED => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
                 ])
+            ],
+            'queries' => [
+                Query::GET_USER => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                ]),
             ]
             ],
             $this->eventMachine->messageSchemas()
@@ -468,7 +541,7 @@ class EventMachineTest extends BasicTestCase
         $this->eventMachine->watch(Stream::ofWriteModel())
             ->with(AggregateProjector::generateProjectionName(Aggregate::USER), AggregateProjector::class)
             ->filterAggregateType(Aggregate::USER)
-            ->storeDocumentsOfType('User', JsonSchema::object([
+            ->storeDocumentsOfType('UserState', JsonSchema::object([
                 'id' => ['type' => 'string'],
                 'username' => ['type' => 'string'],
                 'email' => ['type' => 'string'],
@@ -514,7 +587,7 @@ class EventMachineTest extends BasicTestCase
      */
     public function it_passes_registered_types_to_json_schema_assertion()
     {
-        $this->eventMachine->registerType('User', JsonSchema::object([
+        $this->eventMachine->registerType('UserState', JsonSchema::object([
             'id' => JsonSchema::string(['minLength' => 3]),
             'email' => JsonSchema::string(['format' => 'email'])
         ], [], true));
@@ -526,7 +599,7 @@ class EventMachineTest extends BasicTestCase
         $visitorSchema = JsonSchema::object(['role' => JsonSchema::enum(['guest'])], [], true);
 
         $identifiedVisitorSchema = ['allOf' => [
-            JsonSchema::typeRef('User'),
+            JsonSchema::typeRef('UserState'),
             $visitorSchema
         ]];
 
@@ -539,5 +612,54 @@ class EventMachineTest extends BasicTestCase
 
         $this->eventMachine->jsonSchemaAssertion()->assert('IdentifiedVisitor', $guest, $identifiedVisitorSchema);
 
+    }
+
+    /**
+     * @test
+     */
+    public function it_sets_up_a_graphql_server()
+    {
+        $getUserResolver = new class() {
+            public function __invoke(Message $getUser, Deferred $deferred)
+            {
+                $deferred->resolve([
+                    UserDescription::IDENTIFIER => $getUser->payload()[UserDescription::IDENTIFIER],
+                    UserDescription::USERNAME => 'Alex',
+                ]);
+            }
+        };
+
+        $this->appContainer->has(GetUserResolver::class)->willReturn(true);
+        $this->appContainer->get(GetUserResolver::class)->will(function ($args) use ($getUserResolver) {
+            return $getUserResolver;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $server = $this->eventMachine->bootstrap(EventMachine::ENV_TEST, true)->graphqlServer();
+
+        $this->assertInstanceOf(RequestHandlerInterface::class, $server);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $queryName = Query::GET_USER;
+        $identifier = UserDescription::IDENTIFIER;
+        $username = UserDescription::USERNAME;
+
+        $query = "{ $queryName({$identifier}: \"$userId\") { $username } }";
+
+        $stream = new \Zend\Diactoros\CallbackStream(function () use ($query) {
+            return $query;
+        });
+
+        $request = new ServerRequest([], [], "/graphql", 'POST', $stream, [
+            'Content-Type' => 'application/graphql'
+        ]);
+
+        $response = $server->handle($request);
+
+        $this->assertEquals(json_encode([
+            "data" => ["GetUser" => [$username => "Alex"]]
+        ]), (string)$response->getBody());
     }
 }

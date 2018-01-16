@@ -10,6 +10,7 @@ use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
+use Prooph\EventMachine\Querying\GenericJsonSchemaQuery;
 use Ramsey\Uuid\Uuid;
 
 final class GenericJsonSchemaMessageFactory implements MessageFactory
@@ -37,11 +38,21 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
      */
     private $eventMap = [];
 
-    public function __construct(array $commandMap, array $eventMap, JsonSchemaAssertion $jsonSchemaAssertion)
+    /**
+     * Map of query names and corresponding json schema of payload
+     *
+     * Json schema can be passed as array or path to schema file
+     *
+     * @var array
+     */
+    private $queryMap = [];
+
+    public function __construct(array $commandMap, array $eventMap, array $queryMap, JsonSchemaAssertion $jsonSchemaAssertion)
     {
         $this->jsonSchemaAssertion = $jsonSchemaAssertion;
         $this->commandMap = $commandMap;
         $this->eventMap = $eventMap;
+        $this->queryMap = $queryMap;
         //@@TODO: Add optional metadata schema that is then used to validate metadata of all messages
     }
 
@@ -63,6 +74,11 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
         if($messageType === null && array_key_exists($messageName, $this->eventMap)) {
             $messageType = DomainMessage::TYPE_EVENT;
             $payloadSchema = $this->eventMap[$messageName];
+        }
+
+        if($messageType === null && array_key_exists($messageName, $this->queryMap)) {
+            $messageType = DomainMessage::TYPE_QUERY;
+            $payloadSchema = $this->queryMap[$messageName];
         }
 
         if(null === $messageType) {
@@ -97,6 +113,8 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
                 return GenericJsonSchemaCommand::fromArray($messageData);
             case DomainMessage::TYPE_EVENT:
                 return GenericJsonSchemaEvent::fromArray($messageData);
+            case DomainMessage::TYPE_QUERY:
+                return GenericJsonSchemaQuery::fromArray($messageData);
         }
     }
 }
