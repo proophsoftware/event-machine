@@ -13,6 +13,8 @@ final class ArraySourceFieldResolver implements FieldResolver
 
     public function canResolve($source, array $args, ServerRequestInterface $context, ResolveInfo $info): bool
     {
+        $source = (array)$source;
+
         if(is_array($source) && array_key_exists($info->fieldName, $source)) {
             return true;
         }
