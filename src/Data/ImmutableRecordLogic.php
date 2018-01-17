@@ -4,10 +4,29 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachine\Data;
 
+use Prooph\EventMachine\JsonSchema\JsonSchema;
 
 trait ImmutableRecordLogic
 {
-    private $propTypeMap = [];
+    /**
+     * @var array
+     */
+    private static $__propTypeMap;
+
+    /**
+     * @var array
+     */
+    private static $__schema;
+
+    public static function type(): string
+    {
+        return self::convertClassToTypeName(get_called_class());
+    }
+
+    public static function schema(): array
+    {
+        return self::generateSchemaFromPropTypeMap();
+    }
 
     /**
      * @param array $recordData
@@ -29,7 +48,9 @@ trait ImmutableRecordLogic
 
     private function __construct(array $recordData = null, array $nativeData = null)
     {
-        $this->buildPropTypeMap();
+        if(null === self::$__propTypeMap) {
+            self::$__propTypeMap = self::buildPropTypeMap();
+        }
 
         if($recordData) {
             $this->setRecordData($recordData);
@@ -57,7 +78,7 @@ trait ImmutableRecordLogic
     {
         $nativeData = [];
 
-        foreach ($this->propTypeMap as $key => $type) {
+        foreach (self::$__propTypeMap as $key => [$type]) {
             switch ($type) {
                 case 'string':
                 case 'int':
@@ -87,14 +108,14 @@ trait ImmutableRecordLogic
         $recordData = [];
 
         foreach ($nativeData as $key => $val) {
-            if(!isset($this->propTypeMap[$key])) {
+            if(!isset(self::$__propTypeMap[$key])) {
                 throw new \InvalidArgumentException(sprintf(
                     'Invalid property passed to Record %s. Got property with key ' . $key,
                     get_called_class()
                 ));
             }
 
-            $type = $this->propTypeMap[$key];
+            [$type] = self::$__propTypeMap[$key];
 
             switch ($type) {
                 case 'string':
@@ -114,7 +135,7 @@ trait ImmutableRecordLogic
 
     private function assertAllNotNull()
     {
-        foreach (array_keys($this->propTypeMap) as $key) {
+        foreach (array_keys(self::$__propTypeMap) as $key) {
             if(null === $this->{$key}) {
                 throw new \InvalidArgumentException(sprintf(
                     'Missing record data for key %s of record %s.',
@@ -127,14 +148,14 @@ trait ImmutableRecordLogic
 
     private function assertType(string $key, $value)
     {
-        if(!isset($this->propTypeMap[$key])) {
+        if(!isset(self::$__propTypeMap[$key])) {
             throw new \InvalidArgumentException(sprintf(
                 'Invalid property passed to Record %s. Got property with key ' . $key,
                 __CLASS__
             ));
         }
 
-        $type = $this->propTypeMap[$key];
+        [$type] = self::$__propTypeMap[$key];
 
         switch ($type) {
             case 'string':
@@ -169,14 +190,16 @@ trait ImmutableRecordLogic
         }
     }
 
-    private function buildPropTypeMap()
+    private static function buildPropTypeMap()
     {
-        $refObj = new \ReflectionClass($this);
+        $refObj = new \ReflectionClass(__CLASS__);
 
         $props = $refObj->getProperties();
 
+        $propTypeMap = [];
+
         foreach ($props as $prop) {
-            if($prop->getName() === 'propTypeMap') {
+            if($prop->getName() === '__propTypeMap' || $prop->getName() === '__schema') {
                 continue;
             }
 
@@ -202,7 +225,24 @@ trait ImmutableRecordLogic
                 );
             }
 
-            $this->propTypeMap[$prop->getName()] = (string)$method->getReturnType();
+            $type = (string)$method->getReturnType();
+
+            $propTypeMap[$prop->getName()] = [$type, self::isScalarType($type), $method->getReturnType()->allowsNull()];
+        }
+
+        return $propTypeMap;
+    }
+
+    private static function isScalarType(string $type): bool
+    {
+        switch ($type) {
+            case 'string':
+            case 'int':
+            case 'float':
+            case 'bool':
+                return true;
+            default:
+                return false;
         }
     }
 
@@ -252,5 +292,75 @@ trait ImmutableRecordLogic
         }
 
         throw new \RuntimeException("Cannot convert property $key to its native counterpart. Missing to{nativeType}() method in the type class $type.");
+    }
+
+    /**
+     * @param array $arrayPropTypeMap Map of array property name to array item type
+     * @return array
+     */
+    private static function generateSchemaFromPropTypeMap(array $arrayPropTypeMap = []): array
+    {
+        if(null === self::$__propTypeMap) {
+            self::$__propTypeMap = self::buildPropTypeMap();
+        }
+
+        if(null === self::$__schema) {
+            $props = [];
+
+            foreach (self::$__propTypeMap as $prop => [$type, $isScalar, $isNullable]) {
+                if($isScalar) {
+                    $props[$prop] = JsonSchema::schemaFromScalarPhpType($type, $isNullable);
+                    continue;
+                }
+
+                if($type === "array") {
+                    if(!array_key_exists($prop, $arrayPropTypeMap)) {
+                        throw new \RuntimeException("Missing array item type in array property map. Please provide an array item type for property $prop.");
+                    }
+
+                    $arrayItemType = $arrayPropTypeMap[$prop];
+
+                    if(self::isScalarType($arrayItemType)) {
+                        $arrayItemSchema = JsonSchema::schemaFromScalarPhpType($arrayItemType, false);
+                    } elseif ($arrayItemType === 'array') {
+                        throw new \RuntimeException("Array item type of property $prop must not be 'array', only a scalar type or an existing class can be used as array item type.");
+                    } else {
+                        $arrayItemSchema = JsonSchema::typeRef(self::getTypeFromClass($arrayItemType));
+                    }
+
+                    $props[$prop] = JsonSchema::array($arrayItemSchema);
+                } else {
+                    $props[$prop] = JsonSchema::typeRef(self::getTypeFromClass($type));
+                }
+
+                if($isNullable) {
+                    $props[$prop] = JsonSchema::nullOr($props[$prop]);
+                }
+            }
+
+            self::$__schema = JsonSchema::object($props);
+        }
+
+        return self::$__schema;
+    }
+
+    private static function convertClassToTypeName(string $class): string
+    {
+        return substr(strrchr($class, '\\'), 1);
+    }
+
+    private static function getTypeFromClass(string $classOrType): string
+    {
+        if(!class_exists($classOrType)) {
+            return $classOrType;
+        }
+
+        $refObj = new \ReflectionClass($classOrType);
+
+        if($refObj->implementsInterface(ImmutableRecord::class)) {
+            return call_user_func([$classOrType, 'type']);
+        }
+
+        return self::convertClassToTypeName($classOrType);
     }
 }

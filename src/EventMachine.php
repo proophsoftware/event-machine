@@ -18,6 +18,7 @@ use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\TestEnvContainer;
+use Prooph\EventMachine\Data\ImmutableRecord;
 use Prooph\EventMachine\GraphQL\ArraySourceFieldResolver;
 use Prooph\EventMachine\GraphQL\FieldResolverChain;
 use Prooph\EventMachine\GraphQL\FieldResolverProxy;
@@ -303,9 +304,22 @@ final class EventMachine
         $this->projectionMap[$projectionName] = $projectionDescription;
     }
 
-    public function registerType(string $name, array $schema): void
+    public function registerType(string $nameOrImmutableRecordClass, array $schema = null): void
     {
         $this->assertNotInitialized(__METHOD__);
+
+        if(null === $schema) {
+            $refObj = new \ReflectionClass($nameOrImmutableRecordClass);
+
+            if(!$refObj->implementsInterface(ImmutableRecord::class)) {
+                throw new \InvalidArgumentException("Invalid type given. $nameOrImmutableRecordClass does not implement " . ImmutableRecord::class);
+            }
+
+            $name = call_user_func([$nameOrImmutableRecordClass, 'type']);
+            $schema = call_user_func([$nameOrImmutableRecordClass, 'schema']);
+        } else {
+            $name = $nameOrImmutableRecordClass;
+        }
 
         if($this->isKnownType($name)) {
             throw new \RuntimeException("Type $name is already registered");
