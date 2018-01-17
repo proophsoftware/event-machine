@@ -37,7 +37,7 @@ final class MessageFieldResolver implements FieldResolver
         $result = $this->eventMachine->dispatch($message);
 
         if(null === $result) {
-            return new FulfilledPromise();
+            return new FulfilledPromise(true);
         }
 
         return $result;
