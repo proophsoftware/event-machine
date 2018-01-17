@@ -18,6 +18,32 @@ final class JsonSchema
 
     public const KEYWORD_ENUM = 'enum';
 
+    public static function schemaFromScalarPhpType(string $type, bool $nullable): array
+    {
+        switch ($type) {
+            case 'string':
+                $schema = self::string();
+                break;
+            case 'int':
+                $schema = self::integer();
+                break;
+            case 'float':
+                $schema = self::float();
+                break;
+            case 'bool':
+                $schema = self::boolean();
+                break;
+            default:
+                throw new \RuntimeException("Invalid scalar PHP type given. Got $type");
+        }
+
+        if($nullable) {
+            $schema = self::nullOr($schema);
+        }
+
+        return $schema;
+    }
+
     public static function object(array $requiredProps, array $optionalProps = [], $additionalProperties = false): array
     {
         return [

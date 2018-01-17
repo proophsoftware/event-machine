@@ -6,6 +6,7 @@ namespace Prooph\EventMachineTest\Data\Stubs;
 
 use Prooph\EventMachine\Data\ImmutableRecord;
 use Prooph\EventMachine\Data\ImmutableRecordLogic;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
 
 final class TestProduct implements ImmutableRecord
 {
@@ -40,6 +41,11 @@ final class TestProduct implements ImmutableRecord
      * @var array
      */
     private $tags;
+
+    public static function schema(): array
+    {
+        return self::generateSchemaFromPropTypeMap(['tags' => JsonSchema::TYPE_STRING]);
+    }
 
     /**
      * @return int

@@ -106,9 +106,9 @@ final class ProjectionDescription
         return $this;
     }
 
-    public function storeDocumentsOfType(string $typeName, array $schema): self
+    public function storeDocumentsOfType(string $typeNameOrImmutableRecordClass, array $schema = null): self
     {
-        $this->eventMachine->registerType($typeName, $schema);
+        $this->eventMachine->registerType($typeNameOrImmutableRecordClass, $schema);
 
         return $this;
     }

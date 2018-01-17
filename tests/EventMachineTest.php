@@ -14,6 +14,7 @@ use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Projecting\AggregateProjector;
+use Prooph\EventMachineTest\Data\Stubs\TestIdentityVO;
 use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\InMemoryEventStore;
@@ -612,6 +613,30 @@ class EventMachineTest extends BasicTestCase
 
         $this->eventMachine->jsonSchemaAssertion()->assert('IdentifiedVisitor', $guest, $identifiedVisitorSchema);
 
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_immutable_record_info_to_register_a_type()
+    {
+        $this->eventMachine->registerType(TestIdentityVO::class);
+
+        $this->eventMachine->initialize($this->containerChain)->bootstrap(EventMachine::ENV_TEST, true);
+
+        $userIdentityData = [
+            'identity' => [
+                'email' => 'test@test.local',
+                'password' => 12345
+            ]
+        ];
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Validation of UserIdentityData failed: \[identity.password\] Integer value found, but a string is required/');
+
+        $this->eventMachine->jsonSchemaAssertion()->assert('UserIdentityData', $userIdentityData, JsonSchema::object([
+            'identity' => JsonSchema::typeRef(TestIdentityVO::type())
+        ]));
     }
 
     /**

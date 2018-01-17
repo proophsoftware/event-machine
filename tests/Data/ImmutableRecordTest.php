@@ -4,8 +4,11 @@ declare(strict_types = 1);
 namespace Prooph\EventMachineTest\Data;
 
 use PHPUnit\Framework\TestCase;
+use PHPUnit\Util\Json;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachineTest\Data\Stubs\TestProduct;
 use Prooph\EventMachineTest\Data\Stubs\TestProductVO;
+use Prooph\EventMachineTest\Data\Stubs\TestUserVO;
 
 final class ImmutableRecordTest extends TestCase
 {
@@ -79,5 +82,45 @@ final class ImmutableRecordTest extends TestCase
         $productData = $product->toArray();
 
         self::assertSame($expectedData, $productData);
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_short_class_name_as_type()
+    {
+        self::assertEquals('TestProduct', TestProduct::type());
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_prop_type_map_to_generate_type_schema()
+    {
+        $expectedSchema = JsonSchema::object([
+            'productId' => JsonSchema::integer(),
+            'name' => JsonSchema::string(),
+            'description' => JsonSchema::string(),
+            'price' => JsonSchema::typeRef('TestProductPrice'),
+            'active' => JsonSchema::boolean(),
+            'tags' => JsonSchema::array(JsonSchema::string()),
+        ]);
+
+        self::assertEquals($expectedSchema, TestProduct::schema());
+    }
+
+    /**
+     * @test
+     */
+    public function it_respects_classes_as_array_item_type_and_nullable_props()
+    {
+        $expectedSchema = JsonSchema::object([
+            'id' => JsonSchema::string(),
+            'name' => JsonSchema::string(),
+            'age' => JsonSchema::nullOr(JsonSchema::integer()),
+            'identities' => JsonSchema::array(JsonSchema::typeRef('TestIdentityVO')),
+        ]);
+
+        self::assertEquals($expectedSchema, TestUserVO::schema());
     }
 }
