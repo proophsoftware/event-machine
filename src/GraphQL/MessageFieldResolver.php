@@ -5,6 +5,7 @@ namespace Prooph\EventMachine\GraphQL;
 
 use GraphQL\Type\Definition\ResolveInfo;
 use Prooph\EventMachine\EventMachine;
+use Prooph\ServiceBus\Exception\MessageDispatchException;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Promise\FulfilledPromise;
 use React\Promise\PromiseInterface;
@@ -34,7 +35,11 @@ final class MessageFieldResolver implements FieldResolver
             'payload' => $args
         ]);
 
-        $result = $this->eventMachine->dispatch($message);
+        try {
+            $result = $this->eventMachine->dispatch($message);
+        } catch (MessageDispatchException $exception) {
+            throw $exception->getPrevious();
+        }
 
         if(null === $result) {
             return new FulfilledPromise(true);
