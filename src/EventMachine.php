@@ -442,6 +442,8 @@ final class EventMachine
 
         $this->container = $container;
 
+        $this->appVersion = $appVersion;
+
         return $this;
     }
 

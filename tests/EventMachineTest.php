@@ -687,4 +687,16 @@ class EventMachineTest extends BasicTestCase
             "data" => ["GetUser" => [$username => "Alex"]]
         ]), (string)$response->getBody());
     }
+
+    /**
+     * @test
+     */
+    public function it_sets_app_version()
+    {
+        $this->eventMachine->initialize($this->containerChain, '0.2.0');
+
+        $this->eventMachine->bootstrap();
+
+        $this->assertEquals('0.2.0', $this->eventMachine->appVersion());
+    }
 }
