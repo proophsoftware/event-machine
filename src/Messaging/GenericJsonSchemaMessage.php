@@ -32,6 +32,24 @@ abstract class GenericJsonSchemaMessage extends DomainMessage
         $this->payload = $payload;
     }
 
+    public function get(string $key)
+    {
+        if(!array_key_exists($key, $this->payload)) {
+            throw new \BadMethodCallException("Message payload of {$this->messageName()} does not contain a key $key.");
+        }
+
+        return $this->payload[$key];
+    }
+
+    public function getOrDefault(string $key, $default)
+    {
+        if(!array_key_exists($key, $this->payload)) {
+            return $default;
+        }
+
+        return $this->payload[$key];
+    }
+
     public function payload(): array
     {
         return $this->payload;
