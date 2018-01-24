@@ -78,7 +78,7 @@ trait ImmutableRecordLogic
     {
         $nativeData = [];
 
-        foreach (self::$__propTypeMap as $key => [$type]) {
+        foreach (self::$__propTypeMap as $key => [$type, $isNative, $isNullable]) {
             switch ($type) {
                 case 'string':
                 case 'int':
@@ -88,6 +88,10 @@ trait ImmutableRecordLogic
                     $nativeData[$key] = $this->{$key};
                     break;
                 default:
+                    if($isNullable && $this->{$key} === null) {
+                        $nativeData[$key] = null;
+                        continue;
+                    }
                     $nativeData[$key] = $this->voTypeToNative($this->{$key}, $key, $type);
             }
         }
@@ -115,7 +119,16 @@ trait ImmutableRecordLogic
                 ));
             }
 
-            [$type] = self::$__propTypeMap[$key];
+            [$type, $isNative, $isNullable] = self::$__propTypeMap[$key];
+
+            if($val === null) {
+                if(!$isNullable) {
+                    throw new \RuntimeException("Got null for non nullable property $key of Record " . get_called_class());
+                }
+
+                $recordData[$key] = null;
+                continue;
+            }
 
             switch ($type) {
                 case 'string':
@@ -135,8 +148,8 @@ trait ImmutableRecordLogic
 
     private function assertAllNotNull()
     {
-        foreach (array_keys(self::$__propTypeMap) as $key) {
-            if(null === $this->{$key}) {
+        foreach (self::$__propTypeMap as $key => [$type, $isNative, $isNullable]) {
+            if(null === $this->{$key} && !$isNullable) {
                 throw new \InvalidArgumentException(sprintf(
                     'Missing record data for key %s of record %s.',
                     $key,
@@ -155,7 +168,11 @@ trait ImmutableRecordLogic
             ));
         }
 
-        [$type] = self::$__propTypeMap[$key];
+        [$type, $isNative, $isNullable] = self::$__propTypeMap[$key];
+
+        if(null === $value && $isNullable) {
+            return;
+        }
 
         switch ($type) {
             case 'string':

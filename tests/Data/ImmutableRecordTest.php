@@ -6,6 +6,8 @@ namespace Prooph\EventMachineTest\Data;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Util\Json;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachineTest\Data\Stubs\TestCommentVO;
+use Prooph\EventMachineTest\Data\Stubs\TestIdentityVO;
 use Prooph\EventMachineTest\Data\Stubs\TestProduct;
 use Prooph\EventMachineTest\Data\Stubs\TestProductVO;
 use Prooph\EventMachineTest\Data\Stubs\TestUserVO;
@@ -122,5 +124,40 @@ final class ImmutableRecordTest extends TestCase
         ]);
 
         self::assertEquals($expectedSchema, TestUserVO::schema());
+    }
+
+    /**
+     * @test
+     */
+    public function it_accepts_and_converts_nullable_prop()
+    {
+        $data = [
+            'id' => '1',
+            'name' => 'Alex',
+            'age' => null,
+            'identities' => [
+                'email' => 'contact@prooph.de',
+                'password' => 'dev1234'
+            ]
+        ];
+
+        $testUser = TestUserVO::fromArray($data);
+
+        $this->assertEquals($data, $testUser->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function it_can_handle_nullable_objects()
+    {
+        $data = [
+            'text' => 'this is a comment',
+            'user' => null
+        ];
+
+        $testComment = TestCommentVO::fromArray($data);
+
+        $this->assertEquals($data, $testComment->toArray());
     }
 }
