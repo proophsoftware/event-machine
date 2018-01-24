@@ -8,6 +8,7 @@ use Prooph\EventMachine\EventMachineDescription;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use ProophExample\Aggregate\UserDescription;
 use ProophExample\Resolver\GetUserResolver;
+use ProophExample\Resolver\GetUsersResolver;
 
 /**
  * You're free to organize EventMachineDescriptions in the way that best fits your personal preferences
@@ -79,5 +80,9 @@ final class MessageDescription implements EventMachineDescription
         ]))
         ->resolveWith(GetUserResolver::class)
         ->returnType(JsonSchema::typeRef('User'));
+
+        $eventMachine->registerQuery(Query::GET_USERS)
+            ->resolveWith(GetUsersResolver::class)
+            ->returnType(JsonSchema::array(JsonSchema::typeRef('User')));
     }
 }

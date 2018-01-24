@@ -6,6 +6,7 @@ namespace ProophExample\Messaging;
 final class Query
 {
     const GET_USER = 'GetUser';
+    const GET_USERS = 'GetUsers';
 
     private function __construct()
     {
