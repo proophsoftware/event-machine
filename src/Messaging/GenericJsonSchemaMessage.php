@@ -6,7 +6,7 @@ namespace Prooph\EventMachine\Messaging;
 use Prooph\Common\Messaging\DomainMessage;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 
-abstract class GenericJsonSchemaMessage extends DomainMessage
+abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
 {
     /**
      * @var array
