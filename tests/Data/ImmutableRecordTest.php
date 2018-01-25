@@ -8,6 +8,7 @@ use PHPUnit\Util\Json;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachineTest\Data\Stubs\TestBuildingVO;
 use Prooph\EventMachineTest\Data\Stubs\TestCommentVO;
+use Prooph\EventMachineTest\Data\Stubs\TestDefaultPrice;
 use Prooph\EventMachineTest\Data\Stubs\TestIdentityVO;
 use Prooph\EventMachineTest\Data\Stubs\TestProduct;
 use Prooph\EventMachineTest\Data\Stubs\TestProductVO;
@@ -170,5 +171,15 @@ final class ImmutableRecordTest extends TestCase
         $testBuilding = TestBuildingVO::fromArray(['name' => 'My House']);
 
         $this->assertEquals(['name' => 'My House', 'type' => 'house'], $testBuilding->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function it_calls_init_to_give_immutable_record_the_chance_to_set_defaults_before_not_null_assertion()
+    {
+        $defaultPrice = TestDefaultPrice::fromArray([]);
+
+        $this->assertEquals(['amount' => 9.99, 'currency' => 'EUR'], $defaultPrice->toArray());
     }
 }

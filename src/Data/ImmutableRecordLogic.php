@@ -60,8 +60,18 @@ trait ImmutableRecordLogic
             $this->setNativeData($nativeData);
         }
 
+        $this->init();
+
         $this->assertAllNotNull();
     }
+
+    /**
+     * Called in constructor after setting props but before not null assertion
+     *
+     * Override to set default props after construction
+     */
+    private function init(): void {}
+
 
     /**
      * @param array $recordData
