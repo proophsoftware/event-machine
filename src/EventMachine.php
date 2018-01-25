@@ -315,8 +315,8 @@ final class EventMachine
                 throw new \InvalidArgumentException("Invalid type given. $nameOrImmutableRecordClass does not implement " . ImmutableRecord::class);
             }
 
-            $name = call_user_func([$nameOrImmutableRecordClass, 'type']);
-            $schema = call_user_func([$nameOrImmutableRecordClass, 'schema']);
+            $name = call_user_func([$nameOrImmutableRecordClass, '__type']);
+            $schema = call_user_func([$nameOrImmutableRecordClass, '__schema']);
         } else {
             $name = $nameOrImmutableRecordClass;
         }

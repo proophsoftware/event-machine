@@ -18,12 +18,12 @@ trait ImmutableRecordLogic
      */
     private static $__schema;
 
-    public static function type(): string
+    public static function __type(): string
     {
         return self::convertClassToTypeName(get_called_class());
     }
 
-    public static function schema(): array
+    public static function __schema(): array
     {
         return self::generateSchemaFromPropTypeMap();
     }
@@ -375,7 +375,7 @@ trait ImmutableRecordLogic
         $refObj = new \ReflectionClass($classOrType);
 
         if($refObj->implementsInterface(ImmutableRecord::class)) {
-            return call_user_func([$classOrType, 'type']);
+            return call_user_func([$classOrType, '__type']);
         }
 
         return self::convertClassToTypeName($classOrType);

@@ -682,7 +682,7 @@ class EventMachineTest extends BasicTestCase
         $this->expectExceptionMessageRegExp('/Validation of UserIdentityData failed: \[identity.password\] Integer value found, but a string is required/');
 
         $this->eventMachine->jsonSchemaAssertion()->assert('UserIdentityData', $userIdentityData, JsonSchema::object([
-            'identity' => JsonSchema::typeRef(TestIdentityVO::type())
+            'identity' => JsonSchema::typeRef(TestIdentityVO::__type())
         ]));
     }
 
