@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
-use Prooph\Common\Messaging\Message;
+use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Persistence\Stream;
 

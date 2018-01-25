@@ -9,7 +9,6 @@ use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
-use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\Querying\GenericJsonSchemaQuery;
 use Ramsey\Uuid\Uuid;

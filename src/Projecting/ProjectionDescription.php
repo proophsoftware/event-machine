@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Projecting;
 
 use Prooph\EventMachine\EventMachine;
-use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\Persistence\Stream;
 
 final class ProjectionDescription

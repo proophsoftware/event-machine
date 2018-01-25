@@ -3,11 +3,10 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
-use Prooph\Common\Messaging\Message;
+use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Data\DataConverter;
 use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
-use Prooph\EventMachine\Data\ImmutableRecord;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Persistence\DocumentStore;
 
