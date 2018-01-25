@@ -42,7 +42,7 @@ final class TestProduct implements ImmutableRecord
      */
     private $tags;
 
-    public static function schema(): array
+    public static function __schema(): array
     {
         return self::generateSchemaFromPropTypeMap(['tags' => JsonSchema::TYPE_STRING]);
     }

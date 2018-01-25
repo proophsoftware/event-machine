@@ -91,7 +91,7 @@ final class ImmutableRecordTest extends TestCase
      */
     public function it_uses_short_class_name_as_type()
     {
-        self::assertEquals('TestProduct', TestProduct::type());
+        self::assertEquals('TestProduct', TestProduct::__type());
     }
 
     /**
@@ -108,7 +108,7 @@ final class ImmutableRecordTest extends TestCase
             'tags' => JsonSchema::array(JsonSchema::string()),
         ]);
 
-        self::assertEquals($expectedSchema, TestProduct::schema());
+        self::assertEquals($expectedSchema, TestProduct::__schema());
     }
 
     /**
@@ -123,7 +123,7 @@ final class ImmutableRecordTest extends TestCase
             'identities' => JsonSchema::array(JsonSchema::typeRef('TestIdentityVO')),
         ]);
 
-        self::assertEquals($expectedSchema, TestUserVO::schema());
+        self::assertEquals($expectedSchema, TestUserVO::__schema());
     }
 
     /**

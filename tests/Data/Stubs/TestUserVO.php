@@ -30,7 +30,7 @@ final class TestUserVO implements ImmutableRecord
      */
     private $identities;
 
-    public static function schema(): array
+    public static function __schema(): array
     {
         return self::generateSchemaFromPropTypeMap(['identities' => TestIdentityVO::class]);
     }

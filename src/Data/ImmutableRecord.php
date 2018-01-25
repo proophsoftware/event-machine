@@ -10,12 +10,12 @@ interface ImmutableRecord
      *
      * @return string
      */
-    public static function type(): string;
+    public static function __type(): string;
 
     /**
      * @return array JSON Schema of the type
      */
-    public static function schema(): array;
+    public static function __schema(): array;
 
     /**
      * @param array $recordData
