@@ -18,7 +18,7 @@ final class TestBuildingVO implements ImmutableRecord
     /**
      * @var string
      */
-    private $buildingType = 'house';
+    private $type = 'house';
 
     /**
      * @return string
@@ -31,7 +31,7 @@ final class TestBuildingVO implements ImmutableRecord
     /**
      * @return string
      */
-    public function __type(): string
+    public function type(): string
     {
         return $this->type;
     }

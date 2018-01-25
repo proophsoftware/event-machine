@@ -6,6 +6,7 @@ namespace Prooph\EventMachineTest\Data;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Util\Json;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachineTest\Data\Stubs\TestBuildingVO;
 use Prooph\EventMachineTest\Data\Stubs\TestCommentVO;
 use Prooph\EventMachineTest\Data\Stubs\TestIdentityVO;
 use Prooph\EventMachineTest\Data\Stubs\TestProduct;
@@ -159,5 +160,15 @@ final class ImmutableRecordTest extends TestCase
         $testComment = TestCommentVO::fromArray($data);
 
         $this->assertEquals($data, $testComment->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_default_value_if_val_is_not_passed_to_constructor()
+    {
+        $testBuilding = TestBuildingVO::fromArray(['name' => 'My House']);
+
+        $this->assertEquals(['name' => 'My House', 'type' => 'house'], $testBuilding->toArray());
     }
 }
