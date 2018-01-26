@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence\DocumentStore;
 
+use Codeliner\ArrayReader\ArrayReader;
 use Prooph\EventMachine\Persistence\DocumentStore;
 
 final class InMemoryDocumentStore implements DocumentStore
@@ -237,13 +238,9 @@ final class InMemoryDocumentStore implements DocumentStore
 
         $getField = function (array $doc, DocumentStore\OrderBy\OrderBy $orderBy) {
             if($orderBy instanceof DocumentStore\OrderBy\Asc || $orderBy instanceof DocumentStore\OrderBy\Desc) {
-                $field = $orderBy->field();
+                $field = $orderBy->prop();
 
-                if(array_key_exists($field, $doc)) {
-                    return $doc[$field];
-                }
-
-                return null;
+                return (new ArrayReader($doc))->mixedValue($field);
             }
 
             throw new \RuntimeException(sprintf(

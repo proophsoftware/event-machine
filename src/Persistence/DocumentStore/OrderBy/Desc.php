@@ -5,16 +5,16 @@ namespace Prooph\EventMachine\Persistence\DocumentStore\OrderBy;
 
 final class Desc implements OrderBy
 {
-    private $field;
+    private $prop;
 
-    public static function byField(string $field): Desc
+    public static function byProp(string $prop): Desc
     {
-        return self::fromString($field);
+        return self::fromString($prop);
     }
 
     public static function fromArray(array $data): OrderBy
     {
-        return self::fromString($data['field'] ?? '');
+        return self::fromString($data['prop'] ?? '');
     }
 
     public static function fromString(string $field): self
@@ -22,28 +22,28 @@ final class Desc implements OrderBy
         return new self($field);
     }
 
-    private function __construct(string $field)
+    private function __construct(string $prop)
     {
-        if(strlen($field) === 0) {
-            throw new \InvalidArgumentException("Field must not be an empty string");
+        if(strlen($prop) === 0) {
+            throw new \InvalidArgumentException("Prop must not be an empty string");
         }
-        $this->field = $field;
+        $this->prop = $prop;
     }
 
-    public function field(): string
+    public function prop(): string
     {
-        return $this->field;
+        return $this->prop;
     }
 
     public function toString(): string
     {
-        return $this->field;
+        return $this->prop;
     }
 
     public function toArray(): array
     {
         return [
-            'field' => $this->field
+            'prop' => $this->prop
         ];
     }
 
@@ -53,11 +53,11 @@ final class Desc implements OrderBy
             return false;
         }
 
-        return $this->field === $other->field;
+        return $this->prop === $other->prop;
     }
 
     public function __toString(): string
     {
-        return $this->field;
+        return $this->prop;
     }
 }

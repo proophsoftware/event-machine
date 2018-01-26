@@ -78,7 +78,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
             self::COLLECTION, [],
             null,
             null,
-            AndOrder::by(Asc::byField('animal'), Desc::byField('age'))
+            AndOrder::by(Asc::byProp('animal'), Desc::byProp('age'))
         );
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
@@ -93,7 +93,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $animals = $this->store->filterDocs(self::COLLECTION, [], 2, null, AndOrder::by(Asc::byField('animal'), Asc::byField('age')));
+        $animals = $this->store->filterDocs(self::COLLECTION, [], 2, null, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
@@ -107,7 +107,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $animals = $this->store->filterDocs(self::COLLECTION, [], null, 3, AndOrder::by(Asc::byField('animal'), Asc::byField('age')));
+        $animals = $this->store->filterDocs(self::COLLECTION, [], null, 3, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
@@ -121,7 +121,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $animals = $this->store->filterDocs(self::COLLECTION, [], 2, 2, AndOrder::by(Asc::byField('animal'), Asc::byField('age')));
+        $animals = $this->store->filterDocs(self::COLLECTION, [], 2, 2, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
