@@ -164,7 +164,7 @@ final class InMemoryDocumentStore implements DocumentStore
 
     /**
      * @param string $collectionName
-     * @param DocumentStore\Filter\Filter[] $filters
+     * @param DocumentStore\Filter\Filter $filter
      * @param int|null $skip
      * @param int|null $limit
      * @param DocumentStore\OrderBy\OrderBy|null $orderBy
@@ -172,7 +172,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function filterDocs(
         string $collectionName,
-        array $filters,
+        DocumentStore\Filter\Filter $filter,
         int $skip = null,
         int $limit = null,
         DocumentStore\OrderBy\OrderBy $orderBy = null): \Traversable
@@ -182,12 +182,7 @@ final class InMemoryDocumentStore implements DocumentStore
         $filteredDocs = [];
 
         foreach ($this->collections[$collectionName] as $docId => $doc) {
-            $matched = true;
-            foreach ($filters as $filter) {
-                $matched = $filter->match($doc);
-            }
-
-            if($matched) {
+            if($filter->match($doc)) {
                 $filteredDocs[$docId] = $doc;
             }
         }

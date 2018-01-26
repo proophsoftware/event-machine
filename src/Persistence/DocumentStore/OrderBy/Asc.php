@@ -5,6 +5,11 @@ namespace Prooph\EventMachine\Persistence\DocumentStore\OrderBy;
 
 final class Asc implements OrderBy
 {
+    /**
+     * Nested props are accessed using dot notation
+     *
+     * @var string
+     */
     private $prop;
 
     public static function byProp(string $prop): Asc
