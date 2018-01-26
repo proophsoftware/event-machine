@@ -17,6 +17,8 @@ final class LikeFilter implements Filter
     /**
      * Search string with placeholder % matching any char
      *
+     * Search is case insensitive
+     *
      * %word% will match any string containing "word"
      * %word will match any string ending with "word"
      * word% will match any string starting with "word"
@@ -70,7 +72,8 @@ final class LikeFilter implements Filter
         $likeStart = $this->val[0] === '%';
         $likeEnd = $this->val[mb_strlen($this->val) - 1] === '%';
 
-        $val = $this->val;
+        $prop = mb_strtolower($prop);
+        $val = mb_strtolower($this->val);
 
         if($likeStart) {
             $val = mb_substr($val, 1);

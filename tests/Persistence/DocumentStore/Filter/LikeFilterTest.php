@@ -24,14 +24,15 @@ final class LikeFilterTest extends BasicTestCase
     public function provideLikeFilter(): array
     {
         return [
-            //[new LikeFilter('comment', '%is%'), true],
-            //[new LikeFilter('comment', 'is%'), false],
-            //[new LikeFilter('comment', 'is'), false],
-            //[new LikeFilter('comment', '%is'), false],
-            //[new LikeFilter('comment', '%prooph'), false],
+            [new LikeFilter('comment', '%is%'), true],
+            [new LikeFilter('comment', 'is%'), false],
+            [new LikeFilter('comment', 'is'), false],
+            [new LikeFilter('comment', '%is'), false],
+            [new LikeFilter('comment', '%prooph'), false],
             [new LikeFilter('comment', 'prooph%'), true],
-            //[new LikeFilter('comment', '%awesome'), true],
-            //[new LikeFilter('comment', 'awesome%'), false],
+            [new LikeFilter('comment', '%awesome'), true],
+            [new LikeFilter('comment', 'awesome%'), false],
+            [new LikeFilter('comment', '%IS%'), true],
         ];
     }
 }
