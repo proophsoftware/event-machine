@@ -84,5 +84,11 @@ final class MessageDescription implements EventMachineDescription
         $eventMachine->registerQuery(Query::GET_USERS)
             ->resolveWith(GetUsersResolver::class)
             ->returnType(JsonSchema::array(JsonSchema::typeRef('User')));
+
+        $eventMachine->registerQuery(Query::GET_FILTERED_USERS, JsonSchema::object([], [
+            'filter' => JsonSchema::nullOr(JsonSchema::string())
+        ]))
+            ->resolveWith(GetUsersResolver::class)
+            ->returnType(JsonSchema::array(JsonSchema::typeRef('User')));
     }
 }

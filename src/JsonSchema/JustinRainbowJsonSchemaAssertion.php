@@ -11,6 +11,10 @@ final class JustinRainbowJsonSchemaAssertion implements JsonSchemaAssertion
 
     public function assert(string $objectName, array $data, array $jsonSchema)
     {
+        if($data === [] && JsonSchema::isObjectType($jsonSchema)) {
+            $data = new \stdClass();
+        }
+
         $enforcedObjectData = json_decode(json_encode($data));
         $jsonSchema = json_decode(json_encode($jsonSchema));
 

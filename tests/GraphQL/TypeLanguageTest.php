@@ -62,7 +62,7 @@ TYPES;
     /**
      * @test
      */
-    public function it_converts_a_query_with_one_required_and_one_optional_argument()
+    public function it_converts_a_query_with_one_required_and_one_optional_argument_with_default_val()
     {
         $types = [
             'User' => JsonSchema::object([
@@ -93,6 +93,57 @@ type User {
 
 type Query {
   User(id: String!, username: String = Unknown): User!
+}
+
+schema {
+  query: Query
+}
+
+TYPES;
+
+        $this->assertEquals($expectedTypes, $graphQlTypes);
+
+        $schema = BuildSchema::build($graphQlTypes);
+
+        $schema->assertValid();
+    }
+
+    /**
+     * @test
+     */
+    public function it_converts_a_query_with_optional_argument()
+    {
+        $types = [
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::string(),
+                'realName' => JsonSchema::nullOr(JsonSchema::string())
+            ])
+        ];
+
+        $queries = [
+            "FilteredUsers" => JsonSchema::object([], [
+                'filter' => JsonSchema::nullOr(JsonSchema::string())
+            ])
+        ];
+
+        $queryReturnTypes = [
+            'FilteredUsers' => JsonSchema::array(JsonSchema::typeRef('User')),
+        ];
+
+        $graphQlTypes = TypeLanguage::fromEventMachineDescriptions($queries, [], $queryReturnTypes, $types);
+
+        $expectedTypes = <<<TYPES
+
+type User {
+  id: String!
+  username: String!
+  realName: String
+}
+
+
+type Query {
+  FilteredUsers(filter: String): [User!]!
 }
 
 schema {
