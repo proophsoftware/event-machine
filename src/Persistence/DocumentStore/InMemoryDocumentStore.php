@@ -96,13 +96,13 @@ final class InMemoryDocumentStore implements DocumentStore
 
     /**
      * @param string $collectionName
-     * @param DocumentStore\Filter\Filter[] $filters
+     * @param DocumentStore\Filter\Filter $filter
      * @param array $set
      * @throws \Throwable in case of connection error or other issues
      */
-    public function updateMany(string $collectionName, array $filters, array $set): void
+    public function updateMany(string $collectionName, DocumentStore\Filter\Filter $filter, array $set): void
     {
-        $docs = $this->filterDocs($collectionName, $filters);
+        $docs = $this->filterDocs($collectionName, $filter);
 
         foreach ($docs as $docId => $doc) {
             $this->updateDoc($collectionName, $docId, $set);
@@ -140,12 +140,12 @@ final class InMemoryDocumentStore implements DocumentStore
 
     /**
      * @param string $collectionName
-     * @param DocumentStore\Filter\Filter[] $filters
+     * @param DocumentStore\Filter\Filter $filter
      * @throws \Throwable in case of connection error or other issues
      */
-    public function deleteMany(string $collectionName, array $filters): void
+    public function deleteMany(string $collectionName, DocumentStore\Filter\Filter $filter): void
     {
-        $docs = $this->filterDocs($collectionName, $filters);
+        $docs = $this->filterDocs($collectionName, $filter);
 
         foreach ($docs as $docId => $doc) {
             $this->deleteDoc($collectionName, $docId);

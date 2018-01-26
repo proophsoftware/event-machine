@@ -57,11 +57,11 @@ interface DocumentStore
 
     /**
      * @param string $collectionName
-     * @param Filter[] $filters
+     * @param Filter $filter
      * @param array $set
      * @throws \Throwable in case of connection error or other issues
      */
-    public function updateMany(string $collectionName, array $filters, array $set): void;
+    public function updateMany(string $collectionName, Filter $filter, array $set): void;
 
     /**
      * Same as updateDoc except that doc is added to collection if it does not exist.
@@ -82,10 +82,10 @@ interface DocumentStore
 
     /**
      * @param string $collectionName
-     * @param Filter[] $filters
+     * @param Filter $filter
      * @throws \Throwable in case of connection error or other issues
      */
-    public function deleteMany(string $collectionName, array $filters): void;
+    public function deleteMany(string $collectionName, Filter $filter): void;
 
     /**
      * @param string $collectionName
