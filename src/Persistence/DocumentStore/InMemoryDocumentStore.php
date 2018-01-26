@@ -164,9 +164,17 @@ final class InMemoryDocumentStore implements DocumentStore
     /**
      * @param string $collectionName
      * @param DocumentStore\Filter\Filter[] $filters
+     * @param int|null $skip
+     * @param int|null $limit
+     * @param DocumentStore\OrderBy\OrderBy|null $orderBy
      * @return \Traversable list of docs
      */
-    public function filterDocs(string $collectionName, array $filters): \Traversable
+    public function filterDocs(
+        string $collectionName,
+        array $filters,
+        int $skip = null,
+        int $limit = null,
+        DocumentStore\OrderBy\OrderBy $orderBy = null): \Traversable
     {
         $this->assertHasCollection($collectionName);
 
@@ -181,6 +189,16 @@ final class InMemoryDocumentStore implements DocumentStore
             if($matched) {
                 $filteredDocs[$docId] = $doc;
             }
+        }
+
+        if($orderBy !== null) {
+            $this->sort($filteredDocs, $orderBy);
+        }
+
+        if($skip !== null) {
+            $filteredDocs = array_slice($filteredDocs, $skip, $limit);
+        } elseif ($limit !== null) {
+            $filteredDocs = array_slice($filteredDocs, 0, $limit);
         }
 
         return new \ArrayIterator($filteredDocs);
@@ -209,5 +227,68 @@ final class InMemoryDocumentStore implements DocumentStore
         if(!$this->hasDoc($collectionName, $docId)) {
             throw new \RuntimeException("Doc with id $docId does not exist in collection $collectionName");
         }
+    }
+
+    private function sort(&$docs, DocumentStore\OrderBy\OrderBy $orderBy)
+    {
+        $defaultCmp = function($a,$b){
+            return ($a < $b) ? -1 : (($a > $b) ? 1 : 0);
+        };
+
+        $getField = function (array $doc, DocumentStore\OrderBy\OrderBy $orderBy) {
+            if($orderBy instanceof DocumentStore\OrderBy\Asc || $orderBy instanceof DocumentStore\OrderBy\Desc) {
+                $field = $orderBy->field();
+
+                if(array_key_exists($field, $doc)) {
+                    return $doc[$field];
+                }
+
+                return null;
+            }
+
+            throw new \RuntimeException(sprintf(
+                "Unable to get field from doc: %s. Given OrderBy is neither an instance of %s nor %s",
+                json_encode($doc),
+                DocumentStore\OrderBy\Asc::class,
+                DocumentStore\OrderBy\Desc::class
+            ));
+        };
+
+        $docCmp = null;
+        $docCmp = function (array $docA, array $docB, DocumentStore\OrderBy\OrderBy $orderBy) use (&$docCmp, $defaultCmp, $getField) {
+            $orderByB = null;
+
+            if($orderBy instanceof DocumentStore\OrderBy\AndOrder) {
+                $orderByB = $orderBy->b();
+                $orderBy = $orderBy->a();
+            }
+
+            $valA = $getField($docA, $orderBy);
+            $valB = $getField($docB, $orderBy);
+
+            if(is_string($valA) && is_string($valB)) {
+                $orderResult = strcasecmp($valA, $valB);
+            } else {
+                $orderResult = $defaultCmp($valA, $valB);
+            }
+
+            if($orderResult === 0 && $orderByB) {
+                $orderResult = $docCmp($docA, $docB, $orderByB);
+            }
+
+            if($orderResult === 0) {
+                return 0;
+            }
+
+            if($orderBy instanceof DocumentStore\OrderBy\Desc) {
+                return $orderResult * -1;
+            }
+
+            return $orderResult;
+        };
+
+        usort($docs, function (array $docA, array $docB) use ($orderBy, $docCmp) {
+            return $docCmp($docA, $docB, $orderBy);
+        });
     }
 }
