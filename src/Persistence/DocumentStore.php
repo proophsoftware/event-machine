@@ -96,11 +96,11 @@ interface DocumentStore
 
     /**
      * @param string $collectionName
-     * @param Filter[] $filters
+     * @param Filter $filter
      * @param int|null $skip
      * @param int|null $limit
      * @param OrderBy|null $orderBy
      * @return \Traversable list of docs
      */
-    public function filterDocs(string $collectionName, array $filters, int $skip = null, int $limit = null, OrderBy $orderBy = null): \Traversable;
+    public function filterDocs(string $collectionName, Filter $filter, int $skip = null, int $limit = null, OrderBy $orderBy = null): \Traversable;
 }

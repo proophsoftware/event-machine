@@ -1,14 +1,15 @@
 <?php
 declare(strict_types=1);
 
-namespace Prooph\EventMachineTest\Persistence;
+namespace Prooph\EventMachineTest\Persistence\DocumentStore;
 
+use Prooph\EventMachine\Persistence\DocumentStore\Filter\AndFilter;
+use Prooph\EventMachine\Persistence\DocumentStore\Filter\AnyFilter;
 use Prooph\EventMachine\Persistence\DocumentStore\Filter\EqFilter;
 use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
 use Prooph\EventMachine\Persistence\DocumentStore\OrderBy\AndOrder;
 use Prooph\EventMachine\Persistence\DocumentStore\OrderBy\Asc;
 use Prooph\EventMachine\Persistence\DocumentStore\OrderBy\Desc;
-use Prooph\EventMachine\Persistence\DocumentStore\OrderBy\OrderBy;
 use Prooph\EventMachineTest\BasicTestCase;
 
 final class InMemoryDocumentStoreTest extends BasicTestCase
@@ -32,7 +33,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $dogs = $this->store->filterDocs(self::COLLECTION, [new EqFilter('animal', 'dog')]);
+        $dogs = $this->store->filterDocs(self::COLLECTION, new EqFilter('animal', 'dog'));
 
         $dogNames = iterator_to_array($this->extractFieldIntoList('name', $dogs));
 
@@ -46,7 +47,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $animals = $this->store->filterDocs(self::COLLECTION, [], null, null, Asc::fromString('name'));
+        $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), null, null, Asc::fromString('name'));
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
@@ -60,7 +61,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $animals = $this->store->filterDocs(self::COLLECTION, [], null, null, Desc::fromString('name'));
+        $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), null, null, Desc::fromString('name'));
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
@@ -75,10 +76,11 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
         $this->loadFixtures();
 
         $animals = $this->store->filterDocs(
-            self::COLLECTION, [],
+            self::COLLECTION,
+            new AnyFilter(),
             null,
             null,
-            AndOrder::by(Asc::byField('animal'), Desc::byField('age'))
+            AndOrder::by(Asc::byProp('animal'), Desc::byProp('age'))
         );
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
@@ -93,7 +95,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $animals = $this->store->filterDocs(self::COLLECTION, [], 2, null, AndOrder::by(Asc::byField('animal'), Asc::byField('age')));
+        $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), 2, null, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
@@ -107,7 +109,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $animals = $this->store->filterDocs(self::COLLECTION, [], null, 3, AndOrder::by(Asc::byField('animal'), Asc::byField('age')));
+        $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), null, 3, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
@@ -121,7 +123,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
     {
         $this->loadFixtures();
 
-        $animals = $this->store->filterDocs(self::COLLECTION, [], 2, 2, AndOrder::by(Asc::byField('animal'), Asc::byField('age')));
+        $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), 2, 2, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
