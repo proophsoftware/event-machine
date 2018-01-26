@@ -551,6 +551,9 @@ class EventMachineTest extends BasicTestCase
                     UserDescription::IDENTIFIER => $userId,
                 ]),
                 Query::GET_USERS => null,
+                Query::GET_FILTERED_USERS => JsonSchema::object([], [
+                    'filter' => JsonSchema::nullOr(JsonSchema::string())
+                ])
             ]
             ],
             $this->eventMachine->messageSchemas()
@@ -780,6 +783,54 @@ class EventMachineTest extends BasicTestCase
 
         $this->assertEquals(json_encode([
             "data" => ["GetUsers" => [[$username => "Alex"]]]
+        ]), (string)$response->getBody());
+    }
+
+    /**
+     * @test
+     */
+    public function it_handles_queries_with_missing_optional_args_with_graphql()
+    {
+        $getUsersResolver = new class() {
+            public function __invoke(Message $getUsers, Deferred $deferred)
+            {
+                $deferred->resolve([
+                    [
+                        UserDescription::IDENTIFIER => '123',
+                        UserDescription::USERNAME => 'Alex',
+                    ]
+                ]);
+            }
+        };
+
+        $this->appContainer->has(GetUsersResolver::class)->willReturn(true);
+        $this->appContainer->get(GetUsersResolver::class)->will(function ($args) use ($getUsersResolver) {
+            return $getUsersResolver;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $server = $this->eventMachine->bootstrap(EventMachine::ENV_TEST, true)->graphqlServer();
+
+        $this->assertInstanceOf(RequestHandlerInterface::class, $server);
+
+        $queryName = Query::GET_FILTERED_USERS;
+        $username = UserDescription::USERNAME;
+
+        $query = "{ $queryName { $username } }";
+
+        $stream = new \Zend\Diactoros\CallbackStream(function () use ($query) {
+            return $query;
+        });
+
+        $request = new ServerRequest([], [], "/graphql", 'POST', $stream, [
+            'Content-Type' => 'application/graphql'
+        ]);
+
+        $response = $server->handle($request);
+
+        $this->assertEquals(json_encode([
+            "data" => ["GetFilteredUsers" => [[$username => "Alex"]]]
         ]), (string)$response->getBody());
     }
 
