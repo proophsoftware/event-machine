@@ -77,6 +77,13 @@ final class ProjectionDescription
         return $this;
     }
 
+    public function withAggregateProjection(string $aggregateType, array $schema = null): self
+    {
+        return $this->with(AggregateProjector::generateProjectionName($aggregateType), AggregateProjector::class)
+            ->filterAggregateType($aggregateType)
+            ->storeDocumentsOfType($aggregateType, $schema);
+    }
+
     public function filterAggregateType(string $aggregateType): self
     {
         $this->assertWithProjectionIsCalled(__METHOD__);
