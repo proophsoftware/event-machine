@@ -46,6 +46,22 @@ final class MultiFieldIndex implements Index
         $this->unique = $unique;
     }
 
+    /**
+     * @return FieldIndex[]
+     */
+    public function fields(): array
+    {
+        return $this->fields;
+    }
+
+    /**
+     * @return bool
+     */
+    public function unique(): bool
+    {
+        return $this->unique;
+    }
+
     public function toArray(): array
     {
         return [
