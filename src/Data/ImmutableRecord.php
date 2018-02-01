@@ -3,6 +3,8 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachine\Data;
 
+use Prooph\EventMachine\JsonSchema\Type;
+
 interface ImmutableRecord
 {
     /**
@@ -13,9 +15,9 @@ interface ImmutableRecord
     public static function __type(): string;
 
     /**
-     * @return array JSON Schema of the type
+     * @return Type JSON Schema of the type
      */
-    public static function __schema(): array;
+    public static function __schema(): Type;
 
     /**
      * @param array $recordData

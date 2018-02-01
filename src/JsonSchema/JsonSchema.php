@@ -3,6 +3,16 @@ declare(strict_types = 1);
 
 namespace Prooph\EventMachine\JsonSchema;
 
+use Prooph\EventMachine\JsonSchema\Type\ArrayType;
+use Prooph\EventMachine\JsonSchema\Type\BoolType;
+use Prooph\EventMachine\JsonSchema\Type\EmailType;
+use Prooph\EventMachine\JsonSchema\Type\EnumType;
+use Prooph\EventMachine\JsonSchema\Type\FloatType;
+use Prooph\EventMachine\JsonSchema\Type\IntType;
+use Prooph\EventMachine\JsonSchema\Type\ObjectType;
+use Prooph\EventMachine\JsonSchema\Type\StringType;
+use Prooph\EventMachine\JsonSchema\Type\TypeRef;
+use Prooph\EventMachine\JsonSchema\Type\UuidType;
 
 final class JsonSchema
 {
@@ -18,7 +28,7 @@ final class JsonSchema
 
     public const KEYWORD_ENUM = 'enum';
 
-    public static function schemaFromScalarPhpType(string $type, bool $nullable): array
+    public static function schemaFromScalarPhpType(string $type, bool $nullable): Type
     {
         switch ($type) {
             case 'string':
@@ -44,98 +54,68 @@ final class JsonSchema
         return $schema;
     }
 
-    public static function object(array $requiredProps, array $optionalProps = [], $additionalProperties = false): array
+    public static function object(array $requiredProps, array $optionalProps = [], $additionalProperties = false): ObjectType
     {
-        return [
-            'type' => 'object',
-            'required' => array_keys($requiredProps),
-            'additionalProperties' => $additionalProperties,
-            'properties' => array_merge($requiredProps, $optionalProps)
-        ];
+        return new ObjectType($requiredProps, $optionalProps, $additionalProperties);
     }
 
-    public static function array(array $itemSchema, array $validation = null): array
+    public static function array(Type $itemSchema, array $validation = null): ArrayType
     {
-        $schema = [
-            'type' => 'array',
-            'items' => $itemSchema,
-        ];
+        return new ArrayType($itemSchema, $validation);
+    }
 
-        if($validation) {
-            $schema = array_merge($schema, $validation);
+    public static function string(array $validation = null): StringType
+    {
+        return new StringType($validation);
+    }
+
+    public static function email(): EmailType
+    {
+        return new EmailType();
+    }
+
+    public static function uuid(): UuidType
+    {
+        return new UuidType();
+    }
+
+    public static function integer(array $validation = null): IntType
+    {
+        return new IntType($validation);
+    }
+
+    public static function float(array $validation = null): FloatType
+    {
+        return new FloatType($validation);
+    }
+
+    public static function boolean(): BoolType
+    {
+        return new BoolType();
+    }
+
+    public static function enum(array $entries): EnumType
+    {
+        return new EnumType(...$entries);
+    }
+
+    public static function nullOr(Type $schema): Type
+    {
+        return $schema->asNullable();
+    }
+
+    public static function implementTypes(ObjectType $schema, string ...$types): ObjectType
+    {
+        foreach ($types as $typeName) {
+            $schema = $schema->withImplementedType(new TypeRef($typeName));
         }
 
         return $schema;
     }
 
-    public static function string(array $validation = null): array
+    public static function typeRef(string $typeName): TypeRef
     {
-        $schema = ['type' => 'string'];
-
-        if($validation) {
-            $schema = array_merge($schema, $validation);
-        }
-
-        return $schema;
-    }
-
-    public static function integer(array $validation = null): array
-    {
-        $schema = ['type' => 'integer'];
-
-        if($validation) {
-            $schema = array_merge($schema, $validation);
-        }
-
-        return $schema;
-    }
-
-    public static function float(array $validation = null): array
-    {
-        $schema = ['type' => 'number'];
-
-        if($validation) {
-            $schema = array_merge($schema, $validation);
-        }
-
-        return $schema;
-    }
-
-    public static function boolean(): array
-    {
-        return ['type' => 'boolean'];
-    }
-
-    public static function enum(array $entries): array
-    {
-        return ['enum' => $entries];
-    }
-
-    public static function nullOr(array $schema): array
-    {
-        if(!is_string($schema['type'])) {
-            throw new \InvalidArgumentException("Schema should have type defined as string. Got " . json_encode($schema));
-        }
-
-        $schema['type'] = [$schema['type'], self::TYPE_NULL];
-
-        return $schema;
-    }
-
-    public static function implementTypes(array $schema, string ...$types): array
-    {
-        $schema['allOf'] = array_map(function (string $type): array {
-            return JsonSchema::typeRef($type);
-        }, $types);
-
-        return $schema;
-    }
-
-    public static function typeRef(string $typeName): array
-    {
-        return [
-            '$ref' => '#/'.self::DEFINITIONS.'/'.$typeName,
-        ];
+        return new TypeRef($typeName);
     }
 
     public static function isArrayType(array $typeSchema): bool
@@ -183,6 +163,17 @@ final class JsonSchema
     public static function extractTypeFromRef(string $ref): string
     {
         return str_replace('#/' . JsonSchema::DEFINITIONS . '/', '', $ref);
+    }
+
+    public static function assertAllInstanceOfType(array $types): void
+    {
+        foreach ($types as $key => $type) {
+            if(!$type instanceof Type) {
+                throw new \InvalidArgumentException(
+                    "Invalid type at key $key. Type must implement Prooph\EventMachine\JsonSchema\Type. Got "
+                    . ((is_object($type)? get_class($type) : gettype($type))));
+            }
+        }
     }
 
     public static function metaSchema(): array

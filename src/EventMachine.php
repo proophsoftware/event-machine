@@ -30,6 +30,7 @@ use Prooph\EventMachine\Http\MessageBox;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
+use Prooph\EventMachine\JsonSchema\Type\ObjectType;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
@@ -244,23 +245,19 @@ final class EventMachine
         call_user_func([$description, 'describe'], $this);
     }
 
-    public function registerCommand(string $commandName, $schemaOrPath): self
+    public function registerCommand(string $commandName, ObjectType $schema): self
     {
         $this->assertNotInitialized(__METHOD__);
         if(array_key_exists($commandName, $this->commandMap)) {
             throw new \RuntimeException("Command $commandName was already registered.");
         }
 
-        if(!is_array($schemaOrPath) && !is_string($schemaOrPath)) {
-            throw new \InvalidArgumentException("Json schema should be passed as array or path to schema file. Got " . gettype($schemaOrPath));
-        }
-
-        $this->commandMap[$commandName] = $schemaOrPath;
+        $this->commandMap[$commandName] = $schema->toArray();
 
         return $this;
     }
 
-    public function registerEvent(string $eventName, $schemaOrPath): self
+    public function registerEvent(string $eventName, ObjectType $schema): self
     {
         $this->assertNotInitialized(__METHOD__);
 
@@ -268,18 +265,15 @@ final class EventMachine
             throw new \RuntimeException("Event $eventName was already registered.");
         }
 
-        if(!is_array($schemaOrPath) && !is_string($schemaOrPath)) {
-            throw new \InvalidArgumentException("Json schema should be passed as array or path to schema file. Got " . gettype($schemaOrPath));
-        }
-
-        $this->eventMap[$eventName] = $schemaOrPath;
+        $this->eventMap[$eventName] = $schema->toArray();
 
         return $this;
     }
 
-    public function registerQuery(string $queryName, array $payloadSchema = null): QueryDescription
+    public function registerQuery(string $queryName, ObjectType $payloadSchema = null): QueryDescription
     {
         if($payloadSchema) {
+            $payloadSchema = $payloadSchema->toArray();
             $this->jsonSchemaAssertion()->assert("Query $queryName payload schema", $payloadSchema, JsonSchema::metaSchema());
         }
 
@@ -304,7 +298,7 @@ final class EventMachine
         $this->projectionMap[$projectionName] = $projectionDescription;
     }
 
-    public function registerType(string $nameOrImmutableRecordClass, array $schema = null): void
+    public function registerType(string $nameOrImmutableRecordClass, ObjectType $schema = null): void
     {
         $this->assertNotInitialized(__METHOD__);
 
@@ -321,6 +315,8 @@ final class EventMachine
             $name = $nameOrImmutableRecordClass;
         }
 
+        $schema = $schema->toArray();
+
         if($this->isKnownType($name)) {
             throw new \RuntimeException("Type $name is already registered");
         }
@@ -330,7 +326,7 @@ final class EventMachine
         $this->schemaTypes[$name] = $schema;
     }
 
-    public function registerInputType(string $name, array $schema): void
+    public function registerInputType(string $name, ObjectType $schema): void
     {
         $this->assertNotInitialized(__METHOD__);
 
@@ -338,7 +334,11 @@ final class EventMachine
             throw new \RuntimeException("Input type $name is already registered. If you have a return type with the same name then add a Input suffix.");
         }
 
+        $schema = $schema->toArray();
+
         $this->jsonSchemaAssertion()->assert("Input type $name", $schema, JsonSchema::metaSchema());
+
+        $this->schemaInputTypes[$name] = $schema;
     }
 
     public function preProcess(string $commandName, $preProcessor): self

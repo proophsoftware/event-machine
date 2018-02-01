@@ -17,7 +17,7 @@ final class GenericJsonSchemaMessageTest extends BasicTestCase
         $userWasRegistered = new GenericJsonSchemaEvent(
             'UserWasRegistered',
             ['username' => 'John'],
-            JsonSchema::object(['username' => ['type' => 'string']]),
+            JsonSchema::object(['username' => JsonSchema::string()])->toArray(),
             $this->getJsonSchemaAssertion()
         );
 
@@ -32,7 +32,7 @@ final class GenericJsonSchemaMessageTest extends BasicTestCase
         $userWasRegistered = new GenericJsonSchemaEvent(
             'UserWasRegistered',
             ['username' => 'John'],
-            JsonSchema::object(['username' => ['type' => 'string']]),
+            JsonSchema::object(['username' => JsonSchema::string()])->toArray(),
             $this->getJsonSchemaAssertion()
         );
 
@@ -50,7 +50,7 @@ final class GenericJsonSchemaMessageTest extends BasicTestCase
         $userWasRegistered = new GenericJsonSchemaEvent(
             'UserWasRegistered',
             ['username' => 'John'],
-            JsonSchema::object(['username' => ['type' => 'string']]),
+            JsonSchema::object(['username' => JsonSchema::string()])->toArray(),
             $this->getJsonSchemaAssertion()
         );
 

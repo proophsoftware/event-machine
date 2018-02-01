@@ -11,6 +11,9 @@ use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type\EmailType;
+use Prooph\EventMachine\JsonSchema\Type\StringType;
+use Prooph\EventMachine\JsonSchema\Type\UuidType;
 use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Projecting\AggregateProjector;
@@ -501,59 +504,48 @@ class EventMachineTest extends BasicTestCase
     {
         $this->eventMachine->initialize($this->containerChain);
 
-        $userId = [
-            'type' => 'string',
-            'minLength' => 36
-        ];
+        $userId = new UuidType();
 
-        $username = [
-            'type' => 'string',
-            'minLength' => 1
-        ];
+        $username = (new StringType())->withMinLength(1);
 
         $userDataSchema = JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username,
-            UserDescription::EMAIL => [
-                'type' => 'string',
-                'format' => 'email'
-            ]
+            UserDescription::EMAIL => new EmailType()
         ], [
-            'shouldFail' => [
-                'type' => 'boolean',
-            ]
+            'shouldFail' => JsonSchema::boolean()
         ]);
 
         self::assertEquals([
             'commands' => [
-                Command::REGISTER_USER => $userDataSchema,
+                Command::REGISTER_USER => $userDataSchema->toArray(),
                 Command::CHANGE_USERNAME => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
                     UserDescription::USERNAME => $username
-                ]),
+                ])->toArray(),
                 Command::DO_NOTHING => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
-                ]),
+                ])->toArray(),
             ],
             'events' => [
-                Event::USER_WAS_REGISTERED => $userDataSchema,
+                Event::USER_WAS_REGISTERED => $userDataSchema->toArray(),
                 Event::USERNAME_WAS_CHANGED => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
                     'oldName' => $username,
                     'newName' => $username,
-                ]),
+                ])->toArray(),
                 Event::USER_REGISTRATION_FAILED => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
-                ])
+                ])->toArray()
             ],
             'queries' => [
                 Query::GET_USER => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
-                ]),
+                ])->toArray(),
                 Query::GET_USERS => null,
                 Query::GET_FILTERED_USERS => JsonSchema::object([], [
                     'filter' => JsonSchema::nullOr(JsonSchema::string())
-                ])
+                ])->toArray()
             ]
             ],
             $this->eventMachine->messageSchemas()
@@ -593,10 +585,10 @@ class EventMachineTest extends BasicTestCase
             ->with(AggregateProjector::generateProjectionName(Aggregate::USER), AggregateProjector::class)
             ->filterAggregateType(Aggregate::USER)
             ->storeDocumentsOfType('UserState', JsonSchema::object([
-                'id' => ['type' => 'string'],
-                'username' => ['type' => 'string'],
-                'email' => ['type' => 'string'],
-                'failed' => ['type' => ["boolean", "null"]]
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::string(),
+                'email' => JsonSchema::string(),
+                'failed' => JsonSchema::nullOr(JsonSchema::boolean())
             ]));
 
         $this->eventMachine->initialize($this->containerChain);
@@ -650,13 +642,13 @@ class EventMachineTest extends BasicTestCase
         $visitorSchema = JsonSchema::object(['role' => JsonSchema::enum(['guest'])], [], true);
 
         $identifiedVisitorSchema = ['allOf' => [
-            JsonSchema::typeRef('UserState'),
+            JsonSchema::typeRef('UserState')->toArray(),
             $visitorSchema
         ]];
 
         $guest = ['id' => '123', 'role' => 'guest'];
 
-        $this->eventMachine->jsonSchemaAssertion()->assert('Guest', $guest, $visitorSchema);
+        $this->eventMachine->jsonSchemaAssertion()->assert('Guest', $guest, $visitorSchema->toArray());
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageRegExp('/Validation of IdentifiedVisitor failed: \[email\] The property email is required/');
@@ -686,7 +678,7 @@ class EventMachineTest extends BasicTestCase
 
         $this->eventMachine->jsonSchemaAssertion()->assert('UserIdentityData', $userIdentityData, JsonSchema::object([
             'identity' => JsonSchema::typeRef(TestIdentityVO::__type())
-        ]));
+        ])->toArray());
     }
 
     /**

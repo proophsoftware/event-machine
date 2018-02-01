@@ -6,6 +6,9 @@ namespace ProophExample\Messaging;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\EventMachineDescription;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type\EmailType;
+use Prooph\EventMachine\JsonSchema\Type\StringType;
+use Prooph\EventMachine\JsonSchema\Type\UuidType;
 use ProophExample\Aggregate\UserDescription;
 use ProophExample\Resolver\GetUserResolver;
 use ProophExample\Resolver\GetUsersResolver;
@@ -27,29 +30,18 @@ final class MessageDescription implements EventMachineDescription
     public static function describe(EventMachine $eventMachine): void
     {
         /* Schema Definitions */
-        $userId = [
-            'type' => 'string',
-            'minLength' => 36
-        ];
+        $userId = new UuidType();
 
-        $username = [
-            'type' => 'string',
-            'minLength' => 1
-        ];
+        $username = (new StringType())->withMinLength(1);
 
         $userDataSchema = JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username,
-            UserDescription::EMAIL => [
-                'type' => 'string',
-                'format' => 'email'
-            ]
+            UserDescription::EMAIL => new EmailType()
         ], [
             //If it is set to true user registration handler will record a UserRegistrationFailed event
             //when using CachableUserFunction
-            'shouldFail' => [
-                'type' => 'boolean'
-            ]
+            'shouldFail' => JsonSchema::boolean()
         ]);
 
         /* Message Registration */

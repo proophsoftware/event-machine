@@ -31,8 +31,8 @@ final class ReflectionBasedContainerTest extends BasicTestCase
             'event_machine' => [
                 'command_map' => [
                     Command::REGISTER_USER => JsonSchema::object([
-                        UserDescription::IDENTIFIER => ['type' => 'string', 'minLength' => 2]
-                    ])
+                        UserDescription::IDENTIFIER => JsonSchema::string()->withMinLength(2)
+                    ])->toArray()
                 ],
                 'event_map' => [],
             ]

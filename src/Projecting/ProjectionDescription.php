@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Projecting;
 
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\JsonSchema\Type;
 use Prooph\EventMachine\Persistence\Stream;
 
 final class ProjectionDescription
@@ -112,7 +113,7 @@ final class ProjectionDescription
         return $this;
     }
 
-    public function storeDocumentsOfType(string $typeNameOrImmutableRecordClass, array $schema = null): self
+    public function storeDocumentsOfType(string $typeNameOrImmutableRecordClass, Type $schema = null): self
     {
         $this->eventMachine->registerType($typeNameOrImmutableRecordClass, $schema);
 
