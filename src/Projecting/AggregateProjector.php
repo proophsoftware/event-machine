@@ -43,6 +43,11 @@ final class AggregateProjector implements Projector
      */
     private $dataConverter;
 
+    public static function aggregateCollectionName(string $appVersion, string $aggregateType): string
+    {
+        return self::generateCollectionName($appVersion, self::generateProjectionName($aggregateType));
+    }
+
     public static function generateProjectionName(string $aggregateType): string
     {
         return $aggregateType . '.Projection';

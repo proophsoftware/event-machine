@@ -78,11 +78,10 @@ final class ProjectionDescription
         return $this;
     }
 
-    public function withAggregateProjection(string $aggregateType, array $schema = null): self
+    public function withAggregateProjection(string $aggregateType): self
     {
         return $this->with(AggregateProjector::generateProjectionName($aggregateType), AggregateProjector::class)
-            ->filterAggregateType($aggregateType)
-            ->storeDocumentsOfType($aggregateType, $schema);
+            ->filterAggregateType($aggregateType);
     }
 
     public function filterAggregateType(string $aggregateType): self
@@ -109,13 +108,6 @@ final class ProjectionDescription
         }
 
         $this->eventsFilter = $listOfEvents;
-
-        return $this;
-    }
-
-    public function storeDocumentsOfType(string $typeNameOrImmutableRecordClass, Type $schema = null): self
-    {
-        $this->eventMachine->registerType($typeNameOrImmutableRecordClass, $schema);
 
         return $this;
     }
