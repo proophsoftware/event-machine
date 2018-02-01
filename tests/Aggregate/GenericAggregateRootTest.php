@@ -37,7 +37,7 @@ class GenericAggregateRootTest extends BasicTestCase
         $userWasRegistered = new GenericJsonSchemaEvent(
             'UserWasRegistered',
             ['username' => 'John'],
-            JsonSchema::object(['username' => ['type' => 'string']]),
+            JsonSchema::object(['username' => JsonSchema::string()])->toArray(),
             $this->getJsonSchemaAssertion()
         );
 
@@ -46,7 +46,7 @@ class GenericAggregateRootTest extends BasicTestCase
         $usernameWasChanged = new GenericJsonSchemaEvent(
             'UsernameWasChanged',
             ['oldUsername' => 'John', 'newUsername' => 'Max'],
-            JsonSchema::object(['oldUsername' => ['type' => 'string'], 'newUsername' => ['type' => 'string']]),
+            JsonSchema::object(['oldUsername' => JsonSchema::string(), 'newUsername' => JsonSchema::string()])->toArray(),
             $this->getJsonSchemaAssertion()
         );
 

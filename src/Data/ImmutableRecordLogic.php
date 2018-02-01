@@ -5,6 +5,7 @@ declare(strict_types = 1);
 namespace Prooph\EventMachine\Data;
 
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type;
 
 trait ImmutableRecordLogic
 {
@@ -23,7 +24,7 @@ trait ImmutableRecordLogic
         return self::convertClassToTypeName(get_called_class());
     }
 
-    public static function __schema(): array
+    public static function __schema(): Type
     {
         return self::generateSchemaFromPropTypeMap();
     }
@@ -323,9 +324,9 @@ trait ImmutableRecordLogic
 
     /**
      * @param array $arrayPropTypeMap Map of array property name to array item type
-     * @return array
+     * @return Type
      */
-    private static function generateSchemaFromPropTypeMap(array $arrayPropTypeMap = []): array
+    private static function generateSchemaFromPropTypeMap(array $arrayPropTypeMap = []): Type
     {
         if(null === self::$__propTypeMap) {
             self::$__propTypeMap = self::buildPropTypeMap();

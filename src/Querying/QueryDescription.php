@@ -5,6 +5,7 @@ namespace Prooph\EventMachine\Querying;
 
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type;
 
 final class QueryDescription
 {
@@ -68,8 +69,9 @@ final class QueryDescription
         $this->queryComplexity = $complexity;
     }
 
-    public function returnType(array $typeSchema): self
+    public function returnType(Type $typeSchema): self
     {
+        $typeSchema = $typeSchema->toArray();
         $this->eventMachine->jsonSchemaAssertion()->assert("Query return type {$this->queryName}", $typeSchema, JsonSchema::metaSchema());
 
         $this->returnType = $typeSchema;
