@@ -9,3 +9,5 @@ nbproject
 .settings
 vendor
 composer.lock
+docs/html
+!docs/html/.gitkeep
