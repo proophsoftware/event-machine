@@ -26,7 +26,8 @@ final class CommandToProcessorRouterTest extends BasicTestCase
                 'createAggregate' => true,
                 'aggregateIdentifier' => 'id',
                 'aggregateFunction' => function() {},
-                'eventRecorderMap' => []
+                'eventRecorderMap' => [],
+                'streamName' => 'event_stream',
             ]
         ];
 

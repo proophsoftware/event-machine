@@ -199,6 +199,8 @@ final class EventMachine
 
     private $projectionRunner;
 
+    private $writeModelStreamName = 'event_stream';
+
     public static function fromCachedConfig(array $config, ContainerInterface $container): self
     {
         $self = new self();
@@ -231,6 +233,7 @@ final class EventMachine
         $self->schemaInputTypes = $config['schemaInputTypes'];
         $self->appVersion = $config['appVersion'];
         $self->graphQlSchemaDocument = AST::fromArray($config['graphQlSchemaDocument']);
+        $self->writeModelStreamName = $config['writeModelStreamName'];
 
         $self->initialized = true;
 
@@ -243,6 +246,13 @@ final class EventMachine
     {
         $this->assertNotInitialized(__METHOD__);
         call_user_func([$description, 'describe'], $this);
+    }
+
+    public function setWriteModelStreamName(string $streamName): self
+    {
+        $this->assertNotInitialized(__METHOD__);
+        $this->writeModelStreamName = $streamName;
+        return $this;
     }
 
     public function registerCommand(string $commandName, ObjectType $schema): self
@@ -395,6 +405,9 @@ final class EventMachine
 
     public function watch(Stream $stream): ProjectionDescription
     {
+        if($stream->streamName() === Stream::WRITE_MODEL_STREAM) {
+            $stream = $stream->withStreamName($this->writeModelStreamName);
+        }
         //ProjectionDescriptions register itself using EventMachine::registerProjection within ProjectionDescription::with call
         return new ProjectionDescription($stream, $this);
     }
@@ -614,6 +627,7 @@ final class EventMachine
             'schemaInputTypes' => $this->schemaInputTypes,
             'appVersion' => $this->appVersion,
             'graphQlSchemaDocument' => AST::toArray($this->graphQlSchemaDocument),
+            'writeModelStreamName' => $this->writeModelStreamName,
         ];
     }
 
@@ -713,19 +727,24 @@ final class EventMachine
         ];
     }
 
+    public function writeModelStreamName(): string
+    {
+        return $this->writeModelStreamName;
+    }
+
     public function bootstrapInTestMode(array $history, array $serviceMap = []): self
     {
         $this->assertInitialized(__METHOD__);
         $this->assertNotBootstrapped(__METHOD__);
 
-        $this->container = new ContainerChain(new TestEnvContainer($serviceMap), $this->container);
+        $this->container = new ContainerChain(new TestEnvContainer($serviceMap, $this->writeModelStreamName), $this->container);
 
         /** @var ActionEventEmitterEventStore $es */
         $es = $this->container->get(self::SERVICE_ID_EVENT_STORE);
 
         $history = AggregateTestHistoryEventEnricher::enrichHistory($history, $this->aggregateDescriptions);
 
-        $es->appendTo(new StreamName('event_stream'), new \ArrayIterator($history));
+        $es->appendTo(new StreamName($this->writeModelStreamName), new \ArrayIterator($history));
 
         $es->attach(
             ActionEventEmitterEventStore::EVENT_APPEND_TO,
