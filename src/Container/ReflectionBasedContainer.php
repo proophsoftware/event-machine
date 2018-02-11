@@ -74,7 +74,18 @@ final class ReflectionBasedContainer implements ContainerInterface
         foreach ($ref->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
             if($returnType = $method->getReturnType()) {
                 if(!$returnType->isBuiltin()) {
-                    $serviceFactoryMap[$method->getReturnType()->getName()] = $method->getName();
+                    $returnTypeName = $method->getReturnType()->getName();
+
+                    if(array_key_exists($returnTypeName, $serviceFactoryMap)) {
+                        throw new \RuntimeException(sprintf(
+                            "Duplicate return type in service factory detected. Method %s has the same return type like method %s. Type is %s",
+                            $method->getName(),
+                            $serviceFactoryMap[$returnTypeName],
+                            $returnTypeName
+                        ));
+                    }
+
+                    $serviceFactoryMap[$returnTypeName] = $method->getName();
                 }
             }
         }
