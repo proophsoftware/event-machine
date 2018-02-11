@@ -131,7 +131,8 @@ final class CommandProcessorDescription
             'aggregateType' => $this->aggregateType,
             'aggregateIdentifier' => $this->aggregateIdentifier,
             'aggregateFunction' => $this->aggregateFunction,
-            'eventRecorderMap' => $eventRecorderMap
+            'eventRecorderMap' => $eventRecorderMap,
+            'streamName' => $this->eventMachine->writeModelStreamName(),
         ];
     }
 

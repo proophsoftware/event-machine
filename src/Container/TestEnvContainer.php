@@ -36,14 +36,17 @@ final class TestEnvContainer implements ContainerInterface
 
     private $documentStore;
 
+    private $writeModelStreamName;
+
     /**
      * @var array
      */
     private $services;
 
-    public function __construct(array $services = [])
+    public function __construct(array $services = [], string $writeModelStreamName)
     {
         $this->services = $services;
+        $this->writeModelStreamName = $writeModelStreamName;
     }
 
     /**
@@ -62,7 +65,7 @@ final class TestEnvContainer implements ContainerInterface
             case EventMachine::SERVICE_ID_EVENT_STORE:
                 if(null === $this->eventStore) {
                     $es = new InMemoryEventStore();
-                    $es->create(new Stream(new StreamName('event_stream'), new \ArrayIterator([])));
+                    $es->create(new Stream(new StreamName($this->writeModelStreamName), new \ArrayIterator([])));
                     $this->eventStore = new ActionEventEmitterEventStore($es, new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS));
                 }
                 return $this->eventStore;

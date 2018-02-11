@@ -11,6 +11,7 @@ use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\EventStore;
+use Prooph\EventStore\StreamName;
 use Prooph\SnapshotStore\SnapshotStore;
 
 final class CommandProcessor
@@ -49,6 +50,11 @@ final class CommandProcessor
      * @var array
      */
     private $eventApplyMap;
+
+    /**
+     * @var string
+     */
+    private $streamName;
 
     /**
      * @var callable
@@ -100,6 +106,10 @@ final class CommandProcessor
             throw new \InvalidArgumentException("Missing key eventApplyMap in commandProcessorDescription");
         }
 
+        if(!array_key_exists('streamName', $description)) {
+            throw new \InvalidArgumentException("Missing key streamName in commandProcessorDescription");
+        }
+
         return new self(
             $description['commandName'],
             $description['aggregateType'],
@@ -108,6 +118,7 @@ final class CommandProcessor
             $description['aggregateFunction'],
             $description['eventRecorderMap'],
             $description['eventApplyMap'],
+            $description['streamName'],
             $messageFactory,
             $eventStore,
             $snapshotStore
@@ -122,6 +133,7 @@ final class CommandProcessor
         callable $aggregateFunction,
         array $eventRecorderMap,
         array $eventApplyMap,
+        string $streamName,
         MessageFactory $messageFactory,
         EventStore $eventStore,
         SnapshotStore $snapshotStore = null
@@ -133,6 +145,7 @@ final class CommandProcessor
         $this->aggregateFunction = $aggregateFunction;
         $this->eventRecorderMap = $eventRecorderMap;
         $this->eventApplyMap = $eventApplyMap;
+        $this->streamName = $streamName;
         $this->messageFactory = $messageFactory;
         $this->eventStore = $eventStore;
         $this->snapshotStore = $snapshotStore;
@@ -224,7 +237,8 @@ final class CommandProcessor
                 $this->eventStore,
                 AggregateType::fromString($this->aggregateType),
                 new ClosureAggregateTranslator($aggregateId, $this->eventApplyMap),
-                $this->snapshotStore
+                $this->snapshotStore,
+                new StreamName($this->streamName)
             );
         }
 

@@ -6,7 +6,7 @@ namespace Prooph\EventMachine\Persistence;
 final class Stream
 {
     public const LOCAL_SERVICE = '__local__';
-    public const WRITE_MODEL_STREAM = 'event_stream';
+    public const WRITE_MODEL_STREAM = '$em_write_model_stream$';
 
     /**
      * @var string
@@ -64,6 +64,13 @@ final class Stream
     public function streamName(): string
     {
         return $this->streamName;
+    }
+
+    public function withStreamName(string $streamName): self
+    {
+        $cp = clone $this;
+        $cp->streamName = $streamName;
+        return $cp;
     }
 
     public function isLocalService(): bool
