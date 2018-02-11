@@ -96,14 +96,14 @@ trait ImmutableRecordLogic
                 case 'float':
                 case 'bool':
                 case 'array':
-                    $nativeData[$key] = $this->{$key};
+                    $nativeData[$key] = $this->{$key}();
                     break;
                 default:
-                    if($isNullable && $this->{$key} === null) {
+                    if($isNullable && $this->{$key}() === null) {
                         $nativeData[$key] = null;
                         continue;
                     }
-                    $nativeData[$key] = $this->voTypeToNative($this->{$key}, $key, $type);
+                    $nativeData[$key] = $this->voTypeToNative($this->{$key}(), $key, $type);
             }
         }
 
