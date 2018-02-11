@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\GraphQL;
@@ -19,12 +27,12 @@ final class TypeLanguageTest extends BasicTestCase
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object(["id" => JsonSchema::string()])->toArray()
+            'User' => JsonSchema::object(['id' => JsonSchema::string()])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -33,7 +41,7 @@ final class TypeLanguageTest extends BasicTestCase
 
         $graphQlTypes = TypeLanguage::fromEventMachineDescriptions($queries, [], $queryReturnTypes, $types);
 
-$expectedTypes = <<<TYPES
+        $expectedTypes = <<<TYPES
 
 type User {
   id: String!
@@ -68,15 +76,15 @@ TYPES;
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object([
-                "id" => JsonSchema::string(),
-                "username" => JsonSchema::nullOr(JsonSchema::string(["default" => "Unknown"]))
-            ])->toArray()
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::nullOr(JsonSchema::string(['default' => 'Unknown'])),
+            ])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -120,14 +128,14 @@ TYPES;
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "FilteredUsers" => JsonSchema::object([], [
-                'filter' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+            'FilteredUsers' => JsonSchema::object([], [
+                'filter' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -171,16 +179,16 @@ TYPES;
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object([
-                "id" => JsonSchema::string(),
-                "username" => JsonSchema::nullOr(JsonSchema::string(["default" => "Unknown"]))
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::nullOr(JsonSchema::string(['default' => 'Unknown'])),
             ])->toArray(),
-            "UserList" => JsonSchema::object(["limit" => JsonSchema::nullOr(JsonSchema::integer(["default" => 10]))])->toArray(),
+            'UserList' => JsonSchema::object(['limit' => JsonSchema::nullOr(JsonSchema::integer(['default' => 10]))])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -226,22 +234,22 @@ TYPES;
             'BuildingType' => JsonSchema::enum(['House', 'Garage', 'Tower'])->toArray(),
             'Building' => JsonSchema::object([
                 'name' => JsonSchema::string(),
-                'type' => JsonSchema::typeRef('BuildingType')
+                'type' => JsonSchema::typeRef('BuildingType'),
             ])->toArray(),
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object([
-                "id" => JsonSchema::string(),
-                "username" => JsonSchema::nullOr(JsonSchema::string(["default" => "Unknown"]))
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::nullOr(JsonSchema::string(['default' => 'Unknown'])),
             ])->toArray(),
-            "UserList" => JsonSchema::object(["limit" => JsonSchema::nullOr(JsonSchema::integer(["default" => 10]))])->toArray(),
-            "Buildings" => JsonSchema::object(["filter" => JsonSchema::string()])->toArray(),
+            'UserList' => JsonSchema::object(['limit' => JsonSchema::nullOr(JsonSchema::integer(['default' => 10]))])->toArray(),
+            'Buildings' => JsonSchema::object(['filter' => JsonSchema::string()])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -305,28 +313,28 @@ TYPES;
             'BuildingType' => JsonSchema::enum(['House', 'Garage', 'Tower'])->toArray(),
             'Building' => JsonSchema::object([
                 'name' => JsonSchema::string(),
-                'type' => JsonSchema::typeRef('BuildingType')
+                'type' => JsonSchema::typeRef('BuildingType'),
             ])->toArray(),
             'House' => JsonSchema::implementTypes(
                 JsonSchema::object([
-                    "family" => JsonSchema::string()
+                    'family' => JsonSchema::string(),
                 ]),
-                "Building"
+                'Building'
             )->toArray(),
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object([
-                "id" => JsonSchema::string(),
-                "username" => JsonSchema::nullOr(JsonSchema::string(["default" => "Unknown"]))
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::nullOr(JsonSchema::string(['default' => 'Unknown'])),
             ])->toArray(),
-            "UserList" => JsonSchema::object(["limit" => JsonSchema::nullOr(JsonSchema::integer(["default" => 10]))])->toArray(),
-            "Houses" => JsonSchema::object(["filter" => JsonSchema::string()])->toArray(),
+            'UserList' => JsonSchema::object(['limit' => JsonSchema::nullOr(JsonSchema::integer(['default' => 10]))])->toArray(),
+            'Houses' => JsonSchema::object(['filter' => JsonSchema::string()])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -397,30 +405,30 @@ TYPES;
             'BuildingType' => JsonSchema::enum(['House', 'Garage', 'Bridge'])->toArray(),
             'Building' => JsonSchema::object([
                 'name' => JsonSchema::string(),
-                'type' => JsonSchema::typeRef('BuildingType')
+                'type' => JsonSchema::typeRef('BuildingType'),
             ])->toArray(),
             'StreetBuilding' => JsonSchema::object([
                 'streetName' => JsonSchema::string(),
             ])->toArray(),
             'Bridge' => JsonSchema::implementTypes(
                 JsonSchema::object([]),
-                "Building",
-                "StreetBuilding"
+                'Building',
+                'StreetBuilding'
             )->toArray(),
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object([
-                "id" => JsonSchema::string(),
-                "username" => JsonSchema::nullOr(JsonSchema::string(["default" => "Unknown"]))
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::nullOr(JsonSchema::string(['default' => 'Unknown'])),
             ])->toArray(),
-            "UserList" => JsonSchema::object(["limit" => JsonSchema::nullOr(JsonSchema::integer(["default" => 10]))])->toArray(),
-            "Bridges" => JsonSchema::object(["filter" => JsonSchema::string()])->toArray(),
+            'UserList' => JsonSchema::object(['limit' => JsonSchema::nullOr(JsonSchema::integer(['default' => 10]))])->toArray(),
+            'Bridges' => JsonSchema::object(['filter' => JsonSchema::string()])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -496,35 +504,35 @@ TYPES;
             'BuildingType' => JsonSchema::enum(['House', 'Garage', 'Bridge'])->toArray(),
             'Building' => JsonSchema::object([
                 'name' => JsonSchema::string(),
-                'type' => JsonSchema::typeRef('BuildingType')
+                'type' => JsonSchema::typeRef('BuildingType'),
             ])->toArray(),
             'StreetBuilding' => JsonSchema::object([
                 'streetName' => JsonSchema::string(),
             ])->toArray(),
             'Bridge' => JsonSchema::implementTypes(
                 JsonSchema::object([]),
-                "Building",
-                "StreetBuilding"
+                'Building',
+                'StreetBuilding'
             )->toArray(),
             'City' => JsonSchema::object([
                 'bridges' => JsonSchema::array(
                     JsonSchema::typeRef('Bridge')
-                )
+                ),
             ])->toArray(),
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object([
-                "id" => JsonSchema::string(),
-                "username" => JsonSchema::nullOr(JsonSchema::string(["default" => "Unknown"]))
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::nullOr(JsonSchema::string(['default' => 'Unknown'])),
             ])->toArray(),
-            "UserList" => JsonSchema::object(["limit" => JsonSchema::nullOr(JsonSchema::integer(["default" => 10]))])->toArray(),
-            "Cities" => JsonSchema::object(["filter" => JsonSchema::string()])->toArray(),
+            'UserList' => JsonSchema::object(['limit' => JsonSchema::nullOr(JsonSchema::integer(['default' => 10]))])->toArray(),
+            'Cities' => JsonSchema::object(['filter' => JsonSchema::string()])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -605,37 +613,37 @@ TYPES;
             'BuildingType' => JsonSchema::enum(['House', 'Garage', 'Bridge'])->toArray(),
             'Building' => JsonSchema::object([
                 'name' => JsonSchema::string(),
-                'type' => JsonSchema::typeRef('BuildingType')
+                'type' => JsonSchema::typeRef('BuildingType'),
             ])->toArray(),
             'StreetBuilding' => JsonSchema::implementTypes(JsonSchema::object([
                 'streetName' => JsonSchema::string(),
             ]), 'Building')->toArray(),
             'Bridge' => JsonSchema::implementTypes(
                 JsonSchema::object([]),
-                "Building",
-                "StreetBuilding"
+                'Building',
+                'StreetBuilding'
             )->toArray(),
             'City' => JsonSchema::object([
                 'bridges' => JsonSchema::array(
                     JsonSchema::typeRef('Bridge')
-                )
+                ),
             ])->toArray(),
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object([
-                "id" => JsonSchema::string(),
-                "username" => JsonSchema::nullOr(JsonSchema::string(["default" => "Unknown"]))
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::nullOr(JsonSchema::string(['default' => 'Unknown'])),
             ])->toArray(),
-            "UserList" => JsonSchema::object([
-                "limit" => JsonSchema::nullOr(JsonSchema::integer(["default" => 10]))
+            'UserList' => JsonSchema::object([
+                'limit' => JsonSchema::nullOr(JsonSchema::integer(['default' => 10])),
             ])->toArray(),
-            "Cities" => JsonSchema::object(["filter" => JsonSchema::string()])->toArray(),
+            'Cities' => JsonSchema::object(['filter' => JsonSchema::string()])->toArray(),
         ];
 
         $queryReturnTypes = [
@@ -645,7 +653,7 @@ TYPES;
         ];
 
         $this->expectException(\RuntimeException::class);
-        $this->expectExceptionMessageRegExp("/^Interface StreetBuilding must not implement another interface. Found allOf key in schema: /");
+        $this->expectExceptionMessageRegExp('/^Interface StreetBuilding must not implement another interface. Found allOf key in schema: /');
 
         $graphQlTypes = TypeLanguage::fromEventMachineDescriptions($queries, [], $queryReturnTypes, $types);
     }
@@ -659,16 +667,16 @@ TYPES;
             'User' => JsonSchema::object([
                 'id' => JsonSchema::string(),
                 'username' => JsonSchema::string(),
-                'realName' => JsonSchema::nullOr(JsonSchema::string())
-            ])->toArray()
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
         ];
 
         $queries = [
-            "User" => JsonSchema::object(["id" => JsonSchema::string()])->toArray()
+            'User' => JsonSchema::object(['id' => JsonSchema::string()])->toArray(),
         ];
 
         $commands = [
-            "RegisterUser" => JsonSchema::object(["id" => JsonSchema::string()])->toArray()
+            'RegisterUser' => JsonSchema::object(['id' => JsonSchema::string()])->toArray(),
         ];
 
         $queryReturnTypes = [

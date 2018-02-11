@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Eventing;
 
@@ -30,8 +38,8 @@ final class EventRecorderDescription
 
     public function __invoke(): array
     {
-        if(null === $this->applyFunction) {
-            throw new \RuntimeException("No apply function specified for event: " . $this->recordedEvent);
+        if (null === $this->applyFunction) {
+            throw new \RuntimeException('No apply function specified for event: ' . $this->recordedEvent);
         }
 
         return [
@@ -43,7 +51,7 @@ final class EventRecorderDescription
     public function apply(callable $applyFunction): CommandProcessorDescription
     {
         if (null !== $this->applyFunction) {
-            throw new \BadMethodCallException("You can only assign one apply callback per recorded event");
+            throw new \BadMethodCallException('You can only assign one apply callback per recorded event');
         }
 
         $this->applyFunction = $applyFunction;

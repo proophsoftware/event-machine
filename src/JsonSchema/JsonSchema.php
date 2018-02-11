@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\JsonSchema;
 
@@ -24,7 +32,7 @@ final class JsonSchema
     public const TYPE_BOOL = 'boolean';
     public const TYPE_ARRAY = 'array';
     public const TYPE_OBJECT = 'object';
-    public const TYPE_NULL = "null";
+    public const TYPE_NULL = 'null';
 
     public const KEYWORD_ENUM = 'enum';
 
@@ -47,7 +55,7 @@ final class JsonSchema
                 throw new \RuntimeException("Invalid scalar PHP type given. Got $type");
         }
 
-        if($nullable) {
+        if ($nullable) {
             $schema = self::nullOr($schema);
         }
 
@@ -130,12 +138,12 @@ final class JsonSchema
 
     public static function isStringEnum(array $typeSchema): bool
     {
-        if(!array_key_exists(self::KEYWORD_ENUM, $typeSchema)) {
+        if (! array_key_exists(self::KEYWORD_ENUM, $typeSchema)) {
             return false;
         }
 
         foreach ($typeSchema[self::KEYWORD_ENUM] as $val) {
-            if(!is_string($val)) {
+            if (! is_string($val)) {
                 return false;
             }
         }
@@ -145,14 +153,14 @@ final class JsonSchema
 
     public static function isType(string $type, array $typeSchema): bool
     {
-        if(array_key_exists('type', $typeSchema)) {
-            if(is_array($typeSchema['type'])) {
+        if (array_key_exists('type', $typeSchema)) {
+            if (is_array($typeSchema['type'])) {
                 foreach ($typeSchema['type'] as $possibleType) {
-                    if($possibleType === $type) {
+                    if ($possibleType === $type) {
                         return true;
                     }
                 }
-            } else if (is_string($typeSchema['type'])) {
+            } elseif (is_string($typeSchema['type'])) {
                 return $typeSchema['type'] === $type;
             }
         }
@@ -168,10 +176,10 @@ final class JsonSchema
     public static function assertAllInstanceOfType(array $types): void
     {
         foreach ($types as $key => $type) {
-            if(!$type instanceof Type) {
+            if (! $type instanceof Type) {
                 throw new \InvalidArgumentException(
                     "Invalid type at key $key. Type must implement Prooph\EventMachine\JsonSchema\Type. Got "
-                    . ((is_object($type)? get_class($type) : gettype($type))));
+                    . ((is_object($type) ? get_class($type) : gettype($type))));
             }
         }
     }
@@ -182,40 +190,30 @@ final class JsonSchema
             '$schema' => 'http://json-schema.org/draft-06/schema#',
             '$id' => 'http://json-schema.org/draft-06/schema#',
             'title' => 'Core schema meta-schema',
-            'definitions' =>
-                array (
-                    'schemaArray' =>
-                        array (
+            'definitions' => [
+                    'schemaArray' => [
                             'type' => 'array',
                             'minItems' => 1,
-                            'items' =>
-                                array (
+                            'items' => [
                                     '$ref' => '#',
-                                ),
-                        ),
-                    'nonNegativeInteger' =>
-                        array (
+                                ],
+                        ],
+                    'nonNegativeInteger' => [
                             'type' => 'integer',
                             'minimum' => 0,
-                        ),
-                    'nonNegativeIntegerDefault0' =>
-                        array (
-                            'allOf' =>
-                                array (
-                                    0 =>
-                                        array (
+                        ],
+                    'nonNegativeIntegerDefault0' => [
+                            'allOf' => [
+                                    0 => [
                                             '$ref' => '#/definitions/nonNegativeInteger',
-                                        ),
-                                    1 =>
-                                        array (
+                                        ],
+                                    1 => [
                                             'default' => 0,
-                                        ),
-                                ),
-                        ),
-                    'simpleTypes' =>
-                        array (
-                            'enum' =>
-                                array (
+                                        ],
+                                ],
+                        ],
+                    'simpleTypes' => [
+                            'enum' => [
                                     0 => 'array',
                                     1 => 'boolean',
                                     2 => 'integer',
@@ -223,257 +221,194 @@ final class JsonSchema
                                     4 => 'number',
                                     5 => 'object',
                                     6 => 'string',
-                                ),
-                        ),
-                    'stringArray' =>
-                        array (
+                                ],
+                        ],
+                    'stringArray' => [
                             'type' => 'array',
-                            'items' =>
-                                array (
+                            'items' => [
                                     'type' => 'string',
-                                ),
+                                ],
                             'uniqueItems' => true,
-                            'default' =>
-                                array (
-                                ),
-                        ),
-                ),
-            'type' =>
-                array (
+                            'default' => [
+                                ],
+                        ],
+                ],
+            'type' => [
                     0 => 'object',
                     1 => 'boolean',
-                ),
-            'properties' =>
-                array (
-                    '$id' =>
-                        array (
+                ],
+            'properties' => [
+                    '$id' => [
                             'type' => 'string',
                             'format' => 'uri-reference',
-                        ),
-                    '$schema' =>
-                        array (
+                        ],
+                    '$schema' => [
                             'type' => 'string',
                             'format' => 'uri',
-                        ),
-                    '$ref' =>
-                        array (
+                        ],
+                    '$ref' => [
                             'type' => 'string',
                             'format' => 'uri-reference',
-                        ),
-                    'title' =>
-                        array (
+                        ],
+                    'title' => [
                             'type' => 'string',
-                        ),
-                    'description' =>
-                        array (
+                        ],
+                    'description' => [
                             'type' => 'string',
-                        ),
-                    'default' =>
-                        array (
-                        ),
-                    'examples' =>
-                        array (
+                        ],
+                    'default' => [
+                        ],
+                    'examples' => [
                             'type' => 'array',
-                            'items' =>
-                                array (
-                                ),
-                        ),
-                    'multipleOf' =>
-                        array (
+                            'items' => [
+                                ],
+                        ],
+                    'multipleOf' => [
                             'type' => 'number',
                             'exclusiveMinimum' => 0,
-                        ),
-                    'maximum' =>
-                        array (
+                        ],
+                    'maximum' => [
                             'type' => 'number',
-                        ),
-                    'exclusiveMaximum' =>
-                        array (
+                        ],
+                    'exclusiveMaximum' => [
                             'type' => 'number',
-                        ),
-                    'minimum' =>
-                        array (
+                        ],
+                    'minimum' => [
                             'type' => 'number',
-                        ),
-                    'exclusiveMinimum' =>
-                        array (
+                        ],
+                    'exclusiveMinimum' => [
                             'type' => 'number',
-                        ),
-                    'maxLength' =>
-                        array (
+                        ],
+                    'maxLength' => [
                             '$ref' => '#/definitions/nonNegativeInteger',
-                        ),
-                    'minLength' =>
-                        array (
+                        ],
+                    'minLength' => [
                             '$ref' => '#/definitions/nonNegativeIntegerDefault0',
-                        ),
-                    'pattern' =>
-                        array (
+                        ],
+                    'pattern' => [
                             'type' => 'string',
                             'format' => 'regex',
-                        ),
-                    'additionalItems' =>
-                        array (
+                        ],
+                    'additionalItems' => [
                             '$ref' => '#',
-                        ),
-                    'items' =>
-                        array (
-                            'anyOf' =>
-                                array (
-                                    0 =>
-                                        array (
+                        ],
+                    'items' => [
+                            'anyOf' => [
+                                    0 => [
                                             '$ref' => '#',
-                                        ),
-                                    1 =>
-                                        array (
+                                        ],
+                                    1 => [
                                             '$ref' => '#/definitions/schemaArray',
-                                        ),
-                                ),
-                            'default' =>
-                                array (
-                                ),
-                        ),
-                    'maxItems' =>
-                        array (
+                                        ],
+                                ],
+                            'default' => [
+                                ],
+                        ],
+                    'maxItems' => [
                             '$ref' => '#/definitions/nonNegativeInteger',
-                        ),
-                    'minItems' =>
-                        array (
+                        ],
+                    'minItems' => [
                             '$ref' => '#/definitions/nonNegativeIntegerDefault0',
-                        ),
-                    'uniqueItems' =>
-                        array (
+                        ],
+                    'uniqueItems' => [
                             'type' => 'boolean',
                             'default' => false,
-                        ),
-                    'contains' =>
-                        array (
+                        ],
+                    'contains' => [
                             '$ref' => '#',
-                        ),
-                    'maxProperties' =>
-                        array (
+                        ],
+                    'maxProperties' => [
                             '$ref' => '#/definitions/nonNegativeInteger',
-                        ),
-                    'minProperties' =>
-                        array (
+                        ],
+                    'minProperties' => [
                             '$ref' => '#/definitions/nonNegativeIntegerDefault0',
-                        ),
-                    'required' =>
-                        array (
+                        ],
+                    'required' => [
                             '$ref' => '#/definitions/stringArray',
-                        ),
-                    'additionalProperties' =>
-                        array (
+                        ],
+                    'additionalProperties' => [
                             '$ref' => '#',
-                        ),
-                    'definitions' =>
-                        array (
+                        ],
+                    'definitions' => [
                             'type' => 'object',
-                            'additionalProperties' =>
-                                array (
+                            'additionalProperties' => [
                                     '$ref' => '#',
-                                ),
-                            'default' =>
-                                array (
-                                ),
-                        ),
-                    'properties' =>
-                        array (
+                                ],
+                            'default' => [
+                                ],
+                        ],
+                    'properties' => [
                             'type' => 'object',
-                            'additionalProperties' =>
-                                array (
+                            'additionalProperties' => [
                                     '$ref' => '#',
-                                ),
-                            'default' =>
-                                array (
-                                ),
-                        ),
-                    'patternProperties' =>
-                        array (
+                                ],
+                            'default' => [
+                                ],
+                        ],
+                    'patternProperties' => [
                             'type' => 'object',
-                            'additionalProperties' =>
-                                array (
+                            'additionalProperties' => [
                                     '$ref' => '#',
-                                ),
-                            'default' =>
-                                array (
-                                ),
-                        ),
-                    'dependencies' =>
-                        array (
+                                ],
+                            'default' => [
+                                ],
+                        ],
+                    'dependencies' => [
                             'type' => 'object',
-                            'additionalProperties' =>
-                                array (
-                                    'anyOf' =>
-                                        array (
-                                            0 =>
-                                                array (
+                            'additionalProperties' => [
+                                    'anyOf' => [
+                                            0 => [
                                                     '$ref' => '#',
-                                                ),
-                                            1 =>
-                                                array (
+                                                ],
+                                            1 => [
                                                     '$ref' => '#/definitions/stringArray',
-                                                ),
-                                        ),
-                                ),
-                        ),
-                    'propertyNames' =>
-                        array (
+                                                ],
+                                        ],
+                                ],
+                        ],
+                    'propertyNames' => [
                             '$ref' => '#',
-                        ),
-                    'const' =>
-                        array (
-                        ),
-                    'enum' =>
-                        array (
+                        ],
+                    'const' => [
+                        ],
+                    'enum' => [
                             'type' => 'array',
                             'minItems' => 1,
                             'uniqueItems' => true,
-                        ),
-                    'type' =>
-                        array (
-                            'anyOf' =>
-                                array (
-                                    0 =>
-                                        array (
+                        ],
+                    'type' => [
+                            'anyOf' => [
+                                    0 => [
                                             '$ref' => '#/definitions/simpleTypes',
-                                        ),
-                                    1 =>
-                                        array (
+                                        ],
+                                    1 => [
                                             'type' => 'array',
-                                            'items' =>
-                                                array (
+                                            'items' => [
                                                     '$ref' => '#/definitions/simpleTypes',
-                                                ),
+                                                ],
                                             'minItems' => 1,
                                             'uniqueItems' => true,
-                                        ),
-                                ),
-                        ),
-                    'format' =>
-                        array (
+                                        ],
+                                ],
+                        ],
+                    'format' => [
                             'type' => 'string',
-                        ),
-                    'allOf' =>
-                        array (
+                        ],
+                    'allOf' => [
                             '$ref' => '#/definitions/schemaArray',
-                        ),
-                    'anyOf' =>
-                        array (
+                        ],
+                    'anyOf' => [
                             '$ref' => '#/definitions/schemaArray',
-                        ),
-                    'oneOf' =>
-                        array (
+                        ],
+                    'oneOf' => [
                             '$ref' => '#/definitions/schemaArray',
-                        ),
-                    'not' =>
-                        array (
+                        ],
+                    'not' => [
                             '$ref' => '#',
-                        ),
-                ),
-            'default' =>
-                array (
-                ),
+                        ],
+                ],
+            'default' => [
+                ],
 
         ];
 

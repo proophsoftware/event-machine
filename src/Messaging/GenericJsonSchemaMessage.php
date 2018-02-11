@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Messaging;
 
@@ -18,8 +26,7 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
         array $payload,
         array $payloadSchema,
         JsonSchemaAssertion $jsonSchemaAssertion
-    )
-    {
+    ) {
         self::assertMessageName($messageName);
         $this->messageName = $messageName;
         $jsonSchemaAssertion->assert($messageName, $payload, $payloadSchema);
@@ -34,7 +41,7 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
 
     public function get(string $key)
     {
-        if(!array_key_exists($key, $this->payload)) {
+        if (! array_key_exists($key, $this->payload)) {
             throw new \BadMethodCallException("Message payload of {$this->messageName()} does not contain a key $key.");
         }
 
@@ -43,7 +50,7 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
 
     public function getOrDefault(string $key, $default)
     {
-        if(!array_key_exists($key, $this->payload)) {
+        if (! array_key_exists($key, $this->payload)) {
             return $default;
         }
 
@@ -57,10 +64,8 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
 
     public static function assertMessageName(string $messageName)
     {
-        if(!preg_match('/^[A-Za-z0-9_.-\/]+$/', $messageName)) {
-            throw new \InvalidArgumentException("Invalid message name.");
+        if (! preg_match('/^[A-Za-z0-9_.-\/]+$/', $messageName)) {
+            throw new \InvalidArgumentException('Invalid message name.');
         }
     }
 }
-
-

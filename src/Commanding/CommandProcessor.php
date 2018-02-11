@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Commanding;
 
@@ -78,36 +86,36 @@ final class CommandProcessor
 
     public static function fromDescriptionArrayAndDependencies(array $description, MessageFactory $messageFactory, EventStore $eventStore, SnapshotStore $snapshotStore = null): self
     {
-        if(!array_key_exists('commandName', $description)) {
-            throw new \InvalidArgumentException("Missing key commandName in commandProcessorDescription");
+        if (! array_key_exists('commandName', $description)) {
+            throw new \InvalidArgumentException('Missing key commandName in commandProcessorDescription');
         }
 
-        if(!array_key_exists('createAggregate', $description)) {
-            throw new \InvalidArgumentException("Missing key createAggregate in commandProcessorDescription");
+        if (! array_key_exists('createAggregate', $description)) {
+            throw new \InvalidArgumentException('Missing key createAggregate in commandProcessorDescription');
         }
 
-        if(!array_key_exists('aggregateType', $description)) {
-            throw new \InvalidArgumentException("Missing key aggregateType in commandProcessorDescription");
+        if (! array_key_exists('aggregateType', $description)) {
+            throw new \InvalidArgumentException('Missing key aggregateType in commandProcessorDescription');
         }
 
-        if(!array_key_exists('aggregateIdentifier', $description)) {
-            throw new \InvalidArgumentException("Missing key aggregateIdentifier in commandProcessorDescription");
+        if (! array_key_exists('aggregateIdentifier', $description)) {
+            throw new \InvalidArgumentException('Missing key aggregateIdentifier in commandProcessorDescription');
         }
 
-        if(!array_key_exists('aggregateFunction', $description)) {
-            throw new \InvalidArgumentException("Missing key aggregateFunction in commandProcessorDescription");
+        if (! array_key_exists('aggregateFunction', $description)) {
+            throw new \InvalidArgumentException('Missing key aggregateFunction in commandProcessorDescription');
         }
 
-        if(!array_key_exists('eventRecorderMap', $description)) {
-            throw new \InvalidArgumentException("Missing key eventRecorderMap in commandProcessorDescription");
+        if (! array_key_exists('eventRecorderMap', $description)) {
+            throw new \InvalidArgumentException('Missing key eventRecorderMap in commandProcessorDescription');
         }
 
-        if(!array_key_exists('eventApplyMap', $description)) {
-            throw new \InvalidArgumentException("Missing key eventApplyMap in commandProcessorDescription");
+        if (! array_key_exists('eventApplyMap', $description)) {
+            throw new \InvalidArgumentException('Missing key eventApplyMap in commandProcessorDescription');
         }
 
-        if(!array_key_exists('streamName', $description)) {
-            throw new \InvalidArgumentException("Missing key streamName in commandProcessorDescription");
+        if (! array_key_exists('streamName', $description)) {
+            throw new \InvalidArgumentException('Missing key streamName in commandProcessorDescription');
         }
 
         return new self(
@@ -153,7 +161,7 @@ final class CommandProcessor
 
     public function __invoke(GenericJsonSchemaCommand $command)
     {
-        if($command->messageName() !== $this->commandName) {
+        if ($command->messageName() !== $this->commandName) {
             throw  new \RuntimeException('Wrong routing detected. Command processor is responsible for '
                 . $this->commandName . ' but command '
                 . $command->messageName() . ' received.');
@@ -161,26 +169,26 @@ final class CommandProcessor
 
         $payload = $command->payload();
 
-        if(!array_key_exists($this->aggregateIdentifier, $payload)) {
+        if (! array_key_exists($this->aggregateIdentifier, $payload)) {
             throw new \RuntimeException(sprintf(
-                "Missing aggregate identifier %s in payload of command %s",
+                'Missing aggregate identifier %s in payload of command %s',
                 $this->aggregateIdentifier,
                 $this->commandName
             ));
         }
 
-        $arId = (string)$payload[$this->aggregateIdentifier];
+        $arId = (string) $payload[$this->aggregateIdentifier];
         $arRepository = $this->getAggregateRepository($arId);
         $arFuncArgs = [];
 
-        if($this->createAggregate) {
+        if ($this->createAggregate) {
             $aggregate = new GenericAggregateRoot($arId, AggregateType::fromString($this->aggregateType), $this->eventApplyMap);
             $arFuncArgs[] = $command;
         } else {
             /** @var GenericAggregateRoot $aggregate */
             $aggregate = $arRepository->getAggregateRoot($arId);
 
-            if(!$aggregate) {
+            if (! $aggregate) {
                 throw AggregateNotFound::with($this->aggregateType, $arId);
             }
 
@@ -192,7 +200,7 @@ final class CommandProcessor
 
         $events = $arFunc(...$arFuncArgs);
 
-        if(!$events instanceof \Generator) {
+        if (! $events instanceof \Generator) {
             throw new \InvalidArgumentException(
                 'Expected aggregateFunction to be of type Generator. ' .
                 'Did you forget the yield keyword in your command handler?'
@@ -200,19 +208,18 @@ final class CommandProcessor
         }
 
         foreach ($events as $event) {
-            if(!$event) {
+            if (! $event) {
                 continue;
             }
 
-            if(!is_array($event) || !array_key_exists(0, $event) || !array_key_exists(1, $event)
-                || !is_string($event[0])  || !is_array($event[1])) {
+            if (! is_array($event) || ! array_key_exists(0, $event) || ! array_key_exists(1, $event)
+                || ! is_string($event[0]) || ! is_array($event[1])) {
                 throw new \RuntimeException(sprintf(
-                    "Event returned by aggregate of type %s while handling command %s does not has the format [string eventName, array payload]!",
+                    'Event returned by aggregate of type %s while handling command %s does not has the format [string eventName, array payload]!',
                     $this->aggregateType,
                     $this->commandName
                 ));
             }
-
             [$eventName, $payload] = $event;
 
             /** @var GenericJsonSchemaEvent $event */
@@ -220,8 +227,8 @@ final class CommandProcessor
                 'payload' => $payload,
                 'metadata' => [
                     '_causation_id' => $command->uuid()->toString(),
-                    '_causation_name' => $this->commandName
-                ]
+                    '_causation_name' => $this->commandName,
+                ],
             ]);
 
             $aggregate->recordThat($event);
@@ -232,7 +239,7 @@ final class CommandProcessor
 
     private function getAggregateRepository(string $aggregateId): AggregateRepository
     {
-        if(null === $this->aggregateRepository) {
+        if (null === $this->aggregateRepository) {
             $this->aggregateRepository = new AggregateRepository(
                 $this->eventStore,
                 AggregateType::fromString($this->aggregateType),

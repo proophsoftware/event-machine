@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence\DocumentStore\OrderBy;
@@ -31,10 +39,10 @@ final class AndOrder implements OrderBy
         $this->orderByA = $a;
         $this->orderByB = $b;
 
-        if($this->orderByA instanceof AndOrder) {
+        if ($this->orderByA instanceof AndOrder) {
             throw new \InvalidArgumentException(
                 sprintf(
-                    "First element of %s must not be again an AndOrderBy. This is only allowed for the alternative element.",
+                    'First element of %s must not be again an AndOrderBy. This is only allowed for the alternative element.',
                     __CLASS__
                 )
             );
@@ -61,7 +69,7 @@ final class AndOrder implements OrderBy
 
     public function equals($other): bool
     {
-        if(!$other instanceof self) {
+        if (! $other instanceof self) {
             return false;
         }
 
@@ -79,12 +87,12 @@ final class AndOrder implements OrderBy
             case Asc::class:
                 return [
                     'type' => self::TYPE_DIRECTION_ASC,
-                    'data' => $orderBy->toArray()
+                    'data' => $orderBy->toArray(),
                 ];
             case Desc::class:
                 return [
                     'type' => self::TYPE_DIRECTION_DESC,
-                    'data' => $orderBy->toArray()
+                    'data' => $orderBy->toArray(),
                 ];
             case AndOrder::class:
                 return [
@@ -92,7 +100,7 @@ final class AndOrder implements OrderBy
                     'data' => $orderBy->toArray(),
                 ];
             default:
-                throw new \RuntimeException("Unknown OrderBy class. Got " . get_class($orderBy));
+                throw new \RuntimeException('Unknown OrderBy class. Got ' . get_class($orderBy));
         }
     }
 
@@ -106,7 +114,7 @@ final class AndOrder implements OrderBy
             case self::TYPE_AND:
                 return AndOrder::fromArray($data['data'] ?? []);
             default:
-                throw new \RuntimeException("Unknown OrderBy type. Got " . $data['type'] ?? 'empty type');
+                throw new \RuntimeException('Unknown OrderBy type. Got ' . $data['type'] ?? 'empty type');
         }
     }
 }

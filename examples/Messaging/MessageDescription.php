@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace ProophExample\Messaging;
 
@@ -37,18 +45,18 @@ final class MessageDescription implements EventMachineDescription
         $userDataSchema = JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username,
-            UserDescription::EMAIL => new EmailType()
+            UserDescription::EMAIL => new EmailType(),
         ], [
             //If it is set to true user registration handler will record a UserRegistrationFailed event
             //when using CachableUserFunction
-            'shouldFail' => JsonSchema::boolean()
+            'shouldFail' => JsonSchema::boolean(),
         ]);
 
         /* Message Registration */
         $eventMachine->registerCommand(Command::REGISTER_USER, $userDataSchema);
         $eventMachine->registerCommand(Command::CHANGE_USERNAME, JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
-            UserDescription::USERNAME => $username
+            UserDescription::USERNAME => $username,
         ]));
         $eventMachine->registerCommand(Command::DO_NOTHING, JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
@@ -78,7 +86,7 @@ final class MessageDescription implements EventMachineDescription
             ->returnType(JsonSchema::array(JsonSchema::typeRef('User')));
 
         $eventMachine->registerQuery(Query::GET_FILTERED_USERS, JsonSchema::object([], [
-            'filter' => JsonSchema::nullOr(JsonSchema::string())
+            'filter' => JsonSchema::nullOr(JsonSchema::string()),
         ]))
             ->resolveWith(GetUsersResolver::class)
             ->returnType(JsonSchema::array(JsonSchema::typeRef('User')));

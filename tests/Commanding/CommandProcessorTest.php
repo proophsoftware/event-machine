@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\Commanding;
 
@@ -63,7 +71,7 @@ final class CommandProcessorTest extends BasicTestCase
         $registerUser = $this->getMockedCommandMessageFactory()->createMessageFromArray(Command::REGISTER_USER, [
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => 'Alex',
-            UserDescription::EMAIL => 'contact@prooph.de'
+            UserDescription::EMAIL => 'contact@prooph.de',
         ]);
 
         $commandProcessor($registerUser);
@@ -109,12 +117,12 @@ final class CommandProcessorTest extends BasicTestCase
         $eventFactory = $this->getMockedEventMessageFactory();
 
         $eventStore->load(new StreamName('event_stream'), 1, null, Argument::type(MetadataMatcher::class))
-            ->will(function ($args) use($userId, $eventFactory) {
+            ->will(function ($args) use ($userId, $eventFactory) {
                 $event = $eventFactory->createMessageFromArray('UserWasRegistered', [
                     'payload' => [
                         UserDescription::IDENTIFIER => $userId,
                         UserDescription::USERNAME => 'Alex',
-                        UserDescription::EMAIL => 'contact@prooph.de'
+                        UserDescription::EMAIL => 'contact@prooph.de',
                     ],
                     'metadata' => [
                         '_causation_id' => Uuid::uuid4()->toString(),
@@ -122,11 +130,11 @@ final class CommandProcessorTest extends BasicTestCase
                         '_aggregate_version' => 1,
                         '_aggregate_id' => $userId,
                         '_aggregate_type' => 'User',
-                    ]
+                    ],
                 ]);
 
-            return new \ArrayIterator([$event]);
-        });
+                return new \ArrayIterator([$event]);
+            });
 
         $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
             $recordedEvents = iterator_to_array($args[1]);
@@ -204,7 +212,7 @@ final class CommandProcessorTest extends BasicTestCase
             UserDescription::USERNAME => 'Alex',
             UserDescription::EMAIL => 'contact@prooph.de',
             //Force failing of user registration
-            'shouldFail' => true
+            'shouldFail' => true,
         ]);
 
         $commandProcessor($registerUser);
@@ -250,12 +258,12 @@ final class CommandProcessorTest extends BasicTestCase
         $eventFactory = $this->getMockedEventMessageFactory();
 
         $eventStore->load(new StreamName('event_stream'), 1, null, Argument::type(MetadataMatcher::class))
-            ->will(function ($args) use($userId, $eventFactory) {
+            ->will(function ($args) use ($userId, $eventFactory) {
                 $event = $eventFactory->createMessageFromArray('UserWasRegistered', [
                     'payload' => [
                         UserDescription::IDENTIFIER => $userId,
                         UserDescription::USERNAME => 'Alex',
-                        UserDescription::EMAIL => 'contact@prooph.de'
+                        UserDescription::EMAIL => 'contact@prooph.de',
                     ],
                     'metadata' => [
                         '_causation_id' => Uuid::uuid4()->toString(),
@@ -263,7 +271,7 @@ final class CommandProcessorTest extends BasicTestCase
                         '_aggregate_version' => 1,
                         '_aggregate_id' => $userId,
                         '_aggregate_type' => 'User',
-                    ]
+                    ],
                 ]);
 
                 return new \ArrayIterator([$event]);

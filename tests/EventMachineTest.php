@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachineTest;
 
@@ -41,10 +49,8 @@ use ProophExample\Resolver\GetUserResolver;
 use ProophExample\Resolver\GetUsersResolver;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
 use React\Promise\Deferred;
-use Zend\Diactoros\Request;
 use Zend\Diactoros\ServerRequest;
 
 class EventMachineTest extends BasicTestCase
@@ -141,7 +147,6 @@ class EventMachineTest extends BasicTestCase
             $this->appContainer->reveal(),
             new EventMachineContainer($this->eventMachine)
         );
-
     }
 
     protected function tearDown()
@@ -259,7 +264,7 @@ class EventMachineTest extends BasicTestCase
                     [
                         UserDescription::IDENTIFIER => '123',
                         UserDescription::USERNAME => 'Alex',
-                    ]
+                    ],
                 ]);
             }
         };
@@ -288,7 +293,7 @@ class EventMachineTest extends BasicTestCase
             [
             UserDescription::IDENTIFIER => '123',
             UserDescription::USERNAME => 'Alex',
-            ]
+            ],
         ], $userList);
     }
 
@@ -426,19 +431,19 @@ class EventMachineTest extends BasicTestCase
         $userId = Uuid::uuid4()->toString();
 
         $this->eventStore->load(new StreamName('event_stream'), 1, null, Argument::any())->will(function ($args) use ($userId, $eventMachine) {
-                return new \ArrayIterator([
+            return new \ArrayIterator([
                     $eventMachine->messageFactory()->createMessageFromArray(Event::USER_WAS_REGISTERED, [
                         'payload' => [
                             'userId' => $userId,
                             'username' => 'Tester',
-                            'email' => 'tester@test.com'
+                            'email' => 'tester@test.com',
                         ],
                         'metadata' => [
                             '_aggregate_id' => $userId,
                             '_aggregate_type' => Aggregate::USER,
-                            '_aggregate_version' => 1
-                        ]
-                    ])
+                            '_aggregate_version' => 1,
+                        ],
+                    ]),
                 ]);
         });
 
@@ -511,9 +516,9 @@ class EventMachineTest extends BasicTestCase
         $userDataSchema = JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username,
-            UserDescription::EMAIL => new EmailType()
+            UserDescription::EMAIL => new EmailType(),
         ], [
-            'shouldFail' => JsonSchema::boolean()
+            'shouldFail' => JsonSchema::boolean(),
         ]);
 
         self::assertEquals([
@@ -521,7 +526,7 @@ class EventMachineTest extends BasicTestCase
                 Command::REGISTER_USER => $userDataSchema->toArray(),
                 Command::CHANGE_USERNAME => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
-                    UserDescription::USERNAME => $username
+                    UserDescription::USERNAME => $username,
                 ])->toArray(),
                 Command::DO_NOTHING => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
@@ -536,7 +541,7 @@ class EventMachineTest extends BasicTestCase
                 ])->toArray(),
                 Event::USER_REGISTRATION_FAILED => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
-                ])->toArray()
+                ])->toArray(),
             ],
             'queries' => [
                 Query::GET_USER => JsonSchema::object([
@@ -544,9 +549,9 @@ class EventMachineTest extends BasicTestCase
                 ])->toArray(),
                 Query::GET_USERS => null,
                 Query::GET_FILTERED_USERS => JsonSchema::object([], [
-                    'filter' => JsonSchema::nullOr(JsonSchema::string())
-                ])->toArray()
-            ]
+                    'filter' => JsonSchema::nullOr(JsonSchema::string()),
+                ])->toArray(),
+            ],
             ],
             $this->eventMachine->messageSchemas()
         );
@@ -615,7 +620,7 @@ class EventMachineTest extends BasicTestCase
             'id' => $userId,
             'username' => 'Alex',
             'email' => 'contact@prooph.de',
-            'failed' => null
+            'failed' => null,
         ], $userState);
     }
 
@@ -626,7 +631,7 @@ class EventMachineTest extends BasicTestCase
     {
         $this->eventMachine->registerType('UserState', JsonSchema::object([
             'id' => JsonSchema::string(['minLength' => 3]),
-            'email' => JsonSchema::string(['format' => 'email'])
+            'email' => JsonSchema::string(['format' => 'email']),
         ], [], true));
 
         $this->eventMachine->initialize($this->containerChain);
@@ -637,7 +642,7 @@ class EventMachineTest extends BasicTestCase
 
         $identifiedVisitorSchema = ['allOf' => [
             JsonSchema::typeRef('UserState')->toArray(),
-            $visitorSchema
+            $visitorSchema,
         ]];
 
         $guest = ['id' => '123', 'role' => 'guest'];
@@ -648,7 +653,6 @@ class EventMachineTest extends BasicTestCase
         $this->expectExceptionMessageRegExp('/Validation of IdentifiedVisitor failed: \[email\] The property email is required/');
 
         $this->eventMachine->jsonSchemaAssertion()->assert('IdentifiedVisitor', $guest, $identifiedVisitorSchema);
-
     }
 
     /**
@@ -663,15 +667,15 @@ class EventMachineTest extends BasicTestCase
         $userIdentityData = [
             'identity' => [
                 'email' => 'test@test.local',
-                'password' => 12345
-            ]
+                'password' => 12345,
+            ],
         ];
 
         $this->expectException(\InvalidArgumentException::class);
         $this->expectExceptionMessageRegExp('/Validation of UserIdentityData failed: \[identity.password\] Integer value found, but a string is required/');
 
         $this->eventMachine->jsonSchemaAssertion()->assert('UserIdentityData', $userIdentityData, JsonSchema::object([
-            'identity' => JsonSchema::typeRef(TestIdentityVO::__type())
+            'identity' => JsonSchema::typeRef(TestIdentityVO::__type()),
         ])->toArray());
     }
 
@@ -713,15 +717,15 @@ class EventMachineTest extends BasicTestCase
             return $query;
         });
 
-        $request = new ServerRequest([], [], "/graphql", 'POST', $stream, [
-            'Content-Type' => 'application/graphql'
+        $request = new ServerRequest([], [], '/graphql', 'POST', $stream, [
+            'Content-Type' => 'application/graphql',
         ]);
 
         $response = $server->handle($request);
 
         $this->assertEquals(json_encode([
-            "data" => ["GetUser" => [$username => "Alex"]]
-        ]), (string)$response->getBody());
+            'data' => ['GetUser' => [$username => 'Alex']],
+        ]), (string) $response->getBody());
     }
 
     /**
@@ -736,7 +740,7 @@ class EventMachineTest extends BasicTestCase
                     [
                         UserDescription::IDENTIFIER => '123',
                         UserDescription::USERNAME => 'Alex',
-                    ]
+                    ],
                 ]);
             }
         };
@@ -761,15 +765,15 @@ class EventMachineTest extends BasicTestCase
             return $query;
         });
 
-        $request = new ServerRequest([], [], "/graphql", 'POST', $stream, [
-            'Content-Type' => 'application/graphql'
+        $request = new ServerRequest([], [], '/graphql', 'POST', $stream, [
+            'Content-Type' => 'application/graphql',
         ]);
 
         $response = $server->handle($request);
 
         $this->assertEquals(json_encode([
-            "data" => ["GetUsers" => [[$username => "Alex"]]]
-        ]), (string)$response->getBody());
+            'data' => ['GetUsers' => [[$username => 'Alex']]],
+        ]), (string) $response->getBody());
     }
 
     /**
@@ -784,7 +788,7 @@ class EventMachineTest extends BasicTestCase
                     [
                         UserDescription::IDENTIFIER => '123',
                         UserDescription::USERNAME => 'Alex',
-                    ]
+                    ],
                 ]);
             }
         };
@@ -809,15 +813,15 @@ class EventMachineTest extends BasicTestCase
             return $query;
         });
 
-        $request = new ServerRequest([], [], "/graphql", 'POST', $stream, [
-            'Content-Type' => 'application/graphql'
+        $request = new ServerRequest([], [], '/graphql', 'POST', $stream, [
+            'Content-Type' => 'application/graphql',
         ]);
 
         $response = $server->handle($request);
 
         $this->assertEquals(json_encode([
-            "data" => ["GetFilteredUsers" => [[$username => "Alex"]]]
-        ]), (string)$response->getBody());
+            'data' => ['GetFilteredUsers' => [[$username => 'Alex']]],
+        ]), (string) $response->getBody());
     }
 
     /**

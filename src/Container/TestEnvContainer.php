@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Container;
 
@@ -43,7 +51,7 @@ final class TestEnvContainer implements ContainerInterface
      */
     private $services;
 
-    public function __construct(array $services = [], string $writeModelStreamName)
+    public function __construct(array $services, string $writeModelStreamName)
     {
         $this->services = $services;
         $this->writeModelStreamName = $writeModelStreamName;
@@ -63,41 +71,47 @@ final class TestEnvContainer implements ContainerInterface
     {
         switch ($id) {
             case EventMachine::SERVICE_ID_EVENT_STORE:
-                if(null === $this->eventStore) {
+                if (null === $this->eventStore) {
                     $es = new InMemoryEventStore();
                     $es->create(new Stream(new StreamName($this->writeModelStreamName), new \ArrayIterator([])));
                     $this->eventStore = new ActionEventEmitterEventStore($es, new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS));
                 }
+
                 return $this->eventStore;
             case EventMachine::SERVICE_ID_COMMAND_BUS:
-                if(null === $this->commandBus) {
+                if (null === $this->commandBus) {
                     $this->commandBus = new CommandBus();
                 }
+
                 return $this->commandBus;
             case EventMachine::SERVICE_ID_EVENT_BUS:
-                if(null === $this->eventBus) {
+                if (null === $this->eventBus) {
                     $this->eventBus = new EventBus();
                 }
+
                 return $this->eventBus;
             case EventMachine::SERVICE_ID_QUERY_BUS:
                 if (null === $this->queryBus) {
                     $this->queryBus = new QueryBus();
                 }
+
                 return $this->queryBus;
             case EventMachine::SERVICE_ID_SNAPSHOT_STORE:
                 return $this->getSnapshotStore();
             case EventMachine::SERVICE_ID_PROJECTION_MANAGER:
-                if(null === $this->projectionManager) {
+                if (null === $this->projectionManager) {
                     $this->projectionManager = new InMemoryProjectionManager($this->get(EventMachine::SERVICE_ID_EVENT_STORE));
                 }
+
                 return $this->projectionManager;
             case EventMachine::SERVICE_ID_DOCUMENT_STORE:
-                if(null === $this->documentStore) {
+                if (null === $this->documentStore) {
                     $this->documentStore = new InMemoryDocumentStore();
                 }
+
                 return $this->documentStore;
             default:
-                if(!array_key_exists($id, $this->services)) {
+                if (! array_key_exists($id, $this->services)) {
                     throw ServiceNotFound::withServiceId($id);
                 }
 
@@ -134,9 +148,8 @@ final class TestEnvContainer implements ContainerInterface
 
     private function getSnapshotStore(): SnapshotStore
     {
-        if(null === $this->snapshotStore) {
-            $this->snapshotStore = new class implements SnapshotStore
-            {
+        if (null === $this->snapshotStore) {
+            $this->snapshotStore = new class() implements SnapshotStore {
                 public function get(string $aggregateType, string $aggregateId): ?Snapshot
                 {
                     return null;

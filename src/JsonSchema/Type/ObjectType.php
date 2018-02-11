@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\JsonSchema\Type;
@@ -49,6 +57,7 @@ class ObjectType implements Type
 
         $cp = clone $this;
         $cp->properties = array_merge($cp->properties, $props);
+
         return $cp;
     }
 
@@ -59,6 +68,7 @@ class ObjectType implements Type
         $cp = clone $this;
         $cp->properties = array_merge($cp->properties, $props);
         $cp->requiredProps = array_unique(array_merge($cp->requiredProps, array_keys($props)));
+
         return $cp;
     }
 
@@ -66,6 +76,7 @@ class ObjectType implements Type
     {
         $cp = clone $this;
         $cp->allowAdditionalProps = $flag;
+
         return $cp;
     }
 
@@ -73,6 +84,7 @@ class ObjectType implements Type
     {
         $cp = clone $this;
         $cp->implementedTypes[$typeRef->referencedTypeName()] = $typeRef;
+
         return $cp;
     }
 
@@ -91,7 +103,7 @@ class ObjectType implements Type
             }, $this->properties),
         ];
 
-        if(count($allOf)) {
+        if (count($allOf)) {
             $schema['allOf'] = $allOf;
         }
 

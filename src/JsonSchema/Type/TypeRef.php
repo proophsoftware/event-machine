@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -28,14 +35,14 @@ class TypeRef implements Type
 
     public function toArray(): array
     {
-        $refArr = ['$ref' => '#/'.JsonSchema::DEFINITIONS.'/'.$this->referencedTypeName,];
+        $refArr = ['$ref' => '#/'.JsonSchema::DEFINITIONS.'/'.$this->referencedTypeName];
 
-        if($this->nullable) {
+        if ($this->nullable) {
             return [
                 'oneOf' => [
                     ['type' => JsonSchema::TYPE_NULL],
-                    $refArr
-                ]
+                    $refArr,
+                ],
             ];
         }
 
@@ -46,6 +53,7 @@ class TypeRef implements Type
     {
         $cp = clone $this;
         $cp->nullable = true;
+
         return $cp;
     }
 }

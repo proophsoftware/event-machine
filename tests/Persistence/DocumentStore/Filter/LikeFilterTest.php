@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\Persistence\DocumentStore\Filter;
@@ -15,7 +23,7 @@ final class LikeFilterTest extends BasicTestCase
     public function it_matches(LikeFilter $filter, bool $match)
     {
         $doc = [
-            'comment' => 'prooph is awesome'
+            'comment' => 'prooph is awesome',
         ];
 
         $this->assertSame($match, $filter->match($doc));

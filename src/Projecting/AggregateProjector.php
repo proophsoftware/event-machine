@@ -1,13 +1,21 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
-use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Data\DataConverter;
 use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\DocumentStore;
 
 /**
@@ -20,7 +28,7 @@ use Prooph\EventMachine\Persistence\DocumentStore;
  *  ->filterAggregateType('My.AR')
  *  ->documentQuerySchema(JsonSchema::object(...))
  * </code>
-*/
+ */
 final class AggregateProjector implements Projector
 {
     /**
@@ -67,8 +75,8 @@ final class AggregateProjector implements Projector
 
     public function setDataConverter(DataConverter $dataConverter): void
     {
-        if(null !== $this->dataConverter) {
-            throw new \BadMethodCallException("Cannot set data converter because another instance is already set.");
+        if (null !== $this->dataConverter) {
+            throw new \BadMethodCallException('Cannot set data converter because another instance is already set.');
         }
 
         $this->dataConverter = $dataConverter;
@@ -78,34 +86,34 @@ final class AggregateProjector implements Projector
     {
         $aggregateId = $event->metadata()['_aggregate_id'] ?? null;
 
-        if(!$aggregateId) {
+        if (! $aggregateId) {
             return;
         }
 
         $aggregateType = $event->metadata()['_aggregate_type'] ?? null;
 
-        if(!$aggregateType) {
+        if (! $aggregateType) {
             return;
         }
 
-        $this->assertProjectionNameMatchesWithAggregateType($projectionName, (string)$aggregateType);
+        $this->assertProjectionNameMatchesWithAggregateType($projectionName, (string) $aggregateType);
 
         try {
-            $aggregateState = $this->eventMachine->loadAggregateState((string)$aggregateType, (string)$aggregateId);
+            $aggregateState = $this->eventMachine->loadAggregateState((string) $aggregateType, (string) $aggregateId);
         } catch (AggregateNotFound $e) {
             return;
         }
 
         $this->documentStore->upsertDoc(
             $this->generateCollectionName($appVersion, $projectionName),
-            (string)$aggregateId,
+            (string) $aggregateId,
             $this->convertAggregateStateToArray($aggregateState)
         );
     }
 
     public function prepareForRun(string $appVersion, string $projectionName): void
     {
-        if(!$this->documentStore->hasCollection($this->generateCollectionName($appVersion, $projectionName))) {
+        if (! $this->documentStore->hasCollection($this->generateCollectionName($appVersion, $projectionName))) {
             $this->documentStore->addCollection($this->generateCollectionName($appVersion, $projectionName), ...$this->indices);
         }
     }
@@ -117,9 +125,9 @@ final class AggregateProjector implements Projector
 
     private function assertProjectionNameMatchesWithAggregateType(string $projectionName, string $aggregateType): void
     {
-        if($projectionName !== self::generateProjectionName($aggregateType)) {
+        if ($projectionName !== self::generateProjectionName($aggregateType)) {
             throw new \RuntimeException(sprintf(
-                "Wrong projection name configured for %s. Should be %s but got %s",
+                'Wrong projection name configured for %s. Should be %s but got %s',
                 __CLASS__,
                 self::generateProjectionName($aggregateType),
                 $projectionName
@@ -129,7 +137,7 @@ final class AggregateProjector implements Projector
 
     private function convertAggregateStateToArray($aggregateState): array
     {
-        if(null === $this->dataConverter) {
+        if (null === $this->dataConverter) {
             $this->dataConverter = new ImmutableRecordDataConverter();
         }
 

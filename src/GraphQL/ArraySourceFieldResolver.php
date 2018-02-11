@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\GraphQL;
@@ -10,12 +18,11 @@ use React\Promise\PromiseInterface;
 
 final class ArraySourceFieldResolver implements FieldResolver
 {
-
     public function canResolve($source, array $args, ServerRequestInterface $context, ResolveInfo $info): bool
     {
-        $source = (array)$source;
+        $source = (array) $source;
 
-        if(is_array($source) && array_key_exists($info->fieldName, $source)) {
+        if (is_array($source) && array_key_exists($info->fieldName, $source)) {
             return true;
         }
 
@@ -24,7 +31,7 @@ final class ArraySourceFieldResolver implements FieldResolver
 
     public function resolve($source, array $args, ServerRequestInterface $context, ResolveInfo $info): PromiseInterface
     {
-        $source = (array)$source;
+        $source = (array) $source;
 
         return new FulfilledPromise($source[$info->fieldName] ?? null);
     }

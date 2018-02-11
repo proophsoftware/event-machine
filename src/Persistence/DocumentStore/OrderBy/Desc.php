@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence\DocumentStore\OrderBy;
@@ -29,8 +37,8 @@ final class Desc implements OrderBy
 
     private function __construct(string $prop)
     {
-        if(strlen($prop) === 0) {
-            throw new \InvalidArgumentException("Prop must not be an empty string");
+        if (strlen($prop) === 0) {
+            throw new \InvalidArgumentException('Prop must not be an empty string');
         }
         $this->prop = $prop;
     }
@@ -48,13 +56,13 @@ final class Desc implements OrderBy
     public function toArray(): array
     {
         return [
-            'prop' => $this->prop
+            'prop' => $this->prop,
         ];
     }
 
     public function equals($other): bool
     {
-        if(!$other instanceof self) {
+        if (! $other instanceof self) {
             return false;
         }
 

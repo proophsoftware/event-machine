@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Querying;
@@ -48,15 +56,15 @@ final class QueryDescription
             'name' => $this->queryName,
             'resolver' => $this->resolver,
             'complexity' => $this->queryComplexity,
-            'returnType' => $this->returnType
+            'returnType' => $this->returnType,
         ];
     }
 
     public function resolveWith($resolver): self
     {
-        if(!is_string($resolver) && !is_callable($resolver)) {
-            throw new \InvalidArgumentException("Resolver should be either a service id string or a callable function. Got "
-                . (is_object($resolver)? get_class($resolver):gettype($resolver)));
+        if (! is_string($resolver) && ! is_callable($resolver)) {
+            throw new \InvalidArgumentException('Resolver should be either a service id string or a callable function. Got '
+                . (is_object($resolver) ? get_class($resolver) : gettype($resolver)));
         }
 
         $this->resolver = $resolver;
@@ -81,11 +89,11 @@ final class QueryDescription
 
     private function assertResolverAndReturnTypeAreSet(): void
     {
-        if(!$this->resolver) {
+        if (! $this->resolver) {
             throw new \RuntimeException("Missing resolver for query {$this->queryName}");
         }
 
-        if(!$this->returnType) {
+        if (! $this->returnType) {
             throw new \RuntimeException("Missing return type for query {$this->queryName}");
         }
     }

@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -71,7 +78,7 @@ final class MessageBox implements RequestHandlerInterface
 
             $result = $this->eventMachine->dispatch($message);
 
-            if($result instanceof Promise) {
+            if ($result instanceof Promise) {
                 $response = null;
                 $result->done(function ($result) use (&$response) {
                     $response = new JsonResponse($this->dataConverter()->convertDataToArray($result));
@@ -90,7 +97,7 @@ final class MessageBox implements RequestHandlerInterface
         } catch (\Throwable $e) {
             $code = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
 
-            if($e->getCode() >= 300 && $e->getCode() <= 599) {
+            if ($e->getCode() >= 300 && $e->getCode() <= 599) {
                 $code = $e->getCode();
             }
 
@@ -104,7 +111,7 @@ final class MessageBox implements RequestHandlerInterface
 
     private function dataConverter(): DataConverter
     {
-        if(null === $this->dataConverter) {
+        if (null === $this->dataConverter) {
             $this->dataConverter = new ImmutableRecordDataConverter();
         }
 

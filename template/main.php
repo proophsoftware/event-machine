@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the prooph/proophessor.
  * (c) 2017 prooph software GmbH <contact@prooph.de>
@@ -44,6 +44,6 @@ $templates->set('partialSideNav', $templatePath . '/partial/sideNav.php');
 
 <!DOCTYPE html>
 <html>
-<?= $this->render("head"); ?>
-<?= $this->render("body"); ?>
+<?php echo $this->render('head'); ?>
+<?php echo $this->render('body'); ?>
 </html>

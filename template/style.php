@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the prooph/proophessor.
  * (c) 2017 prooph software GmbH <contact@prooph.de>

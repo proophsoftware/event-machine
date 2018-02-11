@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence\DocumentStore;
@@ -56,7 +64,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function dropCollection(string $collectionName): void
     {
-        if($this->hasCollection($collectionName)) {
+        if ($this->hasCollection($collectionName)) {
             unset($this->collections[$collectionName]);
         }
     }
@@ -71,7 +79,7 @@ final class InMemoryDocumentStore implements DocumentStore
     {
         $this->assertHasCollection($collectionName);
 
-        if($this->hasDoc($collectionName, $docId)) {
+        if ($this->hasDoc($collectionName, $docId)) {
             throw new \RuntimeException("Cannot add doc with id $docId. The doc already exists in collection $collectionName");
         }
 
@@ -119,7 +127,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function upsertDoc(string $collectionName, string $docId, array $docOrSubset): void
     {
-        if($this->hasDoc($collectionName, $docId)) {
+        if ($this->hasDoc($collectionName, $docId)) {
             $this->updateDoc($collectionName, $docId, $docOrSubset);
         } else {
             $this->addDoc($collectionName, $docId, $docOrSubset);
@@ -133,7 +141,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function deleteDoc(string $collectionName, string $docId): void
     {
-        if($this->hasDoc($collectionName, $docId)) {
+        if ($this->hasDoc($collectionName, $docId)) {
             unset($this->collections[$collectionName][$docId]);
         }
     }
@@ -159,7 +167,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function getDoc(string $collectionName, string $docId): ?array
     {
-       return $this->collections[$collectionName][$docId] ?? null;
+        return $this->collections[$collectionName][$docId] ?? null;
     }
 
     /**
@@ -182,16 +190,16 @@ final class InMemoryDocumentStore implements DocumentStore
         $filteredDocs = [];
 
         foreach ($this->collections[$collectionName] as $docId => $doc) {
-            if($filter->match($doc)) {
+            if ($filter->match($doc)) {
                 $filteredDocs[$docId] = $doc;
             }
         }
 
-        if($orderBy !== null) {
+        if ($orderBy !== null) {
             $this->sort($filteredDocs, $orderBy);
         }
 
-        if($skip !== null) {
+        if ($skip !== null) {
             $filteredDocs = array_slice($filteredDocs, $skip, $limit);
         } elseif ($limit !== null) {
             $filteredDocs = array_slice($filteredDocs, 0, $limit);
@@ -202,7 +210,7 @@ final class InMemoryDocumentStore implements DocumentStore
 
     private function hasDoc(string $collectionName, string $docId): bool
     {
-        if(!$this->hasCollection($collectionName)) {
+        if (! $this->hasCollection($collectionName)) {
             return false;
         }
 
@@ -211,7 +219,7 @@ final class InMemoryDocumentStore implements DocumentStore
 
     private function assertHasCollection(string $collectionName): void
     {
-        if(!$this->hasCollection($collectionName)) {
+        if (! $this->hasCollection($collectionName)) {
             throw new \RuntimeException("Unknown collection $collectionName");
         }
     }
@@ -220,26 +228,26 @@ final class InMemoryDocumentStore implements DocumentStore
     {
         $this->assertHasCollection($collectionName);
 
-        if(!$this->hasDoc($collectionName, $docId)) {
+        if (! $this->hasDoc($collectionName, $docId)) {
             throw new \RuntimeException("Doc with id $docId does not exist in collection $collectionName");
         }
     }
 
     private function sort(&$docs, DocumentStore\OrderBy\OrderBy $orderBy)
     {
-        $defaultCmp = function($a,$b){
+        $defaultCmp = function ($a, $b) {
             return ($a < $b) ? -1 : (($a > $b) ? 1 : 0);
         };
 
         $getField = function (array $doc, DocumentStore\OrderBy\OrderBy $orderBy) {
-            if($orderBy instanceof DocumentStore\OrderBy\Asc || $orderBy instanceof DocumentStore\OrderBy\Desc) {
+            if ($orderBy instanceof DocumentStore\OrderBy\Asc || $orderBy instanceof DocumentStore\OrderBy\Desc) {
                 $field = $orderBy->prop();
 
                 return (new ArrayReader($doc))->mixedValue($field);
             }
 
             throw new \RuntimeException(sprintf(
-                "Unable to get field from doc: %s. Given OrderBy is neither an instance of %s nor %s",
+                'Unable to get field from doc: %s. Given OrderBy is neither an instance of %s nor %s',
                 json_encode($doc),
                 DocumentStore\OrderBy\Asc::class,
                 DocumentStore\OrderBy\Desc::class
@@ -250,7 +258,7 @@ final class InMemoryDocumentStore implements DocumentStore
         $docCmp = function (array $docA, array $docB, DocumentStore\OrderBy\OrderBy $orderBy) use (&$docCmp, $defaultCmp, $getField) {
             $orderByB = null;
 
-            if($orderBy instanceof DocumentStore\OrderBy\AndOrder) {
+            if ($orderBy instanceof DocumentStore\OrderBy\AndOrder) {
                 $orderByB = $orderBy->b();
                 $orderBy = $orderBy->a();
             }
@@ -258,21 +266,21 @@ final class InMemoryDocumentStore implements DocumentStore
             $valA = $getField($docA, $orderBy);
             $valB = $getField($docB, $orderBy);
 
-            if(is_string($valA) && is_string($valB)) {
+            if (is_string($valA) && is_string($valB)) {
                 $orderResult = strcasecmp($valA, $valB);
             } else {
                 $orderResult = $defaultCmp($valA, $valB);
             }
 
-            if($orderResult === 0 && $orderByB) {
+            if ($orderResult === 0 && $orderByB) {
                 $orderResult = $docCmp($docA, $docB, $orderByB);
             }
 
-            if($orderResult === 0) {
+            if ($orderResult === 0) {
                 return 0;
             }
 
-            if($orderBy instanceof DocumentStore\OrderBy\Desc) {
+            if ($orderBy instanceof DocumentStore\OrderBy\Desc) {
                 return $orderResult * -1;
             }
 

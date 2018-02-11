@@ -1,6 +1,13 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-declare(strict_types = 1);
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Data;
 
@@ -49,15 +56,15 @@ trait ImmutableRecordLogic
 
     private function __construct(array $recordData = null, array $nativeData = null)
     {
-        if(null === self::$__propTypeMap) {
+        if (null === self::$__propTypeMap) {
             self::$__propTypeMap = self::buildPropTypeMap();
         }
 
-        if($recordData) {
+        if ($recordData) {
             $this->setRecordData($recordData);
         }
 
-        if($nativeData) {
+        if ($nativeData) {
             $this->setNativeData($nativeData);
         }
 
@@ -71,8 +78,9 @@ trait ImmutableRecordLogic
      *
      * Override to set default props after construction
      */
-    private function init(): void {}
-
+    private function init(): void
+    {
+    }
 
     /**
      * @param array $recordData
@@ -82,6 +90,7 @@ trait ImmutableRecordLogic
     {
         $copy = clone $this;
         $copy->setRecordData($recordData);
+
         return $copy;
     }
 
@@ -99,7 +108,7 @@ trait ImmutableRecordLogic
                     $nativeData[$key] = $this->{$key}();
                     break;
                 default:
-                    if($isNullable && $this->{$key}() === null) {
+                    if ($isNullable && $this->{$key}() === null) {
                         $nativeData[$key] = null;
                         continue;
                     }
@@ -123,17 +132,16 @@ trait ImmutableRecordLogic
         $recordData = [];
 
         foreach ($nativeData as $key => $val) {
-            if(!isset(self::$__propTypeMap[$key])) {
+            if (! isset(self::$__propTypeMap[$key])) {
                 throw new \InvalidArgumentException(sprintf(
                     'Invalid property passed to Record %s. Got property with key ' . $key,
                     get_called_class()
                 ));
             }
-
             [$type, $isNative, $isNullable] = self::$__propTypeMap[$key];
 
-            if($val === null) {
-                if(!$isNullable) {
+            if ($val === null) {
+                if (! $isNullable) {
                     throw new \RuntimeException("Got null for non nullable property $key of Record " . get_called_class());
                 }
 
@@ -160,7 +168,7 @@ trait ImmutableRecordLogic
     private function assertAllNotNull()
     {
         foreach (self::$__propTypeMap as $key => [$type, $isNative, $isNullable]) {
-            if(null === $this->{$key} && !$isNullable) {
+            if (null === $this->{$key} && ! $isNullable) {
                 throw new \InvalidArgumentException(sprintf(
                     'Missing record data for key %s of record %s.',
                     $key,
@@ -172,16 +180,15 @@ trait ImmutableRecordLogic
 
     private function assertType(string $key, $value)
     {
-        if(!isset(self::$__propTypeMap[$key])) {
+        if (! isset(self::$__propTypeMap[$key])) {
             throw new \InvalidArgumentException(sprintf(
                 'Invalid property passed to Record %s. Got property with key ' . $key,
                 __CLASS__
             ));
         }
-
         [$type, $isNative, $isNullable] = self::$__propTypeMap[$key];
 
-        if(null === $value && $isNullable) {
+        if (null === $value && $isNullable) {
             return;
         }
 
@@ -205,7 +212,7 @@ trait ImmutableRecordLogic
                 $isType = $value instanceof $type;
         }
 
-        if(!$isType) {
+        if (! $isType) {
             throw new \InvalidArgumentException(sprintf(
                 'Record %s data contains invalid value for property %s. Expected type is %s. Got type %s.',
                 get_called_class(),
@@ -227,11 +234,11 @@ trait ImmutableRecordLogic
         $propTypeMap = [];
 
         foreach ($props as $prop) {
-            if($prop->getName() === '__propTypeMap' || $prop->getName() === '__schema') {
+            if ($prop->getName() === '__propTypeMap' || $prop->getName() === '__schema') {
                 continue;
             }
 
-            if(!$refObj->hasMethod($prop->getName())) {
+            if (! $refObj->hasMethod($prop->getName())) {
                 throw new \RuntimeException(
                     sprintf(
                         'No method found for Record property %s of %s that has the same name.',
@@ -243,7 +250,7 @@ trait ImmutableRecordLogic
 
             $method = $refObj->getMethod($prop->getName());
 
-            if(!$method->hasReturnType()) {
+            if (! $method->hasReturnType()) {
                 throw new \RuntimeException(
                     sprintf(
                         'Method %s of Record %s does not have a return type',
@@ -253,7 +260,7 @@ trait ImmutableRecordLogic
                 );
             }
 
-            $type = (string)$method->getReturnType();
+            $type = (string) $method->getReturnType();
 
             $propTypeMap[$prop->getName()] = [$type, self::isScalarType($type), $method->getReturnType()->allowsNull()];
         }
@@ -276,7 +283,7 @@ trait ImmutableRecordLogic
 
     private function fromType($value, string $type)
     {
-        if(!class_exists($type)) {
+        if (! class_exists($type)) {
             throw new \RuntimeException("Type class $type not found");
         }
 
@@ -299,23 +306,23 @@ trait ImmutableRecordLogic
 
     private function voTypeToNative($value, string $key, string $type)
     {
-        if(method_exists($value, 'toArray')) {
+        if (method_exists($value, 'toArray')) {
             return $value->toArray();
         }
 
-        if(method_exists($value, 'toString')) {
+        if (method_exists($value, 'toString')) {
             return $value->toString();
         }
 
-        if(method_exists($value, 'toInt')) {
+        if (method_exists($value, 'toInt')) {
             return $value->toInt();
         }
 
-        if(method_exists($value, 'toFloat')) {
+        if (method_exists($value, 'toFloat')) {
             return $value->toFloat();
         }
 
-        if(method_exists($value, 'toBool')) {
+        if (method_exists($value, 'toBool')) {
             return $value->toBool();
         }
 
@@ -328,27 +335,27 @@ trait ImmutableRecordLogic
      */
     private static function generateSchemaFromPropTypeMap(array $arrayPropTypeMap = []): Type
     {
-        if(null === self::$__propTypeMap) {
+        if (null === self::$__propTypeMap) {
             self::$__propTypeMap = self::buildPropTypeMap();
         }
 
-        if(null === self::$__schema) {
+        if (null === self::$__schema) {
             $props = [];
 
             foreach (self::$__propTypeMap as $prop => [$type, $isScalar, $isNullable]) {
-                if($isScalar) {
+                if ($isScalar) {
                     $props[$prop] = JsonSchema::schemaFromScalarPhpType($type, $isNullable);
                     continue;
                 }
 
-                if($type === "array") {
-                    if(!array_key_exists($prop, $arrayPropTypeMap)) {
+                if ($type === 'array') {
+                    if (! array_key_exists($prop, $arrayPropTypeMap)) {
                         throw new \RuntimeException("Missing array item type in array property map. Please provide an array item type for property $prop.");
                     }
 
                     $arrayItemType = $arrayPropTypeMap[$prop];
 
-                    if(self::isScalarType($arrayItemType)) {
+                    if (self::isScalarType($arrayItemType)) {
                         $arrayItemSchema = JsonSchema::schemaFromScalarPhpType($arrayItemType, false);
                     } elseif ($arrayItemType === 'array') {
                         throw new \RuntimeException("Array item type of property $prop must not be 'array', only a scalar type or an existing class can be used as array item type.");
@@ -361,7 +368,7 @@ trait ImmutableRecordLogic
                     $props[$prop] = JsonSchema::typeRef(self::getTypeFromClass($type));
                 }
 
-                if($isNullable) {
+                if ($isNullable) {
                     $props[$prop] = JsonSchema::nullOr($props[$prop]);
                 }
             }
@@ -379,13 +386,13 @@ trait ImmutableRecordLogic
 
     private static function getTypeFromClass(string $classOrType): string
     {
-        if(!class_exists($classOrType)) {
+        if (! class_exists($classOrType)) {
             return $classOrType;
         }
 
         $refObj = new \ReflectionClass($classOrType);
 
-        if($refObj->implementsInterface(ImmutableRecord::class)) {
+        if ($refObj->implementsInterface(ImmutableRecord::class)) {
             return call_user_func([$classOrType, '__type']);
         }
 

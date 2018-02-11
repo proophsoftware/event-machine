@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -31,15 +38,15 @@ final class ReflectionBasedContainerTest extends BasicTestCase
             'event_machine' => [
                 'command_map' => [
                     Command::REGISTER_USER => JsonSchema::object([
-                        UserDescription::IDENTIFIER => JsonSchema::string()->withMinLength(2)
-                    ])->toArray()
+                        UserDescription::IDENTIFIER => JsonSchema::string()->withMinLength(2),
+                    ])->toArray(),
                 ],
                 'event_map' => [],
-            ]
+            ],
         ]);
 
         $this->reflectionBasedContainer = new ReflectionBasedContainer($this->serviceFactory, [
-            'CommandFactory' => MessageFactory::class
+            'CommandFactory' => MessageFactory::class,
         ]);
     }
 
@@ -52,7 +59,7 @@ final class ReflectionBasedContainerTest extends BasicTestCase
 
         $this->assertEquals([
             JsonSchemaAssertion::class => 'jsonSchemaAssertion',
-            MessageFactory::class => 'messageFactory'
+            MessageFactory::class => 'messageFactory',
         ], $serviceFactoryMap);
     }
 
@@ -73,9 +80,8 @@ final class ReflectionBasedContainerTest extends BasicTestCase
         $this->expectExceptionMessage('Validation of RegisterUser failed: [userId] Must be at least 2 characters long');
 
         $command = $messageFactory->createMessageFromArray(Command::REGISTER_USER, [
-            'payload' => [UserDescription::IDENTIFIER => '1']
+            'payload' => [UserDescription::IDENTIFIER => '1'],
         ]);
-
     }
 
     /**
@@ -97,7 +103,7 @@ final class ReflectionBasedContainerTest extends BasicTestCase
     public function it_does_not_scan_service_factory_if_service_factory_map_is_provided()
     {
         $container = new ReflectionBasedContainer($this->serviceFactory, [
-            'CommandFactory' => MessageFactory::class
+            'CommandFactory' => MessageFactory::class,
         ], [
             JsonSchemaAssertion::class => 'jsonSchemaAssertion',
         ]);
@@ -115,7 +121,6 @@ final class ReflectionBasedContainerTest extends BasicTestCase
     private function buildServiceFactory(array $appConfig)
     {
         return new class($appConfig) {
-
             use ServiceRegistry;
 
             /**
@@ -128,7 +133,8 @@ final class ReflectionBasedContainerTest extends BasicTestCase
                 $this->appConfig = new ArrayReader($appConfig);
             }
 
-            public function jsonSchemaAssertion(): JsonSchemaAssertion {
+            public function jsonSchemaAssertion(): JsonSchemaAssertion
+            {
                 return $this->makeSingleton(JsonSchemaAssertion::class, function () {
                     return new JustinRainbowJsonSchemaAssertion();
                 });
@@ -148,17 +154,15 @@ final class ReflectionBasedContainerTest extends BasicTestCase
 
             protected function nonFactoryHelperMethod()
             {
-
             }
 
             public function methodReturningBuiltInType(): string
             {
-                return "not a service";
+                return 'not a service';
             }
 
             public function methodWithoutReturnType()
             {
-
             }
         };
     }

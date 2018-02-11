@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine;
 
@@ -205,20 +213,20 @@ final class EventMachine
     {
         $self = new self();
 
-        if(!array_key_exists('commandMap', $config)) {
-            throw new \InvalidArgumentException("Missing key commandMap in cached event machine config");
+        if (! array_key_exists('commandMap', $config)) {
+            throw new \InvalidArgumentException('Missing key commandMap in cached event machine config');
         }
 
-        if(!array_key_exists('eventMap', $config)) {
-            throw new \InvalidArgumentException("Missing key eventMap in cached event machine config");
+        if (! array_key_exists('eventMap', $config)) {
+            throw new \InvalidArgumentException('Missing key eventMap in cached event machine config');
         }
 
-        if(!array_key_exists('compiledCommandRouting', $config)) {
-            throw new \InvalidArgumentException("Missing key compiledCommandRouting in cached event machine config");
+        if (! array_key_exists('compiledCommandRouting', $config)) {
+            throw new \InvalidArgumentException('Missing key compiledCommandRouting in cached event machine config');
         }
 
-        if(!array_key_exists('aggregateDescriptions', $config)) {
-            throw new \InvalidArgumentException("Missing key aggregateDescriptions in cached event machine config");
+        if (! array_key_exists('aggregateDescriptions', $config)) {
+            throw new \InvalidArgumentException('Missing key aggregateDescriptions in cached event machine config');
         }
 
         $self->commandMap = $config['commandMap'];
@@ -252,13 +260,14 @@ final class EventMachine
     {
         $this->assertNotInitialized(__METHOD__);
         $this->writeModelStreamName = $streamName;
+
         return $this;
     }
 
     public function registerCommand(string $commandName, ObjectType $schema): self
     {
         $this->assertNotInitialized(__METHOD__);
-        if(array_key_exists($commandName, $this->commandMap)) {
+        if (array_key_exists($commandName, $this->commandMap)) {
             throw new \RuntimeException("Command $commandName was already registered.");
         }
 
@@ -271,7 +280,7 @@ final class EventMachine
     {
         $this->assertNotInitialized(__METHOD__);
 
-        if(array_key_exists($eventName, $this->eventMap)) {
+        if (array_key_exists($eventName, $this->eventMap)) {
             throw new \RuntimeException("Event $eventName was already registered.");
         }
 
@@ -282,12 +291,12 @@ final class EventMachine
 
     public function registerQuery(string $queryName, ObjectType $payloadSchema = null): QueryDescription
     {
-        if($payloadSchema) {
+        if ($payloadSchema) {
             $payloadSchema = $payloadSchema->toArray();
             $this->jsonSchemaAssertion()->assert("Query $queryName payload schema", $payloadSchema, JsonSchema::metaSchema());
         }
 
-        if($this->isKnownQuery($queryName)) {
+        if ($this->isKnownQuery($queryName)) {
             throw new \RuntimeException("Query $queryName was already registered");
         }
 
@@ -302,7 +311,7 @@ final class EventMachine
     {
         $this->assertNotInitialized(__METHOD__);
 
-        if($this->isKnownProjection($projectionName)) {
+        if ($this->isKnownProjection($projectionName)) {
             throw new \RuntimeException("Projection with name $projectionName is already registered.");
         }
         $this->projectionMap[$projectionName] = $projectionDescription;
@@ -312,10 +321,10 @@ final class EventMachine
     {
         $this->assertNotInitialized(__METHOD__);
 
-        if(null === $schema) {
+        if (null === $schema) {
             $refObj = new \ReflectionClass($nameOrImmutableRecordClass);
 
-            if(!$refObj->implementsInterface(ImmutableRecord::class)) {
+            if (! $refObj->implementsInterface(ImmutableRecord::class)) {
                 throw new \InvalidArgumentException("Invalid type given. $nameOrImmutableRecordClass does not implement " . ImmutableRecord::class);
             }
 
@@ -327,7 +336,7 @@ final class EventMachine
 
         $schema = $schema->toArray();
 
-        if($this->isKnownType($name)) {
+        if ($this->isKnownType($name)) {
             throw new \RuntimeException("Type $name is already registered");
         }
 
@@ -340,7 +349,7 @@ final class EventMachine
     {
         $this->assertNotInitialized(__METHOD__);
 
-        if($this->isKnownType($name)) {
+        if ($this->isKnownType($name)) {
             throw new \RuntimeException("Input type $name is already registered. If you have a return type with the same name then add a Input suffix.");
         }
 
@@ -355,13 +364,13 @@ final class EventMachine
     {
         $this->assertNotInitialized(__METHOD__);
 
-        if(!$this->isKnownCommand($commandName)) {
+        if (! $this->isKnownCommand($commandName)) {
             throw new \InvalidArgumentException("Preprocessor attached to unknown command $commandName. You should register the command first");
         }
 
-        if(!is_string($preProcessor) && !$preProcessor instanceof CommandPreProcessor) {
-            throw new \InvalidArgumentException("PreProcessor should either be a service id given as string or an instance of ".CommandPreProcessor::class.". Got "
-                . (is_object($preProcessor)? get_class($preProcessor) : gettype($preProcessor)));
+        if (! is_string($preProcessor) && ! $preProcessor instanceof CommandPreProcessor) {
+            throw new \InvalidArgumentException('PreProcessor should either be a service id given as string or an instance of '.CommandPreProcessor::class.'. Got '
+                . (is_object($preProcessor) ? get_class($preProcessor) : gettype($preProcessor)));
         }
 
         $this->commandPreProcessors[$commandName][] = $preProcessor;
@@ -372,11 +381,11 @@ final class EventMachine
     public function process(string $commandName): CommandProcessorDescription
     {
         $this->assertNotInitialized(__METHOD__);
-        if(array_key_exists($commandName, $this->commandRouting)) {
-            throw new \BadMethodCallException("Method process was called twice for the same command: " . $commandName);
+        if (array_key_exists($commandName, $this->commandRouting)) {
+            throw new \BadMethodCallException('Method process was called twice for the same command: ' . $commandName);
         }
 
-        if(!array_key_exists($commandName, $this->commandMap)) {
+        if (! array_key_exists($commandName, $this->commandMap)) {
             throw new \BadMethodCallException("Command $commandName is unknown. You should register it first.");
         }
 
@@ -389,13 +398,13 @@ final class EventMachine
     {
         $this->assertNotInitialized(__METHOD__);
 
-        if(!$this->isKnownEvent($eventName)) {
+        if (! $this->isKnownEvent($eventName)) {
             throw new \InvalidArgumentException("Listener attached to unknown event $eventName. You should register the event first");
         }
 
-        if(!is_string($listener) && !is_callable($listener)) {
-            throw new \InvalidArgumentException("Listener should be either a service id given as string or a callable. Got "
-                . (is_object($listener)? get_class($listener) : gettype($listener)));
+        if (! is_string($listener) && ! is_callable($listener)) {
+            throw new \InvalidArgumentException('Listener should be either a service id given as string or a callable. Got '
+                . (is_object($listener) ? get_class($listener) : gettype($listener)));
         }
 
         $this->eventRouting[$eventName][] = $listener;
@@ -405,7 +414,7 @@ final class EventMachine
 
     public function watch(Stream $stream): ProjectionDescription
     {
-        if($stream->streamName() === Stream::WRITE_MODEL_STREAM) {
+        if ($stream->streamName() === Stream::WRITE_MODEL_STREAM) {
             $stream = $stream->withStreamName($this->writeModelStreamName);
         }
         //ProjectionDescriptions register itself using EventMachine::registerProjection within ProjectionDescription::with call
@@ -463,8 +472,8 @@ final class EventMachine
     public function bootstrap(string $env = self::ENV_PROD, $debugMode = false): self
     {
         $envModes = [self::ENV_PROD, self::ENV_DEV, self::ENV_TEST];
-        if(!in_array($env, $envModes)) {
-            throw new \InvalidArgumentException("Invalid env. Got $env but expected is one of " . implode(", ", $envModes));
+        if (! in_array($env, $envModes)) {
+            throw new \InvalidArgumentException("Invalid env. Got $env but expected is one of " . implode(', ', $envModes));
         }
         $this->assertInitialized(__METHOD__);
         $this->assertNotBootstrapped(__METHOD__);
@@ -490,13 +499,13 @@ final class EventMachine
     {
         $this->assertBootstrapped(__METHOD__);
 
-        if(is_string($messageOrName)) {
+        if (is_string($messageOrName)) {
             $messageOrName = $this->messageFactory()->createMessageFromArray($messageOrName, ['payload' => $payload]);
         }
 
-        if(!$messageOrName instanceof Message) {
+        if (! $messageOrName instanceof Message) {
             throw new \InvalidArgumentException('Invalid message received. Must be either a known message name or an instance of prooph message. Got '
-                . (is_object($messageOrName)? get_class($messageOrName):gettype($messageOrName)));
+                . (is_object($messageOrName) ? get_class($messageOrName) : gettype($messageOrName)));
         }
 
         switch ($messageOrName->messageType()) {
@@ -504,12 +513,12 @@ final class EventMachine
                 $preProcessors = $this->commandPreProcessors[$messageOrName->messageName()] ?? [];
 
                 foreach ($preProcessors as $preProcessorOrStr) {
-                    if(is_string($preProcessorOrStr)) {
+                    if (is_string($preProcessorOrStr)) {
                         $preProcessorOrStr = $this->container->get($preProcessorOrStr);
                     }
 
-                    if(!$preProcessorOrStr instanceof CommandPreProcessor) {
-                        throw new \RuntimeException("PreProcessor should be an instance of " . CommandPreProcessor::class . ". Got " . get_class($preProcessorOrStr));
+                    if (! $preProcessorOrStr instanceof CommandPreProcessor) {
+                        throw new \RuntimeException('PreProcessor should be an instance of ' . CommandPreProcessor::class . '. Got ' . get_class($preProcessorOrStr));
                     }
 
                     $messageOrName = $preProcessorOrStr->preProcess($messageOrName);
@@ -523,7 +532,7 @@ final class EventMachine
             case Message::TYPE_QUERY:
                 return $this->container->get(self::SERVICE_ID_QUERY_BUS)->dispatch($messageOrName);
             default:
-                throw new \RuntimeException("Unsupported message type: " . $messageOrName->messageType());
+                throw new \RuntimeException('Unsupported message type: ' . $messageOrName->messageType());
         }
 
         return null;
@@ -533,7 +542,7 @@ final class EventMachine
     {
         $this->assertBootstrapped(__METHOD__);
 
-        if(!array_key_exists($aggregateType, $this->aggregateDescriptions)) {
+        if (! array_key_exists($aggregateType, $this->aggregateDescriptions)) {
             throw new \InvalidArgumentException('Unknown aggregate type: ' . $aggregateType);
         }
 
@@ -541,7 +550,7 @@ final class EventMachine
 
         $snapshotStore = null;
 
-        if($this->container->has(self::SERVICE_ID_SNAPSHOT_STORE)) {
+        if ($this->container->has(self::SERVICE_ID_SNAPSHOT_STORE)) {
             $snapshotStore = $this->container->get(self::SERVICE_ID_SNAPSHOT_STORE);
         }
 
@@ -555,7 +564,7 @@ final class EventMachine
         /** @var GenericAggregateRoot $aggregate */
         $aggregate = $arRepository->getAggregateRoot($aggregateId);
 
-        if(!$aggregate) {
+        if (! $aggregate) {
             throw AggregateNotFound::with($aggregateType, $aggregateId);
         }
 
@@ -566,7 +575,7 @@ final class EventMachine
     {
         $this->assertBootstrapped(__METHOD__);
 
-        if(null === $this->projectionRunner) {
+        if (null === $this->projectionRunner) {
             $this->projectionRunner = new ProjectionRunner(
                 $this->container->get(self::SERVICE_ID_PROJECTION_MANAGER),
                 $this->compiledProjectionDescriptions,
@@ -590,6 +599,7 @@ final class EventMachine
     public function debugMode(): bool
     {
         $this->assertBootstrapped(__METHOD__);
+
         return $this->debugMode;
     }
 
@@ -602,9 +612,9 @@ final class EventMachine
     {
         $this->assertInitialized(__METHOD__);
 
-        $assertClosure = function($val) {
-            if($val instanceof \Closure) {
-                throw new \RuntimeException("At least one EventMachineDescription contains a Closure and is therefor not cacheable!");
+        $assertClosure = function ($val) {
+            if ($val instanceof \Closure) {
+                throw new \RuntimeException('At least one EventMachineDescription contains a Closure and is therefor not cacheable!');
             }
         };
 
@@ -635,7 +645,7 @@ final class EventMachine
     {
         $this->assertInitialized(__METHOD__);
 
-        if(null === $this->messageFactory) {
+        if (null === $this->messageFactory) {
             $this->messageFactory = new GenericJsonSchemaMessageFactory(
                 $this->commandMap,
                 $this->eventMap,
@@ -649,11 +659,12 @@ final class EventMachine
 
     public function jsonSchemaAssertion(): JsonSchemaAssertion
     {
-        if(null === $this->jsonSchemaAssertion) {
+        if (null === $this->jsonSchemaAssertion) {
             $this->jsonSchemaAssertion = new class($this->schemaTypes, $this->schemaInputTypes) implements JsonSchemaAssertion {
                 private $jsonSchemaAssertion;
                 private $schemaTypes;
                 private $schemaInputTypes;
+
                 public function __construct(array &$schemaTypes, array &$schemaInputTypes)
                 {
                     $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
@@ -677,7 +688,7 @@ final class EventMachine
     {
         $this->assertBootstrapped(__METHOD__);
 
-        if(null === $this->httpMessageBox) {
+        if (null === $this->httpMessageBox) {
             $this->httpMessageBox = new MessageBox($this);
         }
 
@@ -688,16 +699,16 @@ final class EventMachine
     {
         $this->assertBootstrapped(__METHOD__);
 
-        if(null === $this->graphqlServer) {
+        if (null === $this->graphqlServer) {
             $typeDecorator = null;
 
-            if($this->container->has(self::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR)) {
+            if ($this->container->has(self::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR)) {
                 $typeDecorator = new TypeConfigDecoratorProxy($this->container->get(self::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR));
             }
 
             $schema = BuildSchema::build($this->graphQlSchemaDocument, $typeDecorator);
 
-            if($this->container->has(self::SERVICE_ID_GRAPHQL_FIELD_RESOLVER)) {
+            if ($this->container->has(self::SERVICE_ID_GRAPHQL_FIELD_RESOLVER)) {
                 $fieldResolver = new FieldResolverChain(
                     $this->container->get(self::SERVICE_ID_GRAPHQL_FIELD_RESOLVER),
                     new MessageFieldResolver($this),
@@ -790,11 +801,11 @@ final class EventMachine
         foreach ($this->commandRouting as $commandName => $commandProcessorDesc) {
             $descArr = $commandProcessorDesc();
 
-            if($descArr['createAggregate']) {
+            if ($descArr['createAggregate']) {
                 $aggregateDescriptions[$descArr['aggregateType']] = [
                     'aggregateType' => $descArr['aggregateType'],
                     'aggregateIdentifier' => $descArr['aggregateIdentifier'],
-                    'eventApplyMap' => $descArr['eventRecorderMap']
+                    'eventApplyMap' => $descArr['eventRecorderMap'],
                 ];
             }
 
@@ -804,8 +815,8 @@ final class EventMachine
         foreach ($this->compiledCommandRouting as $commandName => &$descArr) {
             $aggregateDesc = $aggregateDescriptions[$descArr['aggregateType']] ?? null;
 
-            if(null === $aggregateDesc) {
-                throw new \RuntimeException("Missing aggregate handle method that creates the aggregate of type: " . $descArr['aggregateType']);
+            if (null === $aggregateDesc) {
+                throw new \RuntimeException('Missing aggregate handle method that creates the aggregate of type: ' . $descArr['aggregateType']);
             }
 
             $descArr['aggregateIdentifier'] = $aggregateDesc['aggregateIdentifier'];
@@ -836,7 +847,7 @@ final class EventMachine
         $queryReturnTypes = [];
 
         foreach ($this->compiledQueryDescriptions as $name => $description) {
-            if($description['returnType']) {
+            if ($description['returnType']) {
                 $queryReturnTypes[$name] = $description['returnType'];
             }
         }
@@ -860,7 +871,7 @@ final class EventMachine
         $commandBus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
         $snapshotStore = null;
 
-        if($this->container->has(self::SERVICE_ID_SNAPSHOT_STORE)) {
+        if ($this->container->has(self::SERVICE_ID_SNAPSHOT_STORE)) {
             $snapshotStore = $this->container->get(self::SERVICE_ID_SNAPSHOT_STORE);
         }
 
@@ -899,7 +910,7 @@ final class EventMachine
     {
         $eventRouter = new EventRouter($this->eventRouting);
 
-        if($this->container->has(self::SERVICE_ID_ASYNC_EVENT_PRODUCER)) {
+        if ($this->container->has(self::SERVICE_ID_ASYNC_EVENT_PRODUCER)) {
             $eventProducer = $this->container->get(self::SERVICE_ID_ASYNC_EVENT_PRODUCER);
 
             $eventRouter = new AsyncSwitchMessageRouter(
@@ -924,7 +935,7 @@ final class EventMachine
 
         $eventPublisher->attachToEventStore($eventStore);
 
-        if($eventStore instanceof TransactionalActionEventEmitterEventStore) {
+        if ($eventStore instanceof TransactionalActionEventEmitterEventStore) {
             $transactionManager = new TransactionManager($eventStore);
             $commandBus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
             $transactionManager->attachToMessageBus($commandBus);
@@ -933,35 +944,35 @@ final class EventMachine
 
     private function assertNotInitialized(string $method)
     {
-        if($this->initialized) {
+        if ($this->initialized) {
             throw new \BadMethodCallException("Method $method cannot be called after event machine is initialized");
         }
     }
 
     private function assertInitialized(string $method)
     {
-        if(!$this->initialized) {
+        if (! $this->initialized) {
             throw new \BadMethodCallException("Method $method cannot be called before event machine is initialized");
         }
     }
 
     private function assertNotBootstrapped(string $method)
     {
-        if($this->bootstrapped) {
+        if ($this->bootstrapped) {
             throw new \BadMethodCallException("Method $method cannot be called after event machine is bootstrapped");
         }
     }
 
     private function assertBootstrapped(string $method)
     {
-        if(!$this->bootstrapped) {
+        if (! $this->bootstrapped) {
             throw new \BadMethodCallException("Method $method cannot be called before event machine is bootstrapped");
         }
     }
 
     private function assertTestMode(string $method)
     {
-        if(!$this->testMode) {
+        if (! $this->testMode) {
             throw new \BadMethodCallException("Method $method cannot be called if event machine is not bootstrapped in test mode");
         }
     }

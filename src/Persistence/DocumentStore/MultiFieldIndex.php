@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence\DocumentStore;
@@ -29,7 +37,6 @@ final class MultiFieldIndex implements Index
             return FieldIndex::forFieldInMultiFieldIndex($field);
         }, $data['fields'] ?? []);
 
-
         return new self(
             $data['unique'] ?? false,
             ...$fields
@@ -38,8 +45,8 @@ final class MultiFieldIndex implements Index
 
     private function __construct(bool $unique, FieldIndex ...$fields)
     {
-        if(count($fields) <= 1) {
-            throw new \InvalidArgumentException("MultiFieldIndex should contain at least two fields");
+        if (count($fields) <= 1) {
+            throw new \InvalidArgumentException('MultiFieldIndex should contain at least two fields');
         }
 
         $this->fields = $fields;
@@ -68,13 +75,13 @@ final class MultiFieldIndex implements Index
             'fields' => array_map(function (FieldIndex $field): string {
                 return $field->field();
             }, $this->fields),
-            'unique' => $this->unique
+            'unique' => $this->unique,
         ];
     }
 
     public function equals($other): bool
     {
-        if(!$other instanceof self) {
+        if (! $other instanceof self) {
             return false;
         }
 

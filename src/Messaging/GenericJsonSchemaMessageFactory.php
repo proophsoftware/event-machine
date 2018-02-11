@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Messaging;
 
@@ -57,7 +65,7 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function createMessageFromArray(string $messageName, array $messageData): Message
     {
@@ -66,22 +74,22 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
 
         GenericJsonSchemaMessage::assertMessageName($messageName);
 
-        if(array_key_exists($messageName, $this->commandMap)) {
+        if (array_key_exists($messageName, $this->commandMap)) {
             $messageType = DomainMessage::TYPE_COMMAND;
             $payloadSchema = $this->commandMap[$messageName];
         }
 
-        if($messageType === null && array_key_exists($messageName, $this->eventMap)) {
+        if ($messageType === null && array_key_exists($messageName, $this->eventMap)) {
             $messageType = DomainMessage::TYPE_EVENT;
             $payloadSchema = $this->eventMap[$messageName];
         }
 
-        if($messageType === null && array_key_exists($messageName, $this->queryMap)) {
+        if ($messageType === null && array_key_exists($messageName, $this->queryMap)) {
             $messageType = DomainMessage::TYPE_QUERY;
             $payloadSchema = $this->queryMap[$messageName];
         }
 
-        if(null === $messageType) {
+        if (null === $messageType) {
             throw new \RuntimeException(
                 "Unknown message received. Got message with name: $messageName",
                 StatusCodeInterface::STATUS_NOT_FOUND
@@ -92,7 +100,7 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
             $messageData['payload'] = [];
         }
 
-        if(null === $payloadSchema && $messageType === DomainMessage::TYPE_QUERY) {
+        if (null === $payloadSchema && $messageType === DomainMessage::TYPE_QUERY) {
             $payloadSchema = [];
         }
 

@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\JsonSchema;
 
@@ -11,7 +19,7 @@ final class JustinRainbowJsonSchemaAssertion implements JsonSchemaAssertion
 
     public function assert(string $objectName, array $data, array $jsonSchema)
     {
-        if($data === [] && JsonSchema::isObjectType($jsonSchema)) {
+        if ($data === [] && JsonSchema::isObjectType($jsonSchema)) {
             $data = new \stdClass();
         }
 
@@ -20,7 +28,7 @@ final class JustinRainbowJsonSchemaAssertion implements JsonSchemaAssertion
 
         $this->jsonValidator()->validate($enforcedObjectData, $jsonSchema);
 
-        if(!$this->jsonValidator()->isValid()) {
+        if (! $this->jsonValidator()->isValid()) {
             $errors = $this->jsonValidator()->getErrors();
 
             $this->jsonValidator()->reset();
@@ -36,7 +44,6 @@ final class JustinRainbowJsonSchemaAssertion implements JsonSchemaAssertion
         }
 
         $this->jsonValidator()->reset();
-        return;
     }
 
     private function jsonValidator(): Validator

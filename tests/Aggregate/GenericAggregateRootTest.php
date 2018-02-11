@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\Aggregate;
 
@@ -20,14 +28,16 @@ class GenericAggregateRootTest extends BasicTestCase
     public function it_records_events_and_can_be_reconstituted_by_them()
     {
         $eventApplyMap = [
-            'UserWasRegistered' => function(Message $userWasRegistered) {
+            'UserWasRegistered' => function (Message $userWasRegistered) {
                 $arState['username'] = $userWasRegistered->payload()['username'];
+
                 return $arState;
             },
-            'UsernameWasChanged' => function(array $arState, Message $usernameWasChanged) {
+            'UsernameWasChanged' => function (array $arState, Message $usernameWasChanged) {
                 $arState['username'] = $usernameWasChanged->payload()['newUsername'];
+
                 return $arState;
-            }
+            },
         ];
 
         $arId = Uuid::uuid4()->toString();

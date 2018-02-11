@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachineTest;
 
@@ -43,7 +51,7 @@ class BasicTestCase extends TestCase
 
     protected function getJsonSchemaAssertion(): JsonSchemaAssertion
     {
-        if(null === $this->jsonSchemaAssertion) {
+        if (null === $this->jsonSchemaAssertion) {
             $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
         }
 
@@ -52,18 +60,19 @@ class BasicTestCase extends TestCase
 
     protected function getMockedCommandMessageFactory(): MessageFactory
     {
-        if(null === $this->commandMessageFactory) {
+        if (null === $this->commandMessageFactory) {
             $messageFactory = $this->prophesize(MessageFactory::class);
 
             $schemaAssertion = $this->prophesize(JsonSchemaAssertion::class);
 
-            $schemaAssertion->assert(Argument::any(), Argument::any(), Argument::any())->will(function () {});
+            $schemaAssertion->assert(Argument::any(), Argument::any(), Argument::any())->will(function () {
+            });
 
-            $messageFactory->createMessageFromArray(Argument::any(), Argument::any())->will(function ($args) use($schemaAssertion) {
+            $messageFactory->createMessageFromArray(Argument::any(), Argument::any())->will(function ($args) use ($schemaAssertion) {
                 list($commandName, $commandData) = $args;
-                if(!isset($commandData['payload'])) {
+                if (! isset($commandData['payload'])) {
                     $commandData = [
-                        'payload' => $commandData
+                        'payload' => $commandData,
                     ];
                 }
                 $command = new GenericJsonSchemaCommand($commandName, $commandData['payload'], [], $schemaAssertion->reveal());
@@ -79,14 +88,15 @@ class BasicTestCase extends TestCase
 
     protected function getMockedEventMessageFactory(): MessageFactory
     {
-        if(null === $this->eventMessageFactory) {
+        if (null === $this->eventMessageFactory) {
             $messageFactory = $this->prophesize(MessageFactory::class);
 
             $schemaAssertion = $this->prophesize(JsonSchemaAssertion::class);
 
-            $schemaAssertion->assert(Argument::any(), Argument::any(), Argument::any())->will(function () {});
+            $schemaAssertion->assert(Argument::any(), Argument::any(), Argument::any())->will(function () {
+            });
 
-            $messageFactory->createMessageFromArray(Argument::any(), Argument::any())->will(function ($args) use($schemaAssertion) {
+            $messageFactory->createMessageFromArray(Argument::any(), Argument::any())->will(function ($args) use ($schemaAssertion) {
                 list($eventName, $eventData) = $args;
                 $event = new GenericJsonSchemaEvent($eventName, $eventData['payload'], [], $schemaAssertion->reveal());
 

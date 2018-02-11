@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Container;
 
@@ -15,14 +23,13 @@ final class EventMachineContainer implements ContainerInterface
         EventMachine::SERVICE_ID_JSON_SCHEMA_ASSERTION,
     ];
 
-
     public function __construct(EventMachine $eventMachine)
     {
         $this->eventMachine = $eventMachine;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function get($id)
     {
@@ -37,7 +44,7 @@ final class EventMachineContainer implements ContainerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function has($id)
     {

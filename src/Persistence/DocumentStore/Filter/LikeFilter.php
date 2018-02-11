@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence\DocumentStore\Filter;
@@ -31,8 +39,8 @@ final class LikeFilter implements Filter
 
     public function __construct(string $prop, string $val)
     {
-        if(strlen($val) === 0) {
-            throw new \InvalidArgumentException("Like filter must not be empty");
+        if (strlen($val) === 0) {
+            throw new \InvalidArgumentException('Like filter must not be empty');
         }
 
         $this->prop = $prop;
@@ -61,11 +69,11 @@ final class LikeFilter implements Filter
 
         $prop = $reader->mixedValue($this->prop, self::NOT_SET_PROPERTY);
 
-        if($prop === self::NOT_SET_PROPERTY || !is_string($prop)) {
+        if ($prop === self::NOT_SET_PROPERTY || ! is_string($prop)) {
             return false;
         }
 
-        if($this->val === '%') {
+        if ($this->val === '%') {
             return true;
         }
 
@@ -75,29 +83,28 @@ final class LikeFilter implements Filter
         $prop = mb_strtolower($prop);
         $val = mb_strtolower($this->val);
 
-        if($likeStart) {
+        if ($likeStart) {
             $val = mb_substr($val, 1);
         }
 
-        if($likeEnd) {
+        if ($likeEnd) {
             $val = mb_substr($val, 0, mb_strlen($val) - 2);
         }
 
-
         $pos = mb_strpos($prop, $val);
 
-        if($pos === false) {
+        if ($pos === false) {
             return false;
         }
 
-        if(!$likeStart && $pos !== 0) {
+        if (! $likeStart && $pos !== 0) {
             return false;
         }
 
-        if(!$likeEnd) {
+        if (! $likeEnd) {
             $posRev = mb_strpos(strrev($prop), strrev($val));
 
-            if($posRev !== 0) {
+            if ($posRev !== 0) {
                 return false;
             }
         }

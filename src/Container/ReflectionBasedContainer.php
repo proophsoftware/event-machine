@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -22,7 +29,7 @@ final class ReflectionBasedContainer implements ContainerInterface
 
     public function __construct($serviceFactory, array $aliasMap = [], array $serviceFactoryMap = null)
     {
-        if(null === $serviceFactoryMap) {
+        if (null === $serviceFactoryMap) {
             $serviceFactoryMap = $this->scanServiceFactory($serviceFactory);
         }
 
@@ -32,13 +39,13 @@ final class ReflectionBasedContainer implements ContainerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function get($id)
     {
         $id = $this->aliasMap[$id] ?? $id;
 
-        if(!$this->has($id)) {
+        if (! $this->has($id)) {
             throw ServiceNotFound::withServiceId($id);
         }
 
@@ -46,7 +53,7 @@ final class ReflectionBasedContainer implements ContainerInterface
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function has($id)
     {
@@ -72,13 +79,13 @@ final class ReflectionBasedContainer implements ContainerInterface
         $ref = new \ReflectionClass($serviceFactory);
 
         foreach ($ref->getMethods(\ReflectionMethod::IS_PUBLIC) as $method) {
-            if($returnType = $method->getReturnType()) {
-                if(!$returnType->isBuiltin()) {
+            if ($returnType = $method->getReturnType()) {
+                if (! $returnType->isBuiltin()) {
                     $returnTypeName = $method->getReturnType()->getName();
 
-                    if(array_key_exists($returnTypeName, $serviceFactoryMap)) {
+                    if (array_key_exists($returnTypeName, $serviceFactoryMap)) {
                         throw new \RuntimeException(sprintf(
-                            "Duplicate return type in service factory detected. Method %s has the same return type like method %s. Type is %s",
+                            'Duplicate return type in service factory detected. Method %s has the same return type like method %s. Type is %s',
                             $method->getName(),
                             $serviceFactoryMap[$returnTypeName],
                             $returnTypeName

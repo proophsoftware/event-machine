@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace ProophExample\Aggregate;
 
@@ -48,7 +56,7 @@ final class UserDescription implements EventMachineDescription
             // If not called, identifier defaults to "id"
             ->identifiedBy(self::IDENTIFIER)
             // If command is handled with a new aggregate no state is passed only the command
-            ->handle(function(Message $registerUser) {
+            ->handle(function (Message $registerUser) {
                 //We just turn the command payload into event payload by yielding an event tuple
                 yield [Event::USER_WAS_REGISTERED, $registerUser->payload()];
             })
@@ -61,6 +69,7 @@ final class UserDescription implements EventMachineDescription
                 $user->id = $userWasRegistered->payload()[self::IDENTIFIER];
                 $user->username = $userWasRegistered->payload()['username'];
                 $user->email = $userWasRegistered->payload()['email'];
+
                 return $user;
             });
     }
@@ -74,13 +83,14 @@ final class UserDescription implements EventMachineDescription
                 yield [Event::USERNAME_WAS_CHANGED, [
                     self::IDENTIFIER => $user->id,
                     'oldName' => $user->username,
-                    'newName' => $changeUsername->payload()['username']
+                    'newName' => $changeUsername->payload()['username'],
                 ]];
             })
             ->recordThat(Event::USERNAME_WAS_CHANGED)
             // Same here, UsernameWasChanged is NOT the first event, so current user state is injected
             ->apply(function (UserState $user, Message $usernameWasChanged) {
                 $user->username = $usernameWasChanged->payload()['newName'];
+
                 return $user;
             });
     }

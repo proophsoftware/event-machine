@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Aggregate;
 
@@ -70,8 +78,8 @@ final class GenericAggregateRoot implements AggregateTypeProvider
      */
     public function recordThat(GenericJsonSchemaEvent $event): void
     {
-        if(!array_key_exists($event->messageName(), $this->eventApplyMap)) {
-            throw new \RuntimeException("Wrong event recording detected. Unknown event passed to GenericAggregateRoot: " . $event->messageName());
+        if (! array_key_exists($event->messageName(), $this->eventApplyMap)) {
+            throw new \RuntimeException('Wrong event recording detected. Unknown event passed to GenericAggregateRoot: ' . $event->messageName());
         }
 
         $this->version += 1;
@@ -126,15 +134,14 @@ final class GenericAggregateRoot implements AggregateTypeProvider
     {
         $apply = $this->eventApplyMap[$event->messageName()];
 
-        if($this->aggregateState === null) {
+        if ($this->aggregateState === null) {
             $newArState = $apply($event);
         } else {
             $newArState = $apply($this->aggregateState, $event);
         }
 
-
-        if(null === $newArState) {
-            throw new \RuntimeException("Apply function for " . $event->messageName() . " did not return a new aggregate state.");
+        if (null === $newArState) {
+            throw new \RuntimeException('Apply function for ' . $event->messageName() . ' did not return a new aggregate state.');
         }
 
         $this->aggregateState = $newArState;

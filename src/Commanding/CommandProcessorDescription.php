@@ -1,5 +1,13 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachine\Commanding;
 
@@ -68,8 +76,8 @@ final class CommandProcessorDescription
 
     public function identifiedBy(string $aggregateIdentifier): self
     {
-        if(null === $this->aggregateType) {
-            throw new \BadMethodCallException("You should not call identifiedBy before calling one of the with* Aggregate methods.");
+        if (null === $this->aggregateType) {
+            throw new \BadMethodCallException('You should not call identifiedBy before calling one of the with* Aggregate methods.');
         }
 
         $this->aggregateIdentifier = $aggregateIdentifier;
@@ -89,10 +97,10 @@ final class CommandProcessorDescription
     public function recordThat(string $eventName): EventRecorderDescription
     {
         if (array_key_exists($eventName, $this->eventRecorderMap)) {
-            throw new \BadMethodCallException("Method recordThat was already called for event: " . $eventName);
+            throw new \BadMethodCallException('Method recordThat was already called for event: ' . $eventName);
         }
 
-        if(!$this->eventMachine->isKnownEvent($eventName)) {
+        if (! $this->eventMachine->isKnownEvent($eventName)) {
             throw new \BadMethodCallException("Event $eventName is unknown. You should register it first.");
         }
 
@@ -136,25 +144,24 @@ final class CommandProcessorDescription
         ];
     }
 
-
     private function assertWithAggregateWasCalled(string $method): void
     {
-        if(null === $this->createAggregate) {
+        if (null === $this->createAggregate) {
             throw new \BadMethodCallException("Method with(New|Existing) Aggregate was not called. You need to call it before calling $method");
         }
     }
 
     private function assertHandleWasCalled(string $method): void
     {
-        if(null === $this->aggregateFunction) {
+        if (null === $this->aggregateFunction) {
             throw new \BadMethodCallException("Method handle was not called. You need to call it before calling $method");
         }
     }
 
     private function assertWithAggregateWasNotCalled(): void
     {
-        if(null !== $this->createAggregate) {
-            throw new \BadMethodCallException("Method with(New|Existing) Aggregate was called twice for the same command.");
+        if (null !== $this->createAggregate) {
+            throw new \BadMethodCallException('Method with(New|Existing) Aggregate was called twice for the same command.');
         }
     }
 }

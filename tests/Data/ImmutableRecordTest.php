@@ -1,10 +1,17 @@
 <?php
-declare(strict_types = 1);
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\Data;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Util\Json;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachineTest\Data\Stubs\TestBuildingVO;
 use Prooph\EventMachineTest\Data\Stubs\TestCommentVO;
@@ -27,13 +34,13 @@ final class ImmutableRecordTest extends TestCase
             'description' => 'An immutable product record',
             'price' => [
                 'amount' => 12.50,
-                'currency' => 'EUR'
+                'currency' => 'EUR',
             ],
             'active' => true,
             'tags' => [
                 'Tag1',
                 'Tag2',
-            ]
+            ],
         ]);
 
         self::assertSame(123, $product->productId());
@@ -41,7 +48,7 @@ final class ImmutableRecordTest extends TestCase
         self::assertSame('An immutable product record', $product->description());
         self::assertSame([
             'amount' => 12.50,
-            'currency' => 'EUR'
+            'currency' => 'EUR',
         ], $product->price()->toArray());
         self::assertTrue($product->active());
         self::assertSame([
@@ -61,13 +68,13 @@ final class ImmutableRecordTest extends TestCase
             'description' => 'An immutable product record',
             'price' => [
                 'amount' => 12.50,
-                'currency' => 'EUR'
+                'currency' => 'EUR',
             ],
             'active' => true,
             'tags' => [
                 'Tag1',
                 'Tag2',
-            ]
+            ],
         ];
 
         $product = TestProductVO::fromArray($expectedData);
@@ -139,8 +146,8 @@ final class ImmutableRecordTest extends TestCase
             'age' => null,
             'identities' => [
                 'email' => 'contact@prooph.de',
-                'password' => 'dev1234'
-            ]
+                'password' => 'dev1234',
+            ],
         ];
 
         $testUser = TestUserVO::fromArray($data);
@@ -155,7 +162,7 @@ final class ImmutableRecordTest extends TestCase
     {
         $data = [
             'text' => 'this is a comment',
-            'user' => null
+            'user' => null,
         ];
 
         $testComment = TestCommentVO::fromArray($data);

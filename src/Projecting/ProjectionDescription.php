@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
@@ -58,15 +66,15 @@ final class ProjectionDescription
 
     public function with(string $projectionName, string $projectorServiceId): self
     {
-        if(mb_strlen($projectionName) === 0) {
-            throw new \InvalidArgumentException("Projection name must not be empty");
+        if (mb_strlen($projectionName) === 0) {
+            throw new \InvalidArgumentException('Projection name must not be empty');
         }
 
-        if(mb_strlen($projectorServiceId) === 0) {
-            throw new \InvalidArgumentException("Projector service id must not be empty");
+        if (mb_strlen($projectorServiceId) === 0) {
+            throw new \InvalidArgumentException('Projector service id must not be empty');
         }
 
-        if($this->eventMachine->isKnownProjection($projectionName)) {
+        if ($this->eventMachine->isKnownProjection($projectionName)) {
             throw new \InvalidArgumentException("Projection $projectionName is already registered!");
         }
 
@@ -88,8 +96,8 @@ final class ProjectionDescription
     {
         $this->assertWithProjectionIsCalled(__METHOD__);
 
-        if(mb_strlen($aggregateType) === 0) {
-            throw new \InvalidArgumentException("Aggregate type filter must not be empty");
+        if (mb_strlen($aggregateType) === 0) {
+            throw new \InvalidArgumentException('Aggregate type filter must not be empty');
         }
 
         $this->aggregateTypeFilter = $aggregateType;
@@ -102,8 +110,8 @@ final class ProjectionDescription
         $this->assertWithProjectionIsCalled(__METHOD__);
 
         foreach ($listOfEvents as $event) {
-            if(!is_string($event)) {
-                throw new \InvalidArgumentException("Event filter must be a list of event names. Got a " . (is_object($event)? get_class($event) : gettype($event)));
+            if (! is_string($event)) {
+                throw new \InvalidArgumentException('Event filter must be a list of event names. Got a ' . (is_object($event) ? get_class($event) : gettype($event)));
             }
         }
 
@@ -117,7 +125,7 @@ final class ProjectionDescription
         $this->assertWithProjectionIsCalled('EventMachine::initialize');
 
         return [
-            self::PROJECTION_NAME=> $this->projectionName,
+            self::PROJECTION_NAME => $this->projectionName,
             self::PROJECTOR_SERVICE_ID => $this->projectorServiceId,
             self::SOURCE_STREAM => $this->sourceStream->toArray(),
             self::AGGREGATE_TYPE_FILTER => $this->aggregateTypeFilter,
@@ -127,7 +135,7 @@ final class ProjectionDescription
 
     private function assertWithProjectionIsCalled(string $method): void
     {
-        if(null === $this->projectionName) {
+        if (null === $this->projectionName) {
             throw new \BadMethodCallException("Method with projection was not called. You need to call it before calling $method");
         }
     }

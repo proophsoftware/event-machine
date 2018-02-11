@@ -1,10 +1,18 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
-use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventStore\Projection\ProjectionManager;
 use Prooph\EventStore\Projection\ReadModelProjector;
@@ -34,9 +42,9 @@ final class ProjectionRunner
         EventMachine $eventMachine,
         array $projectionOptions = null)
     {
-        if(null === $projectionOptions) {
+        if (null === $projectionOptions) {
             $projectionOptions = [
-                ReadModelProjector::OPTION_PERSIST_BLOCK_SIZE => 1
+                ReadModelProjector::OPTION_PERSIST_BLOCK_SIZE => 1,
             ];
         }
 
@@ -47,7 +55,7 @@ final class ProjectionRunner
         foreach ($projectionDescriptions as $prjName => $description) {
             $sourceStream = Stream::fromArray($description[ProjectionDescription::SOURCE_STREAM]);
 
-            if($sourceStream->isLocalService()) {
+            if ($sourceStream->isLocalService()) {
                 $sourceStreams[$sourceStream->streamName()] = null;
             }
         }
@@ -56,7 +64,7 @@ final class ProjectionRunner
 
         $totalSourceStreams = count($sourceStreams);
 
-        if($totalSourceStreams === 0) {
+        if ($totalSourceStreams === 0) {
             return;
         }
 
@@ -69,7 +77,7 @@ final class ProjectionRunner
             $projectionOptions
         );
 
-        if($totalSourceStreams === 1) {
+        if ($totalSourceStreams === 1) {
             $this->projection->fromStream($sourceStreams[0]);
         } else {
             $this->projection->fromStreams(...$sourceStreams);
@@ -82,6 +90,6 @@ final class ProjectionRunner
 
     public function run(bool $keepRunning, array $options = null): void
     {
-        $this->projection->run(!$this->testMode && $keepRunning);
+        $this->projection->run(! $this->testMode && $keepRunning);
     }
 }

@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\GraphQL;
@@ -6,7 +14,6 @@ namespace Prooph\EventMachine\GraphQL;
 use GraphQL\Type\Definition\ResolveInfo;
 use Psr\Http\Message\ServerRequestInterface;
 use React\Promise\FulfilledPromise;
-use React\Promise\Promise;
 
 final class FieldResolverProxy
 {
@@ -22,11 +29,11 @@ final class FieldResolverProxy
 
     public function __invoke($source, array $args, ServerRequestInterface $context, ResolveInfo $info)
     {
-        $result = $this->fieldResolver->canResolve($source, $args, $context, $info)?
+        $result = $this->fieldResolver->canResolve($source, $args, $context, $info) ?
             $this->fieldResolver->resolve($source, $args, $context, $info)
             : null;
 
-        if(null === $result) {
+        if (null === $result) {
             return new FulfilledPromise();
         }
 

@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -28,18 +35,19 @@ class IntType implements Type
 
     public function toArray(): array
     {
-        return array_merge(['type' => $this->type], (array)$this->validation);
+        return array_merge(['type' => $this->type], (array) $this->validation);
     }
 
     public function withMinimum(int $min): self
     {
         $cp = clone $this;
 
-        $validation = (array)$this->validation;
+        $validation = (array) $this->validation;
 
         $validation['minimum'] = $min;
 
         $cp->validation = $validation;
+
         return $cp;
     }
 
@@ -47,11 +55,12 @@ class IntType implements Type
     {
         $cp = clone $this;
 
-        $validation = (array)$this->validation;
+        $validation = (array) $this->validation;
 
         $validation['maximum'] = $max;
 
         $cp->validation = $validation;
+
         return $cp;
     }
 
@@ -59,12 +68,13 @@ class IntType implements Type
     {
         $cp = clone $this;
 
-        $validation = (array)$this->validation;
+        $validation = (array) $this->validation;
 
         $validation['minimum'] = $min;
         $validation['maximum'] = $max;
 
         $cp->validation = $validation;
+
         return $cp;
     }
 }

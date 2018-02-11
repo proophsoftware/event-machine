@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the prooph/proophessor.
  * (c) 2017 prooph software GmbH <contact@prooph.de>
@@ -14,5 +14,5 @@ $cssBootswatch = getenv('CSS_BOOTSWATCH') ?: 'cerulean';
 <div class="page-wrapper">
     <?php echo $this->render('core'); ?>
 </div>
-<?= $this->render("script"); ?>
+<?php echo $this->render('script'); ?>
 </body>

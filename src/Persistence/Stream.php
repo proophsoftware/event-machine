@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence;
@@ -38,12 +46,12 @@ final class Stream
 
     private function __construct(string $serviceName, string $streamName)
     {
-        if(mb_strlen($serviceName) === 0) {
-            throw new \InvalidArgumentException("Service name must not be empty");
+        if (mb_strlen($serviceName) === 0) {
+            throw new \InvalidArgumentException('Service name must not be empty');
         }
 
-        if(mb_strlen($streamName) === 0) {
-            throw new \InvalidArgumentException("Stream name must not be empty");
+        if (mb_strlen($streamName) === 0) {
+            throw new \InvalidArgumentException('Stream name must not be empty');
         }
 
         $this->serviceName = $serviceName;
@@ -70,6 +78,7 @@ final class Stream
     {
         $cp = clone $this;
         $cp->streamName = $streamName;
+
         return $cp;
     }
 
@@ -88,7 +97,7 @@ final class Stream
 
     public function equals($other): bool
     {
-        if(!$other instanceof self) {
+        if (! $other instanceof self) {
             return false;
         }
 

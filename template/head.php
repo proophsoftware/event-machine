@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the prooph/proophessor.
  * (c) 2017 prooph software GmbH <contact@prooph.de>
@@ -9,7 +9,7 @@
  */
 ?>
 <head>
-    <?= $this->render("meta"); ?>
-    <?= $this->render("style"); ?>
-    <?= $this->render("styleProoph"); ?>
+    <?php echo $this->render('meta'); ?>
+    <?php echo $this->render('style'); ?>
+    <?php echo $this->render('styleProoph'); ?>
 </head>

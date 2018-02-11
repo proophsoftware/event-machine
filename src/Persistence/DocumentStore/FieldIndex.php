@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -44,14 +51,13 @@ final class FieldIndex implements Index
         string $field,
         int $sort,
         bool $unique
-    )
-    {
-        if(mb_strlen($field) === 0) {
-            throw new \InvalidArgumentException("Field must not be empty");
+    ) {
+        if (mb_strlen($field) === 0) {
+            throw new \InvalidArgumentException('Field must not be empty');
         }
 
-        if($sort !== self::SORT_ASC && $sort !== self::SORT_DESC) {
-            throw new \InvalidArgumentException("Sort order should be either " . self::SORT_ASC . " or " . self::SORT_DESC);
+        if ($sort !== self::SORT_ASC && $sort !== self::SORT_DESC) {
+            throw new \InvalidArgumentException('Sort order should be either ' . self::SORT_ASC . ' or ' . self::SORT_DESC);
         }
 
         $this->field = $field;
@@ -94,7 +100,7 @@ final class FieldIndex implements Index
 
     public function equals($other): bool
     {
-        if(!$other instanceof self) {
+        if (! $other instanceof self) {
             return false;
         }
 

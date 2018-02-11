@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * This file is part of the prooph/proophessor.
  * (c) 2017 prooph software GmbH <contact@prooph.de>
@@ -19,7 +19,7 @@ $page = $this->page->getRoot();
                 <input type="text"
                        placeholder="Search"
                        class="js-search-input form-control"
-                       data-roothref="<?= $page->getHref(); ?>">
+                       data-roothref="<?php echo $page->getHref(); ?>">
 
                 <div class="js-search-results"></div>
             </div>
@@ -63,10 +63,10 @@ $page = $this->page->getRoot();
         </div>
 
         <div class="collapse navbar-collapse" id="js-navbar-collapse">
-            <?= $this->render('partialTopNav', array(
+            <?php echo $this->render('partialTopNav', [
                 'page' => $page,
-                'depth' => 0
-            )); ?>
+                'depth' => 0,
+            ]); ?>
         </div>
     </div>
 </nav>
