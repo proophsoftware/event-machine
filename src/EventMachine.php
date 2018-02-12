@@ -38,6 +38,7 @@ use Prooph\EventMachine\Http\MessageBox;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
+use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\ObjectType;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventMachine\Persistence\Stream;
@@ -343,6 +344,21 @@ final class EventMachine
         $this->jsonSchemaAssertion()->assert("Type $name", $schema, JsonSchema::metaSchema());
 
         $this->schemaTypes[$name] = $schema;
+    }
+
+    public function registerEnumType(string $typeName, EnumType $schema): void
+    {
+        $this->assertNotInitialized(__METHOD__);
+
+        $schema = $schema->toArray();
+
+        if ($this->isKnownType($typeName)) {
+            throw new \RuntimeException("Type $typeName is already registered");
+        }
+
+        $this->jsonSchemaAssertion()->assert("Type $typeName", $schema, JsonSchema::metaSchema());
+
+        $this->schemaTypes[$typeName] = $schema;
     }
 
     public function registerInputType(string $name, ObjectType $schema): void

@@ -20,6 +20,7 @@ use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\Type\EmailType;
+use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\StringType;
 use Prooph\EventMachine\JsonSchema\Type\UuidType;
 use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
@@ -653,6 +654,27 @@ class EventMachineTest extends BasicTestCase
         $this->expectExceptionMessageRegExp('/Validation of IdentifiedVisitor failed: \[email\] The property email is required/');
 
         $this->eventMachine->jsonSchemaAssertion()->assert('IdentifiedVisitor', $guest, $identifiedVisitorSchema);
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_enum_type_as_type()
+    {
+        $colorSchema = new EnumType('red', 'blue', 'yellow');
+
+        $this->eventMachine->registerEnumType('color', $colorSchema);
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Validation of ball failed: \[color\] Does not have a value in the enumeration \["red","blue","yellow"\]/');
+
+        $ballSchema = JsonSchema::object([
+            'color' => JsonSchema::typeRef('color'),
+        ])->toArray();
+
+        $this->eventMachine->jsonSchemaAssertion()->assert('ball', ['color' => 'green'], $ballSchema);
     }
 
     /**
