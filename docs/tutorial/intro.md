@@ -64,7 +64,7 @@ Event Machine and can suggest arguments for commands and queries along with basi
 API documentation and will help us to focus on the backend in the tutorial.
 
 So please install a GraphQL client of your choice and point it to the url `http://localhost:8080/api/graphql`.
-The Event Machine skeleton ships with a `HealthCheck` query which we can use to test availability of the backend.
+The Event Machine skeleton ships with a `HealthCheck` query which we can use to verify availability of the backend.
 
 Send the following query using your GraphQL client:
 

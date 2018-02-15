@@ -2,7 +2,10 @@
   "title": "Event Machine Tutorial",
   "content": [
     {"intro": "intro.md"},
-    {"partI": "part_I.md"}
+    {"partI": "part_I.md"},
+    {"partII": "part_II.md"},
+    {"partIII": "part_III.md"}
+    {"partV": "part_IV.md"}
   ],
   "tocDepth": 1
 }
