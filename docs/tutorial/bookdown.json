@@ -9,7 +9,8 @@
     {"partV": "part_V.md"},
     {"partVI": "part_VI.md"},
     {"partVII": "part_VII.md"},
-    {"bonusI": "bonus_I.md"}
+    {"bonusI": "bonus_I.md"},
+    {"bonusII": "bonus_II.md"}
   ],
   "tocDepth": 1
 }

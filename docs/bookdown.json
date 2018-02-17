@@ -1,7 +1,8 @@
 {
     "title": "Event Machine Docs",
     "content": [
-        {"intro": "intro/bookdown.json"}
+        {"intro": "intro/bookdown.json"},
+        {"tutorial": "tutorial/bookdown.json"}
     ],
     "theme": {
         "toc": {

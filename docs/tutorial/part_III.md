@@ -201,37 +201,3 @@ The write model has received and processed the command `AddBuilding` successfull
 application state looks like. Therefor we have to use a query which is the third message type. Head over to tutorial
 part IV to learn more about queries and application state management using projections. 
 
-
-
-
-
-### Improve Structure
-
-First let's remove the strings!!!. Don't use repeatable strings in your code but use constants instead. This rule of thumb
-has many advantages:
-
-- Reduce the chance for typos
-- Easy refactoring
-- IDE auto completion and code navigation
-
-Just move `buildingId` and `name` into one of the API interfaces. You guess what the right interface is?
-Yes, that's right! It is `src/Api/Payload.php`:
-
-```php
-<?php
-
-declare(strict_types=1);
-
-namespace App\Api;
-
-interface Payload
-{
-    const BUILDING_ID = 'buildingId';
-    const NAME = 'name';
-
-    //Predefined keys for query payloads, see App\Api\Schema::queryPagination() for further information
-    const SKIP = 'skip';
-    const LIMIT = 'limit';
-}
-
-```

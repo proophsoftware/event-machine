@@ -1,4 +1,4 @@
-# Part V - DRY
+# Part V - DRY 
 
 You may have noticed that we use the static classes in `src/Api` as a central place to define constants.
 At least we did that for message (Command, Event, Query) and aggregate names. We did not touch `src/Api/Payload` and

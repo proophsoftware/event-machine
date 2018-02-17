@@ -177,8 +177,8 @@ class Projection implements EventMachineDescription
 ```
 
 If you look at the Postgres DB you should see a new table called `em_ds_user_building_list_0_1_0` but the table is empty.
-We can reset the long-running projection process used by Event Machine and therefor recreate all read models which
-will fill the one with data from the past. That's cool, isn't it?
+We can reset the long-running projection process used by Event Machine and therefor recreate all read models. 
+This will fill the new read model with data from the past. That's cool, isn't it?
 
 Run the command `docker-compose run php php bin/reset.php` in the project directory and check the table again.
 
@@ -217,7 +217,7 @@ class Type implements EventMachineDescription
     {
         return JsonSchema::object([
             'user' => Schema::username(),
-            'building' => JsonSchema::nullOr(Schema::building()), //<-- type ref to building 
+            'building' => Schema::building()->asNullable(), //<-- type ref to building, can be null 
         ]);
     }
 
@@ -447,4 +447,8 @@ query{
   }
 }
 ```
+An hour of work (with a bit more practice even less) and we are ready to ship the new feature! Rapid application development at its best!
+RAD is ok, but please don't skip testing! In the second bonus part of the tutorial we'll learn that Event Machine makes it
+easy to run integration tests. You should not miss it! 
+
 

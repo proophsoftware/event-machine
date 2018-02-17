@@ -21,7 +21,7 @@ separate the write side from the read side. And this is done using so called **p
 
 Projections in Event Machine make use of the projection feature shipped with *prooph/event-store*.
 An important difference is that by default Event Machine uses **a single long-running PHP process** to manage
-those projections. This way processing order of events is always the same as (FIFO).
+those projections. This way processing order of events is always the same (FIFO).
 A disadvantage is that projections are slower because of the sequential processing.
 
 But don't worry: If projections become a bottleneck you can simply switch to plain *prooph/event-store*
@@ -185,7 +185,7 @@ In GraphQL this resolves to the type defined in `src/Api/Type`.
 Last but not least the query needs to be handled by a so called finder (prooph term). If you've worked with GraphQL
 before a finder is similar to a resolver. Query resolving works like this:
 
-When the query is send to the GraphQL endpoint it is parsed by the integrated GraphQL server and translated into a
+When the query is sent to the GraphQL endpoint it is parsed by the integrated GraphQL server and translated into a
 query message that is passed on to prooph's query bus. The query message is validated against the schema
 defined during query registration `$eventMachine->registerQuery(self::BUILDING, JsonSchema::object(...))`.
 

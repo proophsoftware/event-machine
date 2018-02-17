@@ -1,4 +1,4 @@
-Part VI - Check in User
+# Part VI - Check in User
 
 The second use case of our Building Management system checks in users into buildings. Users are identified by their name.
 
