@@ -244,6 +244,29 @@ final class TypeLanguage
         $nullable = false;
         $type = null;
 
+        if(array_key_exists('oneOf', $schemaType)) {
+            $containsNullType = false;
+            $containsTypeRef = false;
+            $typeRef = null;
+            foreach($schemaType['oneOf'] as $oneOfType) {
+                if(array_key_exists('type', $oneOfType) && $oneOfType['type'] === JsonSchema::TYPE_NULL) {
+                    $containsNullType = true;
+                }
+
+                if(array_key_exists('$ref', $oneOfType)) {
+                    $containsTypeRef = true;
+                    $typeRef = $oneOfType;
+                }
+            }
+
+            if(!$containsNullType || !$containsTypeRef) {
+                throw new \RuntimeException("oneOf schema is only supported for nullable type references. Got " . json_encode($schemaType));
+            }
+
+            $schemaType = $typeRef;
+            $nullable = true;
+        }
+
         if (array_key_exists('type', $schemaType)) {
             if (is_array($schemaType['type'])) {
                 if (count($schemaType['type']) > 2) {

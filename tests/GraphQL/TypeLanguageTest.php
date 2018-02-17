@@ -70,6 +70,55 @@ TYPES;
     /**
      * @test
      */
+    public function it_converts_a_query_with_an_argument_and_a_nullable_return_type()
+    {
+        $types = [
+            'User' => JsonSchema::object([
+                'id' => JsonSchema::string(),
+                'username' => JsonSchema::string(),
+                'realName' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
+        ];
+
+        $queries = [
+            'User' => JsonSchema::object(['id' => JsonSchema::string()])->toArray(),
+        ];
+
+        $queryReturnTypes = [
+            'User' => JsonSchema::typeRef('User')->asNullable()->toArray(),
+        ];
+
+        $graphQlTypes = TypeLanguage::fromEventMachineDescriptions($queries, [], $queryReturnTypes, $types);
+
+        $expectedTypes = <<<TYPES
+
+type User {
+  id: String!
+  username: String!
+  realName: String
+}
+
+
+type Query {
+  User(id: String!): User
+}
+
+schema {
+  query: Query
+}
+
+TYPES;
+
+        $this->assertEquals($expectedTypes, $graphQlTypes);
+
+        $schema = BuildSchema::build($graphQlTypes);
+
+        $schema->assertValid();
+    }
+
+    /**
+     * @test
+     */
     public function it_converts_a_query_with_one_required_and_one_optional_argument_with_default_val()
     {
         $types = [
