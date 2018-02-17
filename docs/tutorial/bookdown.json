@@ -4,8 +4,11 @@
     {"intro": "intro.md"},
     {"partI": "part_I.md"},
     {"partII": "part_II.md"},
-    {"partIII": "part_III.md"}
-    {"partV": "part_IV.md"}
+    {"partIII": "part_III.md"},
+    {"partIV": "part_IV.md"},
+    {"partV": "part_V.md"},
+    {"partVI": "part_VI.md"},
+    {"partVII": "part_VII.md"}
   ],
   "tocDepth": 1
 }

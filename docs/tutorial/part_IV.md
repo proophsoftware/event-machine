@@ -10,31 +10,27 @@ no | event_id | event_name | payload | metadata | created_at
 
 *If you're wondering why the event stream table has a sha1 hashed name this is because by default prooph/event-store uses that
 naming strategy to avoid database vendor specific character constraints. You can however configure a different
-naming strategy if you don't like the default behaviour.*
+naming strategy if you don't like it.*
 
-Such an event stream table is everything our write model needs to function correctly. This is dead simple and 
-does not require complex database schema migrations in case new features are added or structure is refactored.
-
-But the read side of our application has a hard time querying this event stream table.
-As long as we only have a few events in it queries would be simple and fast. But over time this table will
-grow and contain many different events. Later in the tutorial we'll learn more about design and scaling options of 
-Event Machine applications. To stay flexible the first thing we have to do is to
+The write model only needs an event stream to store information but the read side has a hard time querying it.
+As long as we only have a few events in the stream queries are simple and fast. But over time this table will
+grow and contain many different events. To stay flexible we need to
 separate the write side from the read side. And this is done using so called **projections**.
 
 ## Registering Projections
 
 Projections in Event Machine make use of the projection feature shipped with *prooph/event-store*.
 An important difference is that by default Event Machine uses **a single long-running PHP process** to manage
-those projections. The advantage is that the processing order of events is always the same as they were written
-to the stream and that projections receive those events one after the other.
-The disadvantage of that approach is slower projections because of the sequential processing.
-But don't worry, if projections become a bottleneck you can simply switch to plain *prooph/event-store*
+those projections. This way processing order of events is always the same as (FIFO).
+A disadvantage is that projections are slower because of the sequential processing.
+
+But don't worry: If projections become a bottleneck you can simply switch to plain *prooph/event-store*
 projections and run them in parallel. The recommendation is to switch to that approach only if it is really needed.
 Deploying and coordinating multiple projection processes need a good (project specific) strategy and tools. 
 
-Ok enough theory. Let's get back to the beautiy and simplicity of Event Machine. You can use a shortcut if aggregate 
-state should be available in the read model, too. You only need one of the available `EventMachine\Persistence\DocumentStore`
-implementations. By default the skeleton uses *proophsoftware/postgres-document-store* but you could also use 
+Ok enough theory. Let's get back to the beauty and simplicity of Event Machine. You can use a shortcut if aggregate 
+state should be available as a read model. You only need one of the available `EventMachine\Persistence\DocumentStore`
+implementations. By default the skeleton uses *proophsoftware/postgres-document-store* but you can also use 
 *proophsoftware/mongo-document-store* or implement your own. See Event Machine docs for details.
 
 We only need to register an aggregate projection in `src/Api/Projection`:
@@ -72,13 +68,13 @@ class Projection implements EventMachineDescription
 
 ``` 
 
-That's it. If you look into the Postgres DB now you should see a new table called `em_ds_building_projection_0_1_0`.
+That's it. If you look into the Postgres DB you should see a new table called `em_ds_building_projection_0_1_0`.
 And the table should contain one row with two columns `id` and `doc` with id being the buildingId and doc being the
 JSON representation of the `Building\State`.
 
-*Note: If you cannot see the table please check the troubleshooting section of event-machine-skeleton readme.*
+*Note: If you cannot see the table please check the troubleshooting section of event-machine-skeleton README.*
 
-You can learn more about projections in the docs. For now it is enough to know how to register them. Let's close the circle
+You can learn more about projections in the docs. For now it is enough to know how to register them. Let's complete the picture
 and query the projection table using GraphQL.
 
 ## Query, Resolver and Return Type
@@ -86,8 +82,7 @@ and query the projection table using GraphQL.
 GraphQL has a type system that makes it possible to auto generate API docs and provide auto completion when writing GraphQL
 mutations and queries. Event Machine on the other hand uses JSON Schema to describe message types and define validation rules.
 It is possible to generate a GraphQL schema from a JSON Schema as long as only a subset of JSON Schema is used.
-The advantage of that approach is that you can add validation rules of input arguments (message payload) which would not
-be possible when using GraphQL only.
+You get the best of both worlds.
 
 Event Machine offers an API that eases integration of JSON Schema and GraphQL. For queries this means that we can
 register **return types** in Event Machine and those return types will appear in our GraphQL schema definition.
@@ -135,13 +130,14 @@ class Type implements EventMachineDescription
 As you can see the `HealthCheck` type used by the `HealthCheck` query is already registered here. We simply add
 `Building\State` as the second type and use the aggregate type as name for the building type.
 
-*Note: Types are described using JSON Schema. We can use a short cut because Building\State implements ImmutableRecord
-and therefor has a public static method called ImmutableRecord::__schema which returns a JSON Schema object.
-It is not always the best way to use aggregate state directly as return type for queries. This couples the aggregate state
-with the read model. However, you can replace the return type definition at any time. So we can use the short cut
-in an early stage of our application and switch to a decoupled return type later.*
+*Note: Types are described using JSON Schema. Building\State implements ImmutableRecord and therefor provides the method
+ImmutableRecord::__schema (provided by ImmutableRecordLogic trait) which returns a JSON Schema object.*
 
-Next step is to register the query. Of course we do that in `src/Api/Query`:
+*Note: Using aggregate state as return type for queries couples the write model with the read model.
+However, you can replace the return type definition at any time. So we can use the short cut
+in an early stage and switch to a decoupled version later.*
+
+Next step is to register the query in `src/Api/Query`:
 
 ```php
 <?php
@@ -181,23 +177,21 @@ class Query implements EventMachineDescription
 
 ```
 
-For query names we simply use the names of the "things" that we want to query. This is similar to defining a REST API 
-like `GET /api/building`. However, projections can create a lot of different view representations of the application state
-not only the entity/aggregate based views shown here. Later in the tutorial we'll see that in action.
+Queries are named like the "things" they return. This results in a clean and easy to use GraphQL schema.
 
-It is important to note that we define the return type of the query by linking the registered aggregate type using `JsonSchema::typeRef()`.
+Please note that the return type is a reference: `JsonSchema::typeRef()`.
 In GraphQL this resolves to the type defined in `src/Api/Type`.
 
 Last but not least the query needs to be handled by a so called finder (prooph term). If you've worked with GraphQL
 before a finder is similar to a resolver. Query resolving works like this:
 
 When the query is send to the GraphQL endpoint it is parsed by the integrated GraphQL server and translated into a
-query message that is passed on to prooph's query bus. The prooph query message is validated against the schema
+query message that is passed on to prooph's query bus. The query message is validated against the schema
 defined during query registration `$eventMachine->registerQuery(self::BUILDING, JsonSchema::object(...))`.
 
-Our first query has a required argument `buildingId` which should be a valid `Uuid`. The GraphQL type is a `string`
-so an invalid uuid will pass the GraphQL server but fail before the query message is passed to the query bus.
-It's a two step validation process but you don't need to worry about that because this is all handled by Event Machine internally.
+Our first query has a required argument `buildingId` which should be a valid `Uuid`. The GraphQL type is a `string`.
+An invalid uuid will pass the GraphQL server but fail when the query is parsed into a Event Machine message.
+It's a two step validation process handled internally by Event Machine.
 
 Long story, short. We need a finder like described in the [prooph docs](https://github.com/prooph/service-bus/blob/master/docs/message_bus.md#invoke-handler):
 
@@ -225,7 +219,7 @@ final class BuildingFinder
 ```
 
 This is an **invokable finder** like it is described in the prooph docs. It receives the query message as first argument
-and a `React\Promise\Deferred` as second argument. Instead of returning the query result the finder has to resolve
+and a `React\Promise\Deferred` as second argument. Instead of returning the query result a finder has to resolve
 the deferred object. The reason for this is that prooph's query bus can be used in an async non-blocking I/O runtime
 as well as a normal blocking PHP runtime. The integrated GraphQL server also supports both runtimes so it is a good
 idea to always work with those promise and deferred objects provided by the `ReactPHP` library (unfortunately, we have no
@@ -534,7 +528,7 @@ final class BuildingFinder
 
 ```
 
-`BuildingFinder` can resolve both queries now by mapping the query name to an internal resolve* method.
+`BuildingFinder` can resolve both queries by mapping the query name to an internal resolve* method.
 For the new `Buildings` query the finder makes use of `DocumentStore\Filter`s. The `LikeFilter` works the same way as
 a SQL like expression using `%` as a placeholder. `AnyFilter` matches any documents in the collection.
 There are many more filters available. Read more about filters in the docs.
@@ -552,6 +546,9 @@ query{
 ``` 
 You can add some more buildings and play with the queries. Try to exchange the `LikeFilter` with a `EqFilter` for example.
 Or see what happens if you pass an empty string as name filter.
+
+In part VI we get back to the write model and learn how to work with process managers. But before we continue,
+we should clean up our code a bit. Part V tells you what we can improve.
 
 
 
