@@ -2,7 +2,7 @@
 
 We're going to add the first action to our buildings application. Event Machine uses CQRS and Event Sourcing.
 In a CQRS system operations and processes are triggered by messages. Those messages can have three different types and
-define the API of the application. In this part of the tutorial we learn the first message type: `command`.
+define the API of the application. In the first part of the tutorial we learn the first message type: `command`.
 
 ## API
 
@@ -95,7 +95,7 @@ The GraphQL schema is also compiled at this stage. In development mode this happ
 
 ## GraphQL Integration
 
-Switch to the GraphQL client and reload it (reload the schema).
+Switch to the GraphQL client and reload it (press Set endpoint button).
 The GraphQL client should show a new **mutation** called `AddBuilding` in the documentation explorer (in ChromeiQL it is on the right side).
 When you start typing in the query window the GraphQL client will suggest possibilities. Just try it by typing `mutation { Add`.
 Select `AddBuilding`, type `(` followed by `buildi`. The client should suggest `buildingId` as input argument.
@@ -135,13 +135,13 @@ Just hit the send button now. The mutation request will result in an error like 
 ```
 
 Our command (aka GraphQL mutation) cannot be handled because a command handler is missing. In Event Machine 
-commands can be routed directly to `Aggregates` (functional programming style, see event-machine-skeleton variations). 
+commands can be routed directly to `Aggregates`. 
 In **part II** of the the tutorial you'll learn more about pure aggregates.
 
 *Sum up: Event Machine Descriptions allow you to easily describe the API of your application using messages. The messages get
 a unique name and their payload is described with JSON Schema which allow us to add validation rules. The messages and their
-schema are translated to a GraphQL Schema automatically and we can use GraphQL queries and mutations to interact with the backend
-of the application.*
+schema are translated to a GraphQL Schema and we can use GraphQL queries and mutations to interact with the backend
+service.*
 
 
 

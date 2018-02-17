@@ -176,8 +176,8 @@ no | event_id | event_name | payload | metadata | created_at
 ## Process Manager 
 
 To complete the user story we have to notify security. The security team uses a dedicated monitoring application that
-can receive arbitrary notification messages. To communicate with that external system we can use a so called process manager or
-policy. You're maybe more familiar with the name event listener but be careful to not mix that term with event listeners known
+can receive arbitrary notification messages. To communicate with that external system we can use a so called **process manager** or
+**policy**. Maybe you're more familiar with the term event listener but be careful to not mix it with event listeners known
 from web frameworks like Symfony or Zend. Listeners in Event Machine **react** on domain events and trigger follow up
 commands, send emails or interact with external systems.
 
@@ -193,7 +193,7 @@ In `src/Service/ServiceFactory` you can find a factory method for a `App\Infrast
 It's a default domain event listener shipped with the skeleton that can be used to push events on a *RabbitMQ ui-exchange*.
 The exchange is preconfigured (you can see that in the rabbit mgmt UI) and the JS app connects to a corresponding *ui-queue*.
 
-In `src/Api/Listener` we can put the pieces together:
+In `src/Api/Listener` we can put together the pieces:
 
 ```php
 <?php
@@ -234,17 +234,23 @@ mutation{
   
 ## The End
 
-Congratulations! You've mastered the Event Machine tutorial. There are two bonus parts available to learn more
-about **custom projections** and **command pre processors**. The current implementation is available as a **demo**
-branch of `proophsoftware/event-machine-skeleton`. There is a second branch called **demo-oop** that contains a similar
-implementation with the difference that the `Building` aggregate is designed using an object oriented approach rather than
+Congratulations! You've mastered the Event Machine tutorial. There are three bonus parts available to learn more
+about **custom projections**, **command pre processors** and **testing with Event Machine**. 
+The current implementation is available as a **demo** branch of `proophsoftware/event-machine-skeleton`. 
+There is a second branch called **demo-oop** available that contains a similar
+implementation. But the `Building` aggregate is designed using an object oriented approach rather than
 the functional approach shown in the tutorial. If you like that OOP style more you can of course use that.
 
-Functional programming fans might dislike the static class methods. You can of course use real functions instead of static class methods but
+Functional programming fans might dislike the static class methods. You can also use real functions instead of static class methods but
 you have to configure *composer* to always require the files containing your functions. It's up to you.
 
-The Event Machine API docs contain a lot more details and last but not least the reminder that the prooph software team
+The Event Machine API docs contain a lot more details and last but not least a reminder that the prooph software team
 offers commercial project support and workshops for Event Machine and the prooph components.
+
+Our workshops include Event Storming sessions and how to turn the results into working prototypes using Event Machine.
+We can also show and discuss framework integrations. Event Machine can easily be integrated with *Symfony*, *Laravel* and
+other PHP web frameworks. The skeleton is based on *Zend Expressive* so you can handle http related stuff (like authentication)
+using *PSR-15* middlewares. But again, other web frameworks play nice together with Event Machine, too.
 
 [![prooph software](https://github.com/codeliner/php-ddd-cargo-sample/raw/master/docs/assets/prooph-software-logo.png)](http://prooph.de)
 

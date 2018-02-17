@@ -9,7 +9,7 @@ they don't have internal **state** and also **no dependencies**.
 Event Machine can take over the boilerplate and we as developers can **focus on the business logic**. I'll explain
 more details later. First we want to see a **pure aggregate function** in action.
 
-*Note: If you've worked with a CQRS framework before this is maybe confusing
+*Note: If you've worked with a CQRS framework before it is maybe confusing
 because normally a command is handled by a command handler (comparable to an application service that handles a domain action)
 and the command handler would load a business entity or "DDD" aggregate from a repository. We still use the aggregate concept but make
 use of a functional programming approach. It keeps the domain model lean and testable and allows some nice
@@ -41,11 +41,11 @@ We could also use plain PHP functions instead but unfortunately PHP does not pro
 we stick to static methods and group all methods of an aggregate in a class.
 
 `Building::add()` receives `AddBuilding` messages (of type command) and should perform the business logic needed to
-add a new building to our application. But instead of adding a new building directly we want to yield a domain event.
+add a new building to our application. But instead of adding a new building directly we're ask to yield a domain event.
 
 ## Domain Events
 
-Domain events are the second message type used by Event Machine. The domain model is event sourced. Hence, it records
+Domain events are the second message type used by Event Machine. The domain model is event sourced. This means that it records
 all state changes in a series of domain events. Domain events are yielded by aggregate methods and stored in an event store
 managed by Event Machine. The series of events can then be used to calculate the current state of an aggregate.
 We will see that in action in a later part of the tutorial and get a better understanding of the technique 

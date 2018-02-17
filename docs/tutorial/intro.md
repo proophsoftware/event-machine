@@ -1,6 +1,6 @@
 # Introduction
 
-Event Machine is a rapid application development (RAD) framework so don't let us waste time and jump directly into
+Event Machine is a rapid application development (RAD) framework so let us jump directly into
 the practical part of the tutorial. Event Machine basic concepts will be explained throughout the tutorial.
 Once finished you should be able to start with your own project. The API docs will help you along the way.
 
@@ -90,7 +90,7 @@ You should get a JSON response similar to that one:
 
 If everything works correctly we are ready to implement our first use case: **Add a building**
 
-
+*Note: If something is not working as expected (now or later in the tutorial) please check the trouble shooting section of the event-machine-skeleton README first.*
 
 
 
