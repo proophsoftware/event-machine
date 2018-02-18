@@ -48,6 +48,11 @@ final class CommandProcessorDescription
 
     private $eventRecorderMap = [];
 
+    /**
+     * @var string|null
+     */
+    private $contextProvider;
+
     public function __construct(string $commandName, EventMachine $eventMachine)
     {
         $this->commandName = $commandName;
@@ -81,6 +86,13 @@ final class CommandProcessorDescription
         }
 
         $this->aggregateIdentifier = $aggregateIdentifier;
+
+        return $this;
+    }
+
+    public function provideContext(string $contextProvider): self
+    {
+        $this->contextProvider = $contextProvider;
 
         return $this;
     }
@@ -141,6 +153,7 @@ final class CommandProcessorDescription
             'aggregateFunction' => $this->aggregateFunction,
             'eventRecorderMap' => $eventRecorderMap,
             'streamName' => $this->eventMachine->writeModelStreamName(),
+            'contextProvider' => $this->contextProvider,
         ];
     }
 
