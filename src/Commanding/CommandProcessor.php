@@ -13,6 +13,7 @@ namespace Prooph\EventMachine\Commanding;
 
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
+use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
@@ -80,12 +81,22 @@ final class CommandProcessor
     private $snapshotStore;
 
     /**
+     * @var ContextProvider|null
+     */
+    private $contextProvider;
+
+    /**
      * @var AggregateRepository
      */
     private $aggregateRepository;
 
-    public static function fromDescriptionArrayAndDependencies(array $description, MessageFactory $messageFactory, EventStore $eventStore, SnapshotStore $snapshotStore = null): self
-    {
+    public static function fromDescriptionArrayAndDependencies(
+        array $description,
+        MessageFactory $messageFactory,
+        EventStore $eventStore,
+        SnapshotStore $snapshotStore = null,
+        ContextProvider $contextProvider = null
+    ): self {
         if (! array_key_exists('commandName', $description)) {
             throw new \InvalidArgumentException('Missing key commandName in commandProcessorDescription');
         }
@@ -129,7 +140,8 @@ final class CommandProcessor
             $description['streamName'],
             $messageFactory,
             $eventStore,
-            $snapshotStore
+            $snapshotStore,
+            $contextProvider
         );
     }
 
@@ -144,7 +156,8 @@ final class CommandProcessor
         string $streamName,
         MessageFactory $messageFactory,
         EventStore $eventStore,
-        SnapshotStore $snapshotStore = null
+        SnapshotStore $snapshotStore = null,
+        ContextProvider $contextProvider = null
     ) {
         $this->commandName = $commandName;
         $this->aggregateType = $aggregateType;
@@ -157,6 +170,7 @@ final class CommandProcessor
         $this->messageFactory = $messageFactory;
         $this->eventStore = $eventStore;
         $this->snapshotStore = $snapshotStore;
+        $this->contextProvider = $contextProvider;
     }
 
     public function __invoke(GenericJsonSchemaCommand $command)
@@ -194,6 +208,10 @@ final class CommandProcessor
 
             $arFuncArgs[] = $aggregate->currentState();
             $arFuncArgs[] = $command;
+        }
+
+        if ($this->contextProvider) {
+            $arFuncArgs[] = $this->contextProvider->provide($command);
         }
 
         $arFunc = $this->aggregateFunction;

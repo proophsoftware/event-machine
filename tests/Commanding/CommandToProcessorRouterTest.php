@@ -13,12 +13,15 @@ namespace Prooph\EventMachineTest\Commanding;
 
 use Prooph\Common\Event\ProophActionEventEmitter;
 use Prooph\Common\Messaging\MessageFactory;
+use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Commanding\CommandProcessor;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
+use Prooph\EventMachine\Container\ContextProviderFactory;
 use Prooph\EventMachineTest\BasicTestCase;
 use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\MessageBus;
 use Prooph\SnapshotStore\SnapshotStore;
+use Prophecy\Argument;
 
 final class CommandToProcessorRouterTest extends BasicTestCase
 {
@@ -37,6 +40,7 @@ final class CommandToProcessorRouterTest extends BasicTestCase
                 },
                 'eventRecorderMap' => [],
                 'streamName' => 'event_stream',
+                'contextProvider' => 'TestContextProvider',
             ],
         ];
 
@@ -52,12 +56,16 @@ final class CommandToProcessorRouterTest extends BasicTestCase
         $messageFactory = $this->prophesize(MessageFactory::class);
         $eventStore = $this->prophesize(EventStore::class);
         $snapshotStore = $this->prophesize(SnapshotStore::class);
+        $contextProvider = $this->prophesize(ContextProvider::class);
+        $contextProviderFactory = $this->prophesize(ContextProviderFactory::class);
+        $contextProviderFactory->build(Argument::exact('TestContextProvider'))->willReturn($contextProvider->reveal())->shouldBeCalled();
 
         $router = new CommandToProcessorRouter(
             $commandMap,
             $aggregateDescriptions,
             $messageFactory->reveal(),
             $eventStore->reveal(),
+            $contextProviderFactory->reveal(),
             $snapshotStore->reveal()
         );
 

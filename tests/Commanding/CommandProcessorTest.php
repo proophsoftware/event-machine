@@ -11,9 +11,12 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\Commanding;
 
+use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Commanding\CommandProcessor;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachineTest\Aggregate\Stub\ContextAwareAggregateDescription;
 use Prooph\EventMachineTest\BasicTestCase;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Metadata\MetadataMatcher;
@@ -297,5 +300,64 @@ final class CommandProcessorTest extends BasicTestCase
         $commandProcessor($doNothing);
 
         self::assertCount(0, $recordedEvents);
+    }
+
+    /**
+     * @test
+     */
+    public function it_provides_context_using_context_provider()
+    {
+        $eventMachine = new EventMachine();
+
+        $eventMachine->load(ContextAwareAggregateDescription::class);
+
+        $container = $this->prophesize(ContainerInterface::class);
+
+        $eventMachine->initialize($container->reveal());
+
+        $config = $eventMachine->compileCacheableConfig();
+
+        $commandRouting = $config['compiledCommandRouting'];
+        $aggregateDescriptions = $config['aggregateDescriptions'];
+
+        $recordedEvents = [];
+
+        $eventStore = $this->prophesize(EventStore::class);
+
+        $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
+            $recordedEvents = iterator_to_array($args[1]);
+        });
+
+        $processorDesc = $commandRouting['AddCAA'];
+        $processorDesc['eventApplyMap'] = $aggregateDescriptions['CAA']['eventApplyMap'];
+
+        $contextProvider = null;
+
+        if ($processorDesc['contextProvider'] ?? null && $processorDesc['contextProvider'] === 'MsgContextProvider') {
+            $contextProvider = $this->prophesize(ContextProvider::class);
+            $contextProvider->provide(Argument::type(Message::class))->willReturn(['msg' => 'it works']);
+            $contextProvider = $contextProvider->reveal();
+        }
+
+        $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $processorDesc,
+            $this->getMockedEventMessageFactory(),
+            $eventStore->reveal(),
+            null,
+            $contextProvider
+        );
+
+        $addCAA = $this->getMockedCommandMessageFactory()->createMessageFromArray('AddCAA', ['id' => 1]);
+
+        $commandProcessor($addCAA);
+
+        self::assertCount(1, $recordedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        self::assertEquals('CAAAdded', $event->messageName());
+        self::assertEquals([
+            'id' => 1,
+            'context' => ['msg' => 'it works'],
+        ], $event->payload());
     }
 }

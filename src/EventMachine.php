@@ -25,6 +25,7 @@ use Prooph\EventMachine\Commanding\CommandPreProcessor;
 use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\Container\ContainerChain;
+use Prooph\EventMachine\Container\ContextProviderFactory;
 use Prooph\EventMachine\Container\TestEnvContainer;
 use Prooph\EventMachine\Data\ImmutableRecord;
 use Prooph\EventMachine\GraphQL\ArraySourceFieldResolver;
@@ -896,6 +897,7 @@ final class EventMachine
             $this->aggregateDescriptions,
             $this->container->get(self::SERVICE_ID_MESSAGE_FACTORY),
             $this->container->get(self::SERVICE_ID_EVENT_STORE),
+            new ContextProviderFactory($this->container),
             $snapshotStore
         );
 

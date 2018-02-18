@@ -13,6 +13,7 @@ namespace Prooph\EventMachine\Commanding;
 
 use Prooph\Common\Event\ActionEvent;
 use Prooph\Common\Messaging\MessageFactory;
+use Prooph\EventMachine\Container\ContextProviderFactory;
 use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\MessageBus;
 use Prooph\ServiceBus\Plugin\AbstractPlugin;
@@ -43,6 +44,11 @@ final class CommandToProcessorRouter extends AbstractPlugin
     private $eventStore;
 
     /**
+     * @var ContextProviderFactory
+     */
+    private $contextProviderFactory;
+
+    /**
      * @var SnapshotStore|null
      */
     private $snapshotStore;
@@ -52,12 +58,14 @@ final class CommandToProcessorRouter extends AbstractPlugin
         array $aggregateDescriptions,
         MessageFactory $messageFactory,
         EventStore $eventStore,
+        ContextProviderFactory $providerFactory,
         SnapshotStore $snapshotStore = null
     ) {
         $this->routingMap = $routingMap;
         $this->aggregateDescriptions = $aggregateDescriptions;
         $this->messageFactory = $messageFactory;
         $this->eventStore = $eventStore;
+        $this->contextProviderFactory = $providerFactory;
         $this->snapshotStore = $snapshotStore;
     }
 
@@ -90,13 +98,20 @@ final class CommandToProcessorRouter extends AbstractPlugin
             throw new \RuntimeException('Missing eventApplyMap for aggregate type: ' . $processorDesc['aggregateType'] ?? '');
         }
 
+        if (! isset($processorDesc['contextProvider'])) {
+            $processorDesc['contextProvider'] = null;
+        }
+
         $processorDesc['eventApplyMap'] = $aggregateDesc['eventApplyMap'];
+
+        $contextProvider = $processorDesc['contextProvider'] ? $this->contextProviderFactory->build($processorDesc['contextProvider']) : null;
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
             $this->messageFactory,
             $this->eventStore,
-            $this->snapshotStore
+            $this->snapshotStore,
+            $contextProvider
         );
 
         $actionEvent->setParam(MessageBus::EVENT_PARAM_MESSAGE_HANDLER, $commandProcessor);
