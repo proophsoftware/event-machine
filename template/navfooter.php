@@ -1,4 +1,4 @@
-<?php
+<?php declare(strict_types=1);
 /**
  * tobiju
  *
@@ -11,7 +11,7 @@ $prev = $this->page->getPrev();
 $parent = $this->page->getParent();
 $next = $this->page->getNext();
 
-if (!($copyright = $this->page->getCopyright())) {
+if (! ($copyright = $this->page->getCopyright())) {
     $copyright = '<a href="http://prooph-software.de/about.html">Imprint</a> | Powered by <a href="https://github.com/tobiju/bookdown-bootswatch-templates" title="Visit project to generate your own docs">Bookdown Bootswatch Templates</a>.';
 }
 ?>
@@ -24,13 +24,13 @@ if (!($copyright = $this->page->getCopyright())) {
         <div class="container">
             <div class="row">
                 <div class="prev col-xs-6">
-                    <?php if ($prev): ?>
-                        <?= $this->anchorRaw($prev->getHref(), 'Previous'); ?>
+                    <?php if ($prev):; ?>
+                        <?php echo $this->anchorRaw($prev->getHref(), 'Previous'); ?>
                     <?php endif; ?>
                 </div>
                 <div class="next col-xs-6">
-                    <?php if ($next): ?>
-                        <?= $this->anchorRaw($next->getHref(), 'Next'); ?>
+                    <?php if ($next):; ?>
+                        <?php echo $this->anchorRaw($next->getHref(), 'Next'); ?>
                     <?php endif; ?>
                 </div>
             </div>
@@ -40,7 +40,7 @@ if (!($copyright = $this->page->getCopyright())) {
         <div class="container">
             <div class="row">
                 <div class="col-md-12">
-                    <p><?= $copyright; ?></p>
+                    <p><?php echo $copyright; ?></p>
                 </div>
             </div>
         </div>
