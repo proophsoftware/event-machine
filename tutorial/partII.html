@@ -1,0 +1,972 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="HandheldFriendly" content="True"/>
+<title>Part II - The Building Aggregate</title>
+<link rel="shortcut icon" href="http://getprooph.org/images/ico/prooph-logo@0.5x.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://getprooph.org/images/ico/apple-touch-icon-144-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://getprooph.org/images/ico/apple-touch-icon-114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://getprooph.org/images/ico/apple-touch-icon-72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="http://getprooph.org/images/ico/apple-touch-icon-57-precomposed.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@prooph_software">
+<meta name="twitter:title" content="prooph components">
+<meta name="twitter:description" content="Enterprise-ready CQRS and Event Sourcing packages for PHP with support for the most famous PHP web frameworks">
+<meta name="twitter:image" content="http://getprooph.org/images/prooph-components-intro.png">
+    <link rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/lumen/bootstrap.min.css">
+<link rel="stylesheet"
+      href="https://tobiju.github.io/share/prismjs/prism-ghcolors.css"/>
+<link rel="stylesheet"
+      href="https://tobiju.github.io/share/prismjs/prism-linenumbers.css"/>
+<style>
+    body, html {
+        height: 100%;
+        padding-top: 36px;
+        position: relative;
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+    code span {
+        white-space: nowrap;
+    }
+    code span.comment {
+        white-space: pre;
+    }
+
+    .highlight {
+        background: #FFFF88;
+    }
+
+    .page-wrapper {
+        min-height: 100%;
+        padding-bottom: 170px;
+        position: relative;
+    }
+
+    .box-header {
+        position: relative;
+    }
+
+    /* Header Section */
+    header {
+        background: white;
+        color: black;
+        font-size: 16px;
+        font-weight: 300;
+    }
+
+    h1:first-child {
+        margin-top: 0;
+    }
+
+    /* anchor link will be displayed after the static top nav */
+    h1:before,
+    h2:before,
+    h3:before,
+    h4:before,
+    h5:before,
+    h6:before {
+        display: block;
+        content: " ";
+        margin-top: -64px;
+        height: 64px;
+        visibility: hidden;
+    }
+
+    .navbar-brand {
+        padding: 0;
+    }
+
+    .navbar-brand img {
+        max-height: 100%;
+    }
+
+    /* Content Section */
+    #content {
+        margin-bottom: 17px;
+        font-size: 17px;
+        min-height: 200px;
+    }
+
+    .breadcrumb {
+        position: relative;
+        z-index: 999;
+    }
+
+    .links {
+        background: #f8f8f8;
+        border-top: 1px solid #e5e5e5;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 16px 0;
+    }
+
+    .links .prev {
+        text-align: left;
+    }
+
+    .links .parent {
+        text-align: center;
+    }
+
+    .links .next {
+        text-align: right;
+    }
+
+    /* Search */
+    .form-search {
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 999;
+    }
+
+    @media (max-width: 767px) {
+        .form-search {
+            position: relative;
+            margin-top: 0;
+        }
+    }
+
+    .form-search .form-control {
+        border: 0;
+        width: 80px;
+    }
+
+    @media (max-width: 767px) {
+        .form-search .form-control {
+            width: 100% !important;
+        }
+    }
+
+    .form-search .list-search-results {
+        position: relative;
+    }
+
+    .form-search .list-search-results ul {
+        background: #eee;
+        border: 1px solid inherit;
+        list-style: none;
+        max-height: 300px;
+        overflow: auto;
+        padding: 0;
+        position: absolute;
+        width: 100%;
+        z-index: 999;
+    }
+
+    .form-search .list-search-results ul li:nth-child(even) {
+        background: rgba(255, 255, 255, 0.3)
+    }
+
+    .form-search .list-search-results ul li.selected {
+        background: #ccc;
+    }
+
+    .form-search .list-search-results ul li a {
+        display: block;
+        padding: 4px 8px;
+    }
+
+    /* TOC */
+    .list-toc {
+        padding: 0;
+    }
+
+    .list-toc .list-group-item {
+        background: 0 none;
+        position: relative;
+        font-weight: bold;
+        padding: 0;
+        margin: 0;
+    }
+
+    .list-toc li .text-number {
+        padding-left: 20px;
+    }
+    .list-toc li li .text-number {
+        padding-left: 40px;
+    }
+    .list-toc li li li .text-number {
+        padding-left: 60px;
+    }
+    .list-toc li li li li .text-number {
+        padding-left: 80px;
+    }
+    .list-toc li li li li li .text-number {
+        padding-left: 100px;
+    }
+    .list-toc .text-number {
+        padding-left: 100px;
+    }
+
+    .list-toc .list-group-item .row {
+        padding: 7px 0 7px;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-weight: normal;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle:before {
+        content: "";
+        display: block;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle.collapsed:before {
+        content: "";
+        display: block;
+    }
+
+    .list-toc > li:nth-child(2n+1) {
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    .bbt-theme-cyborg .list-toc > li:nth-child(2n+1),
+    .bbt-theme-darkly .list-toc > li:nth-child(2n+1),
+    .bbt-theme-slate .list-toc > li:nth-child(2n+1),
+    .bbt-theme-superhero .list-toc > li:nth-child(2n+1) {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .list-toc .list-group-item {
+        border-bottom: 0 none;
+        border-left: 0 none;
+        border-right: 0 none;
+        font-size: inherit;
+    }
+
+    .list-toc .list-group-item:first-child {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+
+    .list-toc .list-group-item:last-child {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    /* Left navigation */
+    .nav-left ul li a {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        border-left: 1px solid transparent;
+    }
+
+    .nav-left ul li.active a,
+    .nav-left ul li a:hover {
+        background: none !important;
+        color: inherit;
+        border-color: inherit;
+    }
+
+    .navbar-top {
+        position: relative;
+    }
+
+    .affix {
+        top: 60px;
+    }
+
+    .badge {
+        border-radius: 4px;
+        padding: 5px;
+    }
+
+    /* Footer Section */
+    footer {
+        color: black;
+        background: white;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+    }
+
+    footer #copyright {
+        padding: 30px;
+        text-align: center;
+        color: #444;
+    }
+
+    footer #copyright p {
+        margin: 0;
+    }
+
+    footer #copyright span a {
+        color: white;
+    }
+
+    /* Top Navigation */
+    @media (max-width: 767px) {
+        ul.navbar-nav {
+            margin: 0 -15px
+        }
+
+        ul.navbar-nav li {
+            border-radius: 0;
+        }
+
+        ul.navbar-nav li ul {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            display: block;
+            float: none;
+            left: auto;
+            padding: 0;
+            position: static;
+        }
+
+        ul.navbar-nav li ul li a {
+            padding: 8px 30px;
+        }
+
+        ul.navbar-nav li ul li ul li a {
+            padding: 6px 40px;
+        }
+    }
+
+    @media (min-width: 768px) {
+
+        ul.navbar-nav li {
+            display: block;
+            position: relative;
+            float: left;
+        }
+
+        ul.navbar-nav li ul {
+            display: none;
+        }
+
+        ul.navbar-nav li a {
+            display: block;
+        }
+
+        ul.navbar-nav li:hover > ul {
+            display: block;
+            position: absolute;
+        }
+
+        ul.navbar-nav li:hover li {
+            float: none;
+        }
+
+        ul.navbar-nav ul ul {
+            left: 100%;
+            top: 0;
+        }
+    }
+</style>
+    <style>
+    /* Header Section */
+    header {
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+    .prooph-logo {
+        float: left;
+        margin-left: 8px;
+        margin-right: 8px;
+        transition-timing-function: ease-in-out;
+        transition: all 5s;
+        height: 50px;
+        padding: 5px;
+    }
+</style>
+</head>
+<body data-spy="scroll" data-target="#sideNav" data-offset="50" class="bbt-theme-lumen">
+<div class="page-wrapper">
+    <header>
+    
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="box-header container">
+        <form class="form-search navbar-form navbar-right" role="search">
+            <div class="form-group">
+                <input type="text"
+                       placeholder="Search"
+                       class="js-search-input form-control"
+                       data-roothref="/">
+
+                <div class="js-search-results"></div>
+            </div>
+        </form>
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#js-navbar-collapse" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://getprooph.org">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="prooph-logo">
+                    <defs>
+                        <style>
+                            .cls-1{fill:#04a1b0;}.cls-2{fill:#26896c;}.cls-3{fill:#eeca50;}.cls-4{fill:#eb6842;}.cls-5{fill:#cc3340;}.cls-6{fill:#715671;}
+                        </style>
+                    </defs>
+                    <title>prooph-logo</title>
+                    <g id="artwork">
+                        <g id="Layer_5" data-name="Layer 5">
+                            <path class="cls-1"
+                                  d="M57.22,17,67.84,35.43a1.77,1.77,0,0,0,1.53.89h61.25a1.77,1.77,0,0,0,1.53-.89L142.78,17a1.77,1.77,0,0,0-1.53-2.66H58.76A1.77,1.77,0,0,0,57.22,17Z"/>
+                            <path class="cls-2"
+                                  d="M29.54,94.68l30.63-53a1.77,1.77,0,0,0,0-1.77L49.55,21.48a1.77,1.77,0,0,0-3.07,0L5.24,92.91a1.77,1.77,0,0,0,1.53,2.66H28A1.77,1.77,0,0,0,29.54,94.68Z"/>
+                            <path class="cls-3"
+                                  d="M60.16,158.36l-30.63-53a1.77,1.77,0,0,0-1.53-.89H6.78a1.77,1.77,0,0,0-1.53,2.66l41.24,71.43a1.77,1.77,0,0,0,3.07,0l10.61-18.38A1.77,1.77,0,0,0,60.16,158.36Z"/>
+                            <path class="cls-4"
+                                  d="M130.63,163.68H69.37a1.77,1.77,0,0,0-1.53.89L57.22,183a1.77,1.77,0,0,0,1.53,2.66h82.48a1.77,1.77,0,0,0,1.53-2.66l-10.61-18.38A1.77,1.77,0,0,0,130.63,163.68Z"/>
+                            <path class="cls-5"
+                                  d="M170.46,105.32l-30.63,53a1.77,1.77,0,0,0,0,1.77l10.61,18.38a1.77,1.77,0,0,0,3.07,0l41.24-71.43a1.77,1.77,0,0,0-1.53-2.66H172A1.77,1.77,0,0,0,170.46,105.32Z"/>
+                            <path class="cls-6"
+                                  d="M139.84,41.64l30.63,53a1.77,1.77,0,0,0,1.53.89h21.23a1.77,1.77,0,0,0,1.53-2.66L153.52,21.48a1.77,1.77,0,0,0-3.07,0L139.84,39.86A1.77,1.77,0,0,0,139.84,41.64Z"/>
+                        </g>
+                    </g>
+                </svg>
+            </a>
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="js-navbar-collapse">
+            
+    
+    <ul class="nav navbar-nav">
+                        <li>
+    <a href="/intro/">Introduction</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="/intro/about.html">About Event Machine</a>
+
+    </li>
+                        <li>
+    <a href="/intro/pros_and_cons.html">Pros and cons</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="/tutorial/">Tutorial</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="/tutorial/intro.html">Introduction</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partI.html">Part I - Add A Building</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partII.html">Part II - The Building Aggregate</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partIII.html">Part III - Aggregate State</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partIV.html">Part IV - Projections and Queries</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partV.html">Part V - DRY</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partVI.html">Part VI - Check in User</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partVII.html">Part VII - The Unhappy Path</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/bonusI.html">Bonus I - Custom Projection</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="/api/">API</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="/api/event_machine/">Event Machine</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="/api/event_machine/set_up.html">Set Up</a>
+
+    </li>
+            </ul>
+
+    </li>
+            </ul>
+
+    </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+</header>
+<div class="container">
+    <ol class="breadcrumb">
+                        <li><a href="/">Event Machine Docs</a></li>
+                                <li><a href="/tutorial/">Tutorial</a></li>
+                                <li class="active">Part II - The Building Aggregate</li>
+            </ol>
+    <div class="row">
+
+                <div class="col-md-3">
+            <nav class="nav-left hidden-xs hidden-sm" id="sideNav">
+    <ul class="nav nav-stacked" data-spy="affix" data-offset-top="59" role="tablist">
+                                <li>
+                <a href="#2-3" title="Part&#x20;II&#x20;-&#x20;The&#x20;Building&#x20;Aggregate">Part II - The Building A...</a>
+            </li>
+                                <li>
+                <a href="#2-3-1" title="Domain&#x20;Events">Domain Events</a>
+            </li>
+                                <li>
+                <a href="#2-3-2" title="Yielding&#x20;Events">Yielding Events</a>
+            </li>
+                                <li>
+                <a href="#2-3-3" title="Aggregate&#x20;Description">Aggregate Description</a>
+            </li>
+            </ul>
+</nav>
+        </div>
+                <div class="col-md-9">
+<div id="section-main"><h1 id="2-3">Part II - The Building Aggregate</h1>
+<p>In Event Machine we can take a short cut and skip command handlers.
+This is possible because <code>Aggregates</code> in Event Machine are <strong>stateless</strong> and <strong>pure</strong>. This means that
+they don't have internal <strong>state</strong> and also <strong>no dependencies</strong>.</p>
+<p><em>Simply put: they are just functions</em></p>
+<p>Event Machine can take over the boilerplate and we as developers can <strong>focus on the business logic</strong>. I'll explain
+more details later. First we want to see a <strong>pure aggregate function</strong> in action.</p>
+<p><em>Note: If you've worked with a CQRS framework before it is maybe confusing
+because normally a command is handled by a command handler (comparable to an application service that handles a domain action)
+and the command handler would load a business entity or "DDD" aggregate from a repository. We still use the aggregate concept but make
+use of a functional programming approach. It keeps the domain model lean and testable and allows some nice
+optimizations for a RAD infrastructure.</em></p>
+<p>Let's add the first aggregate called <code>Building</code> in a new <code>Model</code> folder:</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use Prooph\EventMachine\Messaging\Message;
+
+final class Building
+{
+    public static function add(Message $addBuilding): \Generator
+    {
+        //yield domain events
+    }
+}
+
+</code></pre>
+<p>As you can see the <code>Building</code> class uses static methods. It does not extend from a base class and has no dependencies.
+We could also use plain PHP functions instead but unfortunately PHP does not provide function autoloading (yet), so
+we stick to static methods and group all methods of an aggregate in a class.</p>
+<p><code>Building::add()</code> receives <code>AddBuilding</code> messages (of type command) and should perform the business logic needed to
+add a new building to our application. But instead of adding a new building directly we're ask to yield a domain event.</p>
+<h2 id="2-3-1">Domain Events</h2>
+<p>Domain events are the second message type used by Event Machine. The domain model is event sourced. This means that it records
+all state changes in a series of domain events. Domain events are yielded by aggregate methods and stored in an event store
+managed by Event Machine. The series of events can then be used to calculate the current state of an aggregate.
+We will see that in action in a later part of the tutorial and get a better understanding of the technique
+when we add more use cases to the application.</p>
+<p>For now let's add the first domain event in <code>src/Api/Event</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Api;
+
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+
+class Event implements EventMachineDescription
+{
+    const BUILDING_ADDED = 'BuildingAdded';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        $eventMachine-&gt;registerEvent(
+            self::BUILDING_ADDED,
+            JsonSchema::object(
+                [
+                    'buildingId' =&gt; JsonSchema::uuid(),
+                    'name' =&gt; JsonSchema::string(['minLength' =&gt; 2])
+                ]
+            )
+        );
+    }
+}
+
+</code></pre>
+<p>It looks similar to the <code>AddBuilding</code> command but uses a name in past tense. That is a very important difference.
+Commands <strong>tell</strong> the application what it should do and events <strong>represent facts</strong> that have happened.</p>
+<h2 id="2-3-2">Yielding Events</h2>
+<p>Aggregate methods can yield null, one or multiple domain events depending on the result of the executed business logic.
+If an aggregate method yields <code>null</code> it indicates that no important fact happened and no event needs to be recorded.
+In many cases an aggregate method will yield one event which is the fact caused by the corresponding command.
+But there is no one-to-one connection between commands and events. In some cases more than one event is needed to communicate
+important facts or an error event is yielded instead of the expected event (we'll see that later).</p>
+<p>For the first use case we simply yield a <code>BuildingAdded</code> domain event when <code>Building::add()</code> is called with a <code>AddBuilding</code>
+command.</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use App\Api\Event;
+use Prooph\EventMachine\Messaging\Message;
+
+final class Building
+{
+    public static function add(Message $addBuilding): \Generator
+    {
+        yield [Event::BUILDING_ADDED, $addBuilding-&gt;payload()];
+    }
+}
+
+</code></pre>
+<p>The special array syntax for yielding events is a short cut used by Event Machine. It creates the event based on given
+event name and payload and stores it in the event stream.</p>
+<h2 id="2-3-3">Aggregate Description</h2>
+<p>If we switch back to the GraphQL client and send the <code>AddBuilding</code> command again, Event Machine still
+complains about a missing command handler. We need to tell Event Machine about our new aggregate and that it is
+responsible for handling <code>AddBuilding</code> commands. We can do this in another Event Machine Description in <code>src/Api/Aggregate</code>.</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Api;
+
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+
+class Aggregate implements EventMachineDescription
+{
+    const BUILDING = 'Building';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        $eventMachine-&gt;process(Command::ADD_BUILDING)
+            -&gt;withNew(self::BUILDING)
+            -&gt;identifiedBy('buildingId')
+            -&gt;handle([Building::class, 'add'])
+            -&gt;recordThat(Event::BUILDING_ADDED);
+    }
+}
+
+</code></pre>
+<p>The connection between command and aggregate is described in a very verbose and readable way. Our IDE can suggest the
+describing methods of Event Machine's fluent interface and it is easy to remember each step.</p>
+<ul>
+<li>
+<code>process</code> tells Event Machine that the following description is for the given command name.</li>
+<li>
+<code>withNew/withExisting</code> tells Event Machine which aggregate handles the command and if the aggregate exists already or a new one should be created.</li>
+<li>
+<code>identifiedBy</code> tells Event Machine which message payload property should be used to identify the responsible aggregate. Every command send to the aggregate and
+every event yielded by the aggregate should contain this property</li>
+<li>
+<code>handle</code> takes a callable as argument which is the aggregate method responsible for handling the command defined in <code>process</code>. We use the callable array syntax of PHP
+which can be analyzed by modern IDEs like PHPStorm for auto completion and refactorings.</li>
+<li>
+<code>recordThat</code> tells event machine which event is yielded by the aggregate's command handling method.</li>
+</ul>
+<p>If we try again to send the GraphQL <code>AddBuilding</code> command we get a new error:</p>
+<pre><code class="language-json">{
+  "errors": [
+    {
+      "debugMessage": "No apply function specified for event: BuildingAdded",
+      "message": "Internal server error",
+      "category": "internal"
+    }
+  ],
+  "data": []
+}
+</code></pre>
+<p>Command handling works now but an apply function is missing. In part III of the tutorial you'll learn how to add such a function and why it is needed.</p>
+</div>        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="links">
+        <div class="container">
+            <div class="row">
+                <div class="prev col-xs-6">
+                                            <a href="/tutorial/partI.html">Previous</a>                                    </div>
+                <div class="next col-xs-6">
+                                            <a href="/tutorial/partIII.html">Next</a>                                    </div>
+            </div>
+        </div>
+    </div>
+    <div id="copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Powered by <a href="https://github.com/tobiju/bookdown-bootswatch-templates" title="Visit project to generate your own docs">Bookdown Bootswatch Templates</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+<script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+        integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/0.6.0/lunr.min.js"></script>
+<script src="http://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+<script src="https://tobiju.github.io/share/prismjs/main.js"></script>
+<script src="https://tobiju.github.io/share/prismjs/prism.js"></script>
+<script type="text/javascript">
+
+    function Search() {
+        this.store = {};
+        this.index = lunr(function () {
+            this.ref('id');
+            this.field('title', {boost: 10});
+            this.field('content');
+        });
+        this.searchResults = $('.js-search-results').addClass('list-search-results');
+    }
+
+    Search.prototype = {
+        constructor: Search,
+        init: function () {
+            this.createIndex();
+            this.bindEvents();
+        },
+        createIndex: function () {
+            var $this = this,
+                indexFilePath = $('.js-search-input').data('roothref') + 'index.json';
+
+            $.getJSON(indexFilePath, function (data) {
+                $.each(data, function (key, item) {
+                    $this.index.add({
+                        id: item.id,
+                        title: item.title,
+                        content: item.content
+                    });
+
+                    $this.store[item.id] = {
+                        href: item.id,
+                        title: item.title,
+                        content: item.content
+                    }
+                });
+            });
+        },
+        bindEvents: function () {
+            var $this = this;
+
+            $('html')
+                .on('click', function (event) {
+                    $this.close($(this), event);
+                });
+
+            $('.js-search-input, .js-search-results')
+                .on('click', function (event) {
+                    $this.click($(this), event);
+                });
+
+            $('.js-search-input')
+                .on('focus', function (event) {
+                    $this.focus($(this), event);
+                })
+                .on('keyup', function (event) {
+                    $this.search($(this), event)
+                })
+                .on('keydown', function (event) {
+                    if ($('.js-search-results ul').is(':visible')){
+                        $this.navigation($(this), event)
+                    }
+                })
+        },
+        click: function (element, event) {
+            event.stopPropagation();
+        },
+        focus: function (element, event) {
+            this.searchInputWidth = element.css('width');
+            element.animate({
+                'width': 600
+            }, 500);
+            $('#js-navbar-collapse > ul').fadeOut();
+        },
+        close: function (element, event) {
+            var $this = this;
+
+            $('.js-search-results').hide();
+            $('.js-search-input').animate({
+                'width': $this.searchInputWidth
+            }, 500);
+            $('#js-navbar-collapse > ul').fadeIn();
+        },
+        search: function (element, event) {
+            var $this = this;
+
+            if (event.keyCode == 13 || event.keyCode == 38 || event.keyCode == 40) {
+                return;
+            }
+
+            var query = element.val(),
+                results = $this.index.search(query);
+
+            if (!results.length) {
+                $this.searchResults.empty();
+                return;
+            }
+
+            var resultsList = results.reduce(function (ul, result) {
+                var item = $this.store[result.ref];
+                var title = $('<b>').text(item.title);
+
+                var cropText = $this.cropText(item.content, query);
+                if (cropText.length === 0) {
+                    cropText = $('<p>').html(item.content.substring(0, 120) + "...");
+                }
+                var content = content = $('<p>').html(cropText);
+
+                var div = $('<div>')
+                    .append(title)
+                    .append(content);
+                var a = $('<a>').attr('href', item.href)
+                    .append(div);
+                var li = $('<li>')
+                    .append(a);
+                ul.append(li);
+
+                return ul;
+            }, $('<ul>'));
+
+            this.searchResults.html(resultsList);
+
+            $('.js-search-results').show();
+            $(".js-search-results li:first-child").addClass('selected');
+        },
+        cropText: function (content, query) {
+            var cropedText = '',
+                re = new RegExp("\\s?(.{0,30})?" + query + ".*?\\b(.{0,30}.)?\\s?", "gi");
+
+            $.each(content.match(re), function (key, value) {
+                cropedText += '...' + value + '...';
+            });
+
+            return cropedText;
+        },
+        navigation: function (element, event) {
+            var selected = null,
+                listSelector = ".js-search-results ul",
+                listItemSelector = listSelector + " li",
+                selectedListItemSelector = listItemSelector + ".selected",
+                selectedListItemSelectorAnchor = listItemSelector + ".selected a";
+
+            // enter
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                this.close();
+                window.location.replace($(selectedListItemSelectorAnchor).attr('href'));
+            }
+
+            // up
+            if (event.keyCode == 38) {
+                selected = $(selectedListItemSelector);
+                $(listItemSelector).removeClass("selected");
+
+                if (selected.prev().length == 0) {
+                    selected.siblings().last().addClass("selected");
+                } else {
+                    selected.prev().addClass("selected");
+                }
+
+                selected = $(selectedListItemSelector);
+                this.scrollListUp(selected);
+            }
+
+            // down
+            if (event.keyCode == 40) {
+                selected = $(selectedListItemSelector);
+                $(listItemSelector).removeClass("selected");
+
+                if (selected.next().length == 0) {
+                    selected.siblings().first().addClass("selected");
+                } else {
+                    selected.next().addClass("selected");
+                }
+
+                selected = $(selectedListItemSelector);
+                this.scrollListDown(selected);
+            }
+        },
+        scrollListDown: function (element) {
+            var ul = element.parent(),
+                ulHeight = ul.height(),
+                ulBottomPosition = ulHeight + ul.scrollTop(),
+                liBottomPosition = element.position().top + element.height();
+
+            if (liBottomPosition > ulBottomPosition) {
+                ul.scrollTop(liBottomPosition - ulHeight);
+            }
+
+            if (element.is(':first-child')) {
+                ul.scrollTop(0);
+            }
+        },
+        scrollListUp: function (element) {
+            var ul = element.parent(),
+                ulTopPosition = ul.scrollTop(),
+                liTopPosition = element.position().top;
+
+            if (liTopPosition < ulTopPosition) {
+                ul.scrollTop(element.position().top);
+            }
+
+            if (element.is(':last-child')) {
+                ul.scrollTop(element.position().top - element.height());
+            }
+        }
+    };
+
+    $(function () {
+        var search = new Search();
+        search.init();
+    });
+</script>
+</body></html>

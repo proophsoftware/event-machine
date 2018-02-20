@@ -1,0 +1,1206 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="HandheldFriendly" content="True"/>
+<title>Part VI - Check in User</title>
+<link rel="shortcut icon" href="http://getprooph.org/images/ico/prooph-logo@0.5x.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="http://getprooph.org/images/ico/apple-touch-icon-144-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="http://getprooph.org/images/ico/apple-touch-icon-114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="http://getprooph.org/images/ico/apple-touch-icon-72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="http://getprooph.org/images/ico/apple-touch-icon-57-precomposed.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@prooph_software">
+<meta name="twitter:title" content="prooph components">
+<meta name="twitter:description" content="Enterprise-ready CQRS and Event Sourcing packages for PHP with support for the most famous PHP web frameworks">
+<meta name="twitter:image" content="http://getprooph.org/images/prooph-components-intro.png">
+    <link rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/lumen/bootstrap.min.css">
+<link rel="stylesheet"
+      href="https://tobiju.github.io/share/prismjs/prism-ghcolors.css"/>
+<link rel="stylesheet"
+      href="https://tobiju.github.io/share/prismjs/prism-linenumbers.css"/>
+<style>
+    body, html {
+        height: 100%;
+        padding-top: 36px;
+        position: relative;
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+    code span {
+        white-space: nowrap;
+    }
+    code span.comment {
+        white-space: pre;
+    }
+
+    .highlight {
+        background: #FFFF88;
+    }
+
+    .page-wrapper {
+        min-height: 100%;
+        padding-bottom: 170px;
+        position: relative;
+    }
+
+    .box-header {
+        position: relative;
+    }
+
+    /* Header Section */
+    header {
+        background: white;
+        color: black;
+        font-size: 16px;
+        font-weight: 300;
+    }
+
+    h1:first-child {
+        margin-top: 0;
+    }
+
+    /* anchor link will be displayed after the static top nav */
+    h1:before,
+    h2:before,
+    h3:before,
+    h4:before,
+    h5:before,
+    h6:before {
+        display: block;
+        content: " ";
+        margin-top: -64px;
+        height: 64px;
+        visibility: hidden;
+    }
+
+    .navbar-brand {
+        padding: 0;
+    }
+
+    .navbar-brand img {
+        max-height: 100%;
+    }
+
+    /* Content Section */
+    #content {
+        margin-bottom: 17px;
+        font-size: 17px;
+        min-height: 200px;
+    }
+
+    .breadcrumb {
+        position: relative;
+        z-index: 999;
+    }
+
+    .links {
+        background: #f8f8f8;
+        border-top: 1px solid #e5e5e5;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 16px 0;
+    }
+
+    .links .prev {
+        text-align: left;
+    }
+
+    .links .parent {
+        text-align: center;
+    }
+
+    .links .next {
+        text-align: right;
+    }
+
+    /* Search */
+    .form-search {
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 999;
+    }
+
+    @media (max-width: 767px) {
+        .form-search {
+            position: relative;
+            margin-top: 0;
+        }
+    }
+
+    .form-search .form-control {
+        border: 0;
+        width: 80px;
+    }
+
+    @media (max-width: 767px) {
+        .form-search .form-control {
+            width: 100% !important;
+        }
+    }
+
+    .form-search .list-search-results {
+        position: relative;
+    }
+
+    .form-search .list-search-results ul {
+        background: #eee;
+        border: 1px solid inherit;
+        list-style: none;
+        max-height: 300px;
+        overflow: auto;
+        padding: 0;
+        position: absolute;
+        width: 100%;
+        z-index: 999;
+    }
+
+    .form-search .list-search-results ul li:nth-child(even) {
+        background: rgba(255, 255, 255, 0.3)
+    }
+
+    .form-search .list-search-results ul li.selected {
+        background: #ccc;
+    }
+
+    .form-search .list-search-results ul li a {
+        display: block;
+        padding: 4px 8px;
+    }
+
+    /* TOC */
+    .list-toc {
+        padding: 0;
+    }
+
+    .list-toc .list-group-item {
+        background: 0 none;
+        position: relative;
+        font-weight: bold;
+        padding: 0;
+        margin: 0;
+    }
+
+    .list-toc li .text-number {
+        padding-left: 20px;
+    }
+    .list-toc li li .text-number {
+        padding-left: 40px;
+    }
+    .list-toc li li li .text-number {
+        padding-left: 60px;
+    }
+    .list-toc li li li li .text-number {
+        padding-left: 80px;
+    }
+    .list-toc li li li li li .text-number {
+        padding-left: 100px;
+    }
+    .list-toc .text-number {
+        padding-left: 100px;
+    }
+
+    .list-toc .list-group-item .row {
+        padding: 7px 0 7px;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-weight: normal;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle:before {
+        content: "";
+        display: block;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle.collapsed:before {
+        content: "";
+        display: block;
+    }
+
+    .list-toc > li:nth-child(2n+1) {
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    .bbt-theme-cyborg .list-toc > li:nth-child(2n+1),
+    .bbt-theme-darkly .list-toc > li:nth-child(2n+1),
+    .bbt-theme-slate .list-toc > li:nth-child(2n+1),
+    .bbt-theme-superhero .list-toc > li:nth-child(2n+1) {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .list-toc .list-group-item {
+        border-bottom: 0 none;
+        border-left: 0 none;
+        border-right: 0 none;
+        font-size: inherit;
+    }
+
+    .list-toc .list-group-item:first-child {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+
+    .list-toc .list-group-item:last-child {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    /* Left navigation */
+    .nav-left ul li a {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        border-left: 1px solid transparent;
+    }
+
+    .nav-left ul li.active a,
+    .nav-left ul li a:hover {
+        background: none !important;
+        color: inherit;
+        border-color: inherit;
+    }
+
+    .navbar-top {
+        position: relative;
+    }
+
+    .affix {
+        top: 60px;
+    }
+
+    .badge {
+        border-radius: 4px;
+        padding: 5px;
+    }
+
+    /* Footer Section */
+    footer {
+        color: black;
+        background: white;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+    }
+
+    footer #copyright {
+        padding: 30px;
+        text-align: center;
+        color: #444;
+    }
+
+    footer #copyright p {
+        margin: 0;
+    }
+
+    footer #copyright span a {
+        color: white;
+    }
+
+    /* Top Navigation */
+    @media (max-width: 767px) {
+        ul.navbar-nav {
+            margin: 0 -15px
+        }
+
+        ul.navbar-nav li {
+            border-radius: 0;
+        }
+
+        ul.navbar-nav li ul {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            display: block;
+            float: none;
+            left: auto;
+            padding: 0;
+            position: static;
+        }
+
+        ul.navbar-nav li ul li a {
+            padding: 8px 30px;
+        }
+
+        ul.navbar-nav li ul li ul li a {
+            padding: 6px 40px;
+        }
+    }
+
+    @media (min-width: 768px) {
+
+        ul.navbar-nav li {
+            display: block;
+            position: relative;
+            float: left;
+        }
+
+        ul.navbar-nav li ul {
+            display: none;
+        }
+
+        ul.navbar-nav li a {
+            display: block;
+        }
+
+        ul.navbar-nav li:hover > ul {
+            display: block;
+            position: absolute;
+        }
+
+        ul.navbar-nav li:hover li {
+            float: none;
+        }
+
+        ul.navbar-nav ul ul {
+            left: 100%;
+            top: 0;
+        }
+    }
+</style>
+    <style>
+    /* Header Section */
+    header {
+        font-size: 14px;
+        font-weight: 400;
+    }
+
+    .prooph-logo {
+        float: left;
+        margin-left: 8px;
+        margin-right: 8px;
+        transition-timing-function: ease-in-out;
+        transition: all 5s;
+        height: 50px;
+        padding: 5px;
+    }
+</style>
+</head>
+<body data-spy="scroll" data-target="#sideNav" data-offset="50" class="bbt-theme-lumen">
+<div class="page-wrapper">
+    <header>
+    
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="box-header container">
+        <form class="form-search navbar-form navbar-right" role="search">
+            <div class="form-group">
+                <input type="text"
+                       placeholder="Search"
+                       class="js-search-input form-control"
+                       data-roothref="/">
+
+                <div class="js-search-results"></div>
+            </div>
+        </form>
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#js-navbar-collapse" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://getprooph.org">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="prooph-logo">
+                    <defs>
+                        <style>
+                            .cls-1{fill:#04a1b0;}.cls-2{fill:#26896c;}.cls-3{fill:#eeca50;}.cls-4{fill:#eb6842;}.cls-5{fill:#cc3340;}.cls-6{fill:#715671;}
+                        </style>
+                    </defs>
+                    <title>prooph-logo</title>
+                    <g id="artwork">
+                        <g id="Layer_5" data-name="Layer 5">
+                            <path class="cls-1"
+                                  d="M57.22,17,67.84,35.43a1.77,1.77,0,0,0,1.53.89h61.25a1.77,1.77,0,0,0,1.53-.89L142.78,17a1.77,1.77,0,0,0-1.53-2.66H58.76A1.77,1.77,0,0,0,57.22,17Z"/>
+                            <path class="cls-2"
+                                  d="M29.54,94.68l30.63-53a1.77,1.77,0,0,0,0-1.77L49.55,21.48a1.77,1.77,0,0,0-3.07,0L5.24,92.91a1.77,1.77,0,0,0,1.53,2.66H28A1.77,1.77,0,0,0,29.54,94.68Z"/>
+                            <path class="cls-3"
+                                  d="M60.16,158.36l-30.63-53a1.77,1.77,0,0,0-1.53-.89H6.78a1.77,1.77,0,0,0-1.53,2.66l41.24,71.43a1.77,1.77,0,0,0,3.07,0l10.61-18.38A1.77,1.77,0,0,0,60.16,158.36Z"/>
+                            <path class="cls-4"
+                                  d="M130.63,163.68H69.37a1.77,1.77,0,0,0-1.53.89L57.22,183a1.77,1.77,0,0,0,1.53,2.66h82.48a1.77,1.77,0,0,0,1.53-2.66l-10.61-18.38A1.77,1.77,0,0,0,130.63,163.68Z"/>
+                            <path class="cls-5"
+                                  d="M170.46,105.32l-30.63,53a1.77,1.77,0,0,0,0,1.77l10.61,18.38a1.77,1.77,0,0,0,3.07,0l41.24-71.43a1.77,1.77,0,0,0-1.53-2.66H172A1.77,1.77,0,0,0,170.46,105.32Z"/>
+                            <path class="cls-6"
+                                  d="M139.84,41.64l30.63,53a1.77,1.77,0,0,0,1.53.89h21.23a1.77,1.77,0,0,0,1.53-2.66L153.52,21.48a1.77,1.77,0,0,0-3.07,0L139.84,39.86A1.77,1.77,0,0,0,139.84,41.64Z"/>
+                        </g>
+                    </g>
+                </svg>
+            </a>
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="js-navbar-collapse">
+            
+    
+    <ul class="nav navbar-nav">
+                        <li>
+    <a href="/intro/">Introduction</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="/intro/about.html">About Event Machine</a>
+
+    </li>
+                        <li>
+    <a href="/intro/pros_and_cons.html">Pros and cons</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="/tutorial/">Tutorial</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="/tutorial/intro.html">Introduction</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partI.html">Part I - Add A Building</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partII.html">Part II - The Building Aggregate</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partIII.html">Part III - Aggregate State</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partIV.html">Part IV - Projections and Queries</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partV.html">Part V - DRY</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partVI.html">Part VI - Check in User</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/partVII.html">Part VII - The Unhappy Path</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/bonusI.html">Bonus I - Custom Projection</a>
+
+    </li>
+                        <li>
+    <a href="/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="/api/">API</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="/api/event_machine/">Event Machine</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="/api/event_machine/set_up.html">Set Up</a>
+
+    </li>
+            </ul>
+
+    </li>
+            </ul>
+
+    </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+</header>
+<div class="container">
+    <ol class="breadcrumb">
+                        <li><a href="/">Event Machine Docs</a></li>
+                                <li><a href="/tutorial/">Tutorial</a></li>
+                                <li class="active">Part VI - Check in User</li>
+            </ol>
+    <div class="row">
+
+                <div class="col-md-3">
+            <nav class="nav-left hidden-xs hidden-sm" id="sideNav">
+    <ul class="nav nav-stacked" data-spy="affix" data-offset-top="59" role="tablist">
+                                <li>
+                <a href="#2-7" title="Part&#x20;VI&#x20;-&#x20;Check&#x20;in&#x20;User">Part VI - Check in User</a>
+            </li>
+                                <li>
+                <a href="#2-7-1" title="Command">Command</a>
+            </li>
+                                <li>
+                <a href="#2-7-2" title="Event">Event</a>
+            </li>
+                                <li>
+                <a href="#2-7-3" title="Aggregate">Aggregate</a>
+            </li>
+                                <li>
+                <a href="#2-7-4" title="Command&#x20;Processing">Command Processing</a>
+            </li>
+                                <li>
+                <a href="#2-7-5" title="Protect&#x20;Invariants">Protect Invariants</a>
+            </li>
+            </ul>
+</nav>
+        </div>
+                <div class="col-md-9">
+<div id="section-main"><h1 id="2-7">Part VI - Check in User</h1>
+<p>The second use case of our Building Management system checks in users into buildings. Users are identified by their name.</p>
+<h2 id="2-7-1">Command</h2>
+<p>Let's add a new command for the use case in <code>src/Api/Command</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Api;
+
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+
+class Command implements EventMachineDescription
+{
+    const ADD_BUILDING = 'AddBuilding';
+    const CHECK_IN_USER = 'CheckInUser';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        /* ... */
+
+        $eventMachine-&gt;registerCommand(
+            Command::CHECK_IN_USER,
+            JsonSchema::object([
+                Payload::BUILDING_ID =&gt; Schema::buildingId(),
+                Payload::NAME =&gt; Schema::username(),
+            ])
+        );
+    }
+}
+
+</code></pre>
+<p>We can reuse <code>Payload::NAME</code> but assign a different schema so that we can change schema for a <code>building name</code> without
+influencing the schema of <code>user name</code>:</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Api;
+
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type\ArrayType;
+use Prooph\EventMachine\JsonSchema\Type\StringType;
+use Prooph\EventMachine\JsonSchema\Type\TypeRef;
+use Prooph\EventMachine\JsonSchema\Type\UuidType;
+
+class Schema
+{
+    /* ... */
+
+    public static function username(): StringType
+    {
+        return JsonSchema::string()-&gt;withMinLength(1);
+    }
+}
+
+</code></pre>
+<h2 id="2-7-2">Event</h2>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Api;
+
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+
+class Event implements EventMachineDescription
+{
+    const BUILDING_ADDED = 'BuildingAdded';
+    const USER_CHECKED_IN = 'UserCheckedIn';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        $eventMachine-&gt;registerEvent(
+            self::BUILDING_ADDED,
+            JsonSchema::object(
+                [
+                    Payload::BUILDING_ID =&gt; Schema::buildingId(),
+                    Payload::NAME =&gt; Schema::buildingName(),
+                ]
+            )
+        );
+        
+        $eventMachine-&gt;registerEvent(
+            self::USER_CHECKED_IN,
+            JsonSchema::object([
+                Payload::BUILDING_ID =&gt; Schema::buildingId(),
+                Payload::NAME =&gt; Schema::username(),
+            ])
+        );
+    }
+}
+
+</code></pre>
+<h2 id="2-7-3">Aggregate</h2>
+<p>Did you notice that we are getting faster? Once, you're used to Event Machine's API you can develop at the
+speed of light ;).</p>
+<p>A user can only check into an existing building. <code>builidngId</code> is part of the command payload and should reference a
+building in our system. For the command handling aggregate function this means that we also have state of the aggregate
+and Event Machine will pass that state as the first argument to the command handling function as well as to the
+event apply function:</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use App\Api\Event;
+use App\Api\Payload;
+use Prooph\EventMachine\Messaging\Message;
+
+final class Building
+{
+    public static function add(Message $addBuilding): \Generator
+    {
+        yield [Event::BUILDING_ADDED, $addBuilding-&gt;payload()];
+    }
+
+    public static function whenBuildingAdded(Message $buildingAdded): Building\State
+    {
+        return Building\State::fromArray($buildingAdded-&gt;payload());
+    }
+    
+    public static function checkInUser(Building\State $state, Message $checkInUser): \Generator
+    {
+        yield [Event::USER_CHECKED_IN, $checkInUser-&gt;payload()];
+    }
+    
+    public static function whenUserCheckedIn(Building\State $state, Message $userCheckedIn): Building\State
+    {
+        return $state-&gt;withCheckedInUser($userCheckedIn-&gt;get(Payload::NAME));
+    }
+}
+
+</code></pre>
+<p><code>Building::checkInUser()</code> is still a dumb function (we change that in a minute) but <code>Building::whenUserCheckedIn()</code>
+contains an interesting detail. <code>Building\State</code> is an immutable record. But we can add <code>with*</code> methods to it to
+modify state. You may know these <code>with*</code> methods from the <code>PSR-7</code> standard. It is a common practice to prefix
+state changing methods of immutable objects with <code>with</code>. Those methods should return a new instance with the modified
+state rather than changing its own state. Here is the implementation of <code>Building\State::withCheckedInUser(string $username): Building\State</code>:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building;
+
+use App\Api\Schema;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type;
+
+final class State implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var string
+     */
+    private $buildingId;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @var array
+     */
+    private $users = [];
+
+    public static function __schema(): Type
+    {
+        return self::generateSchemaFromPropTypeMap([
+            'users' =&gt; JsonSchema::TYPE_STRING
+        ]);
+    }
+
+    /**
+     * @return string
+     */
+    public function buildingId(): string
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return string
+     */
+    public function name(): string
+    {
+        return $this-&gt;name;
+    }
+
+    /**
+     * @return array
+     */
+    public function users(): array
+    {
+        return array_keys($this-&gt;users);
+    }
+
+    public function withCheckedInUser(string $username): State
+    {
+        $copy = clone $this;
+        $copy-&gt;users[$username] = null;
+        return $copy;
+    }
+    
+    public function isUserCheckedIn(string $username): bool 
+    {
+        return array_key_exists($username, $this-&gt;users);
+    }
+}
+
+</code></pre>
+<p>Technically we can make a copy of the record and modify that. The original record is not modified
+and we return the copy to satisfy the immutable record contract.</p>
+<p>Besides <code>withCheckedInUser</code> we've added a new property <code>users</code> and a getter for it. We also override the <code>__schema</code>
+method of <code>ImmutableRecordLogic</code> to pass a type hint to <code>ImmutableRecordLogic::generateSchemaFromPropTypeMap()</code>.
+Unfortunately, it is not possible in PHP to use return type hints like <code>string[]</code>. We can only type hint for <code>array</code>.
+Hopefully this will change in a future version of PHP. For now we have to live with the workaround and give
+<code>ImmutableRecordLogic</code> a hint that array items of the <code>users</code> property are of type <code>string</code>.</p>
+<p><em>Note: ImmutableRecordLogic derives type information by inspecting return types of getter methods named like their
+corresponding private properties.</em></p>
+<p>Internally, user names are used as array index. So the same user cannot appear twice in the list. With <code>Building\State::isUserCheckedIn(string $username): bool</code>
+we can look up if the given user is currently in the building. <code>Building\State::users()</code> on the other hand returns a list
+of user names like defined in the <code>__schema</code>. Internal state is used for fast look ups and external schema is used for the
+read model. More on that in a minute.</p>
+<h2 id="2-7-4">Command Processing</h2>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Api;
+
+use App\Model\Building;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+
+class Aggregate implements EventMachineDescription
+{
+    const BUILDING = 'Building';
+
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        /* ... */
+        
+        $eventMachine-&gt;process(Command::CHECK_IN_USER)
+            -&gt;withExisting(self::BUILDING)
+            -&gt;handle([Building::class, 'checkInUser'])
+            -&gt;recordThat(Event::USER_CHECKED_IN)
+            -&gt;apply([Building::class, 'whenUserCheckedIn']);
+    }
+}
+
+</code></pre>
+<p>Pretty much the same command processing description just with replaced command, event and function names according
+to the new use case. An important difference is that we use <code>-&gt;withExisting</code> instead of <code>-&gt;withNew</code>.
+As already stated this tells Event Machine to look up an existing Building using the <code>buildingId</code> from the <code>CheckInUser</code> command.</p>
+<p>The following GraphQL mutation should check in <em>John</em> into the <em>Acme Headquarters</em>.</p>
+<pre><code class="language-graphql">mutation{
+  CheckInUser(
+    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc"
+    name:"John"
+  )
+}
+</code></pre>
+<p>Response:</p>
+<pre><code class="language-json">{
+  "data": {
+    "CheckInUser": true
+  }
+}
+</code></pre>
+<p>Looks good! And how does the response of the <code>Buildings</code> query look now? If you inspect the GraphQL schema of the query
+and click on the <code>Building</code> return type you'll notice the new property <code>users: [String!]!</code>. We can tell GraphQL to
+include the new property in the response:</p>
+<pre><code class="language-graphql">query{
+  Buildings(name:"Acme") {
+    buildingId
+    name
+    users
+  }
+}
+</code></pre>
+<p>Response</p>
+<pre><code class="language-json">{
+  "data": {
+    "Buildings": [
+      {
+        "buildingId": "122a63bf-7388-4cc0-b615-c5cc857a9adc",
+        "name": "Acme Headquarters",
+        "users": [
+          "John"
+        ]
+      }
+    ]
+  }
+}
+</code></pre>
+<p>Great! We get back the list of users checked in the building.</p>
+<h2 id="2-7-5">Protect Invariants</h2>
+<p>One of the main tasks of an aggregate is to protect invariants. A user cannot check in twice. The <code>Building</code> aggregate
+should enforce the business rule:</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use App\Api\Event;
+use App\Api\Payload;
+use Prooph\EventMachine\Messaging\Message;
+
+final class Building
+{
+    public static function add(Message $addBuilding): \Generator
+    {
+        yield [Event::BUILDING_ADDED, $addBuilding-&gt;payload()];
+    }
+
+    public static function whenBuildingAdded(Message $buildingAdded): Building\State
+    {
+        return Building\State::fromArray($buildingAdded-&gt;payload());
+    }
+
+    public static function checkInUser(Building\State $state, Message $checkInUser): \Generator
+    {
+        if($state-&gt;isUserCheckedIn($checkInUser-&gt;get(Payload::NAME))) {
+            throw new \DomainException(sprintf(
+                "User %s is already in the building",
+                $checkInUser-&gt;get(Payload::NAME)
+            ));
+        }
+        
+        yield [Event::USER_CHECKED_IN, $checkInUser-&gt;payload()];
+    }
+
+    public static function whenUserCheckedIn(Building\State $state, Message $userCheckedIn): Building\State
+    {
+        return $state-&gt;withCheckedInUser($userCheckedIn-&gt;get(Payload::NAME));
+    }
+}
+
+</code></pre>
+<p>The command handling function can make use of <code>$state</code> passed to it as this will always be the current state of the aggregate.
+If the given user is already checked in we throw an exception to stop command processing.</p>
+<p>Let's try it:</p>
+<pre><code class="language-graphql">mutation{
+  CheckInUser(
+    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc", 
+    name:"John"
+  )
+}
+</code></pre>
+<p>Response:</p>
+<pre><code class="language-json">{
+  "errors": [
+    {
+      "debugMessage": "User John is already in the building",
+      "message": "Internal server error",
+      "category": "internal",
+      "locations": [
+        {
+          "line": 28,
+          "column": 3
+        }
+      ],
+      "path": [
+        "CheckInUser"
+      ]
+    }
+  ],
+  "data": []
+}
+</code></pre>
+<p>Throwing an exception is the simplest way to protect invariants. However, with event sourcing we have a different
+(and in most cases) better option. This will be covered in the next part of the tutorial.</p>
+</div>        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="links">
+        <div class="container">
+            <div class="row">
+                <div class="prev col-xs-6">
+                                            <a href="/tutorial/partV.html">Previous</a>                                    </div>
+                <div class="next col-xs-6">
+                                            <a href="/tutorial/partVII.html">Next</a>                                    </div>
+            </div>
+        </div>
+    </div>
+    <div id="copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <p>Powered by <a href="https://github.com/tobiju/bookdown-bootswatch-templates" title="Visit project to generate your own docs">Bookdown Bootswatch Templates</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+<script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+        integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/0.6.0/lunr.min.js"></script>
+<script src="http://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+<script src="https://tobiju.github.io/share/prismjs/main.js"></script>
+<script src="https://tobiju.github.io/share/prismjs/prism.js"></script>
+<script type="text/javascript">
+
+    function Search() {
+        this.store = {};
+        this.index = lunr(function () {
+            this.ref('id');
+            this.field('title', {boost: 10});
+            this.field('content');
+        });
+        this.searchResults = $('.js-search-results').addClass('list-search-results');
+    }
+
+    Search.prototype = {
+        constructor: Search,
+        init: function () {
+            this.createIndex();
+            this.bindEvents();
+        },
+        createIndex: function () {
+            var $this = this,
+                indexFilePath = $('.js-search-input').data('roothref') + 'index.json';
+
+            $.getJSON(indexFilePath, function (data) {
+                $.each(data, function (key, item) {
+                    $this.index.add({
+                        id: item.id,
+                        title: item.title,
+                        content: item.content
+                    });
+
+                    $this.store[item.id] = {
+                        href: item.id,
+                        title: item.title,
+                        content: item.content
+                    }
+                });
+            });
+        },
+        bindEvents: function () {
+            var $this = this;
+
+            $('html')
+                .on('click', function (event) {
+                    $this.close($(this), event);
+                });
+
+            $('.js-search-input, .js-search-results')
+                .on('click', function (event) {
+                    $this.click($(this), event);
+                });
+
+            $('.js-search-input')
+                .on('focus', function (event) {
+                    $this.focus($(this), event);
+                })
+                .on('keyup', function (event) {
+                    $this.search($(this), event)
+                })
+                .on('keydown', function (event) {
+                    if ($('.js-search-results ul').is(':visible')){
+                        $this.navigation($(this), event)
+                    }
+                })
+        },
+        click: function (element, event) {
+            event.stopPropagation();
+        },
+        focus: function (element, event) {
+            this.searchInputWidth = element.css('width');
+            element.animate({
+                'width': 600
+            }, 500);
+            $('#js-navbar-collapse > ul').fadeOut();
+        },
+        close: function (element, event) {
+            var $this = this;
+
+            $('.js-search-results').hide();
+            $('.js-search-input').animate({
+                'width': $this.searchInputWidth
+            }, 500);
+            $('#js-navbar-collapse > ul').fadeIn();
+        },
+        search: function (element, event) {
+            var $this = this;
+
+            if (event.keyCode == 13 || event.keyCode == 38 || event.keyCode == 40) {
+                return;
+            }
+
+            var query = element.val(),
+                results = $this.index.search(query);
+
+            if (!results.length) {
+                $this.searchResults.empty();
+                return;
+            }
+
+            var resultsList = results.reduce(function (ul, result) {
+                var item = $this.store[result.ref];
+                var title = $('<b>').text(item.title);
+
+                var cropText = $this.cropText(item.content, query);
+                if (cropText.length === 0) {
+                    cropText = $('<p>').html(item.content.substring(0, 120) + "...");
+                }
+                var content = content = $('<p>').html(cropText);
+
+                var div = $('<div>')
+                    .append(title)
+                    .append(content);
+                var a = $('<a>').attr('href', item.href)
+                    .append(div);
+                var li = $('<li>')
+                    .append(a);
+                ul.append(li);
+
+                return ul;
+            }, $('<ul>'));
+
+            this.searchResults.html(resultsList);
+
+            $('.js-search-results').show();
+            $(".js-search-results li:first-child").addClass('selected');
+        },
+        cropText: function (content, query) {
+            var cropedText = '',
+                re = new RegExp("\\s?(.{0,30})?" + query + ".*?\\b(.{0,30}.)?\\s?", "gi");
+
+            $.each(content.match(re), function (key, value) {
+                cropedText += '...' + value + '...';
+            });
+
+            return cropedText;
+        },
+        navigation: function (element, event) {
+            var selected = null,
+                listSelector = ".js-search-results ul",
+                listItemSelector = listSelector + " li",
+                selectedListItemSelector = listItemSelector + ".selected",
+                selectedListItemSelectorAnchor = listItemSelector + ".selected a";
+
+            // enter
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                this.close();
+                window.location.replace($(selectedListItemSelectorAnchor).attr('href'));
+            }
+
+            // up
+            if (event.keyCode == 38) {
+                selected = $(selectedListItemSelector);
+                $(listItemSelector).removeClass("selected");
+
+                if (selected.prev().length == 0) {
+                    selected.siblings().last().addClass("selected");
+                } else {
+                    selected.prev().addClass("selected");
+                }
+
+                selected = $(selectedListItemSelector);
+                this.scrollListUp(selected);
+            }
+
+            // down
+            if (event.keyCode == 40) {
+                selected = $(selectedListItemSelector);
+                $(listItemSelector).removeClass("selected");
+
+                if (selected.next().length == 0) {
+                    selected.siblings().first().addClass("selected");
+                } else {
+                    selected.next().addClass("selected");
+                }
+
+                selected = $(selectedListItemSelector);
+                this.scrollListDown(selected);
+            }
+        },
+        scrollListDown: function (element) {
+            var ul = element.parent(),
+                ulHeight = ul.height(),
+                ulBottomPosition = ulHeight + ul.scrollTop(),
+                liBottomPosition = element.position().top + element.height();
+
+            if (liBottomPosition > ulBottomPosition) {
+                ul.scrollTop(liBottomPosition - ulHeight);
+            }
+
+            if (element.is(':first-child')) {
+                ul.scrollTop(0);
+            }
+        },
+        scrollListUp: function (element) {
+            var ul = element.parent(),
+                ulTopPosition = ul.scrollTop(),
+                liTopPosition = element.position().top;
+
+            if (liTopPosition < ulTopPosition) {
+                ul.scrollTop(element.position().top);
+            }
+
+            if (element.is(':last-child')) {
+                ul.scrollTop(element.position().top - element.height());
+            }
+        }
+    };
+
+    $(function () {
+        var search = new Search();
+        search.init();
+    });
+</script>
+</body></html>
