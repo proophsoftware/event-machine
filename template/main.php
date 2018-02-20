@@ -35,7 +35,7 @@ $templates->set('script', $templatePath . '/script.php');
 $templates->set('nav', __DIR__ . '/nav.php');
 $templates->set('core', $templatePath . '/core.php');
 $templates->set('navheader', $templatePath . '/navheader.php');
-$templates->set('navfooter', $templatePath . '/navfooter.php');
+$templates->set('navfooter', __DIR__ . '/navfooter.php');
 $templates->set('toc', $templatePath . '/toc.php');
 $templates->set('partialTopNav', $templatePath . '/partial/topNav.php');
 $templates->set('partialBreadcrumb', $templatePath . '/partial/breadcrumb.php');

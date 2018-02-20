@@ -13,6 +13,10 @@ development of event sourced applications and increase the fun. It can be used f
 
 Head over to the [skeleton](https://github.com/proophsoftware/event-machine-skeleton)!
 
+## Tutorial
+
+[https://proophsoftware.github.io/event-machine/tutorial/](https://proophsoftware.github.io/event-machine/tutorial/)
+
 ## Documentation
 
 Documentation is [in the docs tree](docs/), and can be compiled using [bookdown](http://bookdown.io) and [Docker](https://www.docker.com/).

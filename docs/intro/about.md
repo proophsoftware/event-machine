@@ -12,7 +12,7 @@ Event Machine was originally designed as a "workshop framework".
 
 > The Dreyfus model distinguishes five levels of competence, from novice to mastery. At the absolute beginner level people execute tasks based on “rigid adherence to taught rules or plans”. Beginners need recipes. They don’t need a list of parts, or a dozen different ways to do the same thing. Instead what works are step by step instructions that they can internalize. As they practice them over time they learn the reasoning behind them, and learn to deviate from them and improvise, but they first need to feel like they’re doing something.
 
-(source: https://lambdaisland.com/blog/25-05-2017-simple-and-happy-is-clojure-dying-and-what-has-ruby-got-to-do-with-it)
+(source: [https://lambdaisland.com/blog/25-05-2017-simple-and-happy-is-clojure-dying-and-what-has-ruby-got-to-do-with-it](https://lambdaisland.com/blog/25-05-2017-simple-and-happy-is-clojure-dying-and-what-has-ruby-got-to-do-with-it))
 
 ### Rapid Application Development
 It turned out that Event Machine is not only a very good CQRS and Event Sourcing learning framework but that the same concept
@@ -27,7 +27,7 @@ approach later. With Event Machine you get **separation of concern from day one*
 independent of each other and you also get **a full history of all state changes** so it is not only cheap to develop an application
 with Event Machine but it's also cheap to maintain that application in production. 
 
-## People behind the project
+## Powered By
 
 [![prooph software](https://github.com/codeliner/php-ddd-cargo-sample/raw/master/docs/assets/prooph-software-logo.png)](http://prooph.de)
 

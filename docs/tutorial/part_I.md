@@ -86,7 +86,7 @@ and Event Machine takes care of the rest.
 *Note: The skeleton defines the namespace `App` in composer.json and maps it to the `src` directory. You can change that for your own project, but
 you need to change the namespaces of the classes/interfaces shipped with the skeleton which are located in the `src` directory (just a few helpers)*
 
-## Event Machine Descriptions
+## Descriptions
 
 Event Machine Descriptions are very important. They are called at "**compile time**" and used to configure Event Machine.
 Later in the tutorial we learn more about using Event Machine in production. In production mode the descriptions are only

@@ -1,5 +1,5 @@
 {
-  "title": "Event Machine Tutorial",
+  "title": "Tutorial",
   "content": [
     {"intro": "intro.md"},
     {"partI": "part_I.md"},
@@ -10,8 +10,7 @@
     {"partVI": "part_VI.md"},
     {"partVII": "part_VII.md"},
     {"bonusI": "bonus_I.md"},
-    {"bonusII": "bonus_II.md"},
-    {"bonusIII": "bonus_III.md"}
+    {"bonusII": "bonus_II.md"}
   ],
   "tocDepth": 1
 }
