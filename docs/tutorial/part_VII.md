@@ -234,8 +234,8 @@ mutation{
   
 ## The End
 
-Congratulations! You've mastered the Event Machine tutorial. There are three bonus parts available to learn more
-about **custom projections**, **command pre processors** and **testing with Event Machine**. 
+Congratulations! You've mastered the Event Machine tutorial. There are two bonus parts available to learn more
+about **custom projections** and **testing with Event Machine**. 
 The current implementation is available as a **demo** branch of `proophsoftware/event-machine-skeleton`. 
 There is a second branch called **demo-oop** available that contains a similar
 implementation. But the `Building` aggregate is designed using an object oriented approach rather than
