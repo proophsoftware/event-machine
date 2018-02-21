@@ -2,30 +2,22 @@
 
 ## Pros
 
-- Event Machine ships with a default set up based on the rich features provided by prooph components
-- you can start with a ready-to-use [skeleton](https://github.com/proophsoftware/event-machine-skeleton) 
-- Using a message class for each message is not needed (but can be used)
+- Default set up based on the rich features provided by prooph components
+- Ready-to-use [skeleton](https://github.com/proophsoftware/event-machine-skeleton) 
+- Less code needed
 - Programmatic message routing
-- A lot of extension points to inject custom logic
-- Event Machine can be removed later when project grows and more time/budget is available to get the most **performance, flexibility and explicit modeling** out of event sourcing
+- extension points to inject custom logic
 - Audit log from day one (no data loss)
-- Replay functionality available 
+- Replay functionality 
 - Projections based on domain events
-- Async messaging with rabbitMQ included in default set up (can be changed)
 - PSR friendly http message box 
-- GraphQL integration (plays well with a JavaScript frontend)
+- GraphQL integration 
 - Message flow analyzer (work in progress)
 - Event store HTTP API (work in progress)
 
 ## Cons
 
-Please consider the following cons before working with Event Machine
-
-- Event Machine is an opinionated framework
-- Infrastructure code is coupled with Event Machine (message validation and routing, aggregate and projection handling, ...)
-- Programmatic set up that needs caching in production environments
-- Message validation is based on Json Schema
-- Read model is eventually consistent (you can achieve strong consistency but that's not recommended for this type of application)
+- Opinionated framework
 
 ## Conclusion
 
