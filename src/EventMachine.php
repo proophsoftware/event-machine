@@ -575,7 +575,8 @@ final class EventMachine
             $this->container->get(self::SERVICE_ID_EVENT_STORE),
             AggregateType::fromString($aggregateType),
             new ClosureAggregateTranslator($aggregateId, $aggregateDesc['eventApplyMap']),
-            $snapshotStore
+            $snapshotStore,
+            new StreamName($this->writeModelStreamName())
         );
 
         /** @var GenericAggregateRoot $aggregate */
