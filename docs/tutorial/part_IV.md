@@ -26,11 +26,11 @@ A disadvantage is that projections are slower because of the sequential processi
 
 But don't worry: If projections become a bottleneck you can simply switch to plain *prooph/event-store*
 projections and run them in parallel. The recommendation is to switch to that approach only if it is really needed.
-Deploying and coordinating multiple projection processes need a good (project specific) strategy and tools. 
+Deploying and coordinating multiple projection processes requires a good (project specific) strategy and tools.
 
-Ok enough theory. Let's get back to the beauty and simplicity of Event Machine. You can use a shortcut if aggregate 
+Ok enough theory. Let's get back to the beauty and simplicity of Event Machine. You can use a shortcut if aggregate
 state should be available as a read model. You only need one of the available `EventMachine\Persistence\DocumentStore`
-implementations. By default the skeleton uses *proophsoftware/postgres-document-store* but you can also use 
+implementations. By default the skeleton uses *proophsoftware/postgres-document-store* but you can also use
 *proophsoftware/mongo-document-store* or implement your own. See Event Machine docs for details.
 
 We only need to register an aggregate projection in `src/Api/Projection`:
@@ -66,7 +66,7 @@ class Projection implements EventMachineDescription
     }
 }
 
-``` 
+```
 
 That's it. If you look into the Postgres DB you should see a new table called `em_ds_building_projection_0_1_0`.
 And the table should contain one row with two columns `id` and `doc` with id being the buildingId and doc being the
@@ -120,7 +120,7 @@ class Type implements EventMachineDescription
     {
         //Register the HealthCheck type returned by @see \App\Api\Query::HEALTH_CHECK
         $eventMachine->registerType(self::HEALTH_CHECK, self::healthCheck());
-        
+
         $eventMachine->registerType(Aggregate::BUILDING, Building\State::__schema());
     }
 }
@@ -130,7 +130,7 @@ class Type implements EventMachineDescription
 As you can see the `HealthCheck` type used by the `HealthCheck` query is already registered here. We simply add
 `Building\State` as the second type and use the aggregate type as name for the building type.
 
-*Note: Types are described using JSON Schema. Building\State implements ImmutableRecord and therefor provides the method
+*Note: Types are described using JSON Schema. Building\State implements ImmutableRecord and therefore provides the method
 ImmutableRecord::__schema (provided by ImmutableRecordLogic trait) which returns a JSON Schema object.*
 
 *Note: Using aggregate state as return type for queries couples the write model with the read model.
@@ -157,7 +157,7 @@ class Query implements EventMachineDescription
      * Default Query, used to perform health checks using messagebox or GraphQL endpoint
      */
     const HEALTH_CHECK = 'HealthCheck';
-    
+
     const BUILDING = 'Building';
 
     public static function describe(EventMachine $eventMachine): void
@@ -182,20 +182,20 @@ Queries are named like the "things" they return. This results in a clean and eas
 Please note that the return type is a reference: `JsonSchema::typeRef()`.
 In GraphQL this resolves to the type defined in `src/Api/Type`.
 
-Last but not least the query needs to be handled by a so called finder (prooph term). If you've worked with GraphQL
-before a finder is similar to a resolver. Query resolving works like this:
+Last but not least, the query needs to be handled by a so-called finder (prooph term). If you've worked with GraphQL
+before, a finder is similar to a resolver.
 
 When the query is sent to the GraphQL endpoint it is parsed by the integrated GraphQL server and translated into a
 query message that is passed on to prooph's query bus. The query message is validated against the schema
 defined during query registration `$eventMachine->registerQuery(self::BUILDING, JsonSchema::object(...))`.
 
-Our first query has a required argument `buildingId` which should be a valid `Uuid`. The GraphQL type is a `string`.
+Our first query has a required argument, `buildingId`, which should be a valid `Uuid`. The GraphQL type is a `string`.
 An invalid uuid will pass the GraphQL server but fail when the query is parsed into a Event Machine message.
 It's a two step validation process handled internally by Event Machine.
 
-Long story, short. We need a finder like described in the [prooph docs](https://github.com/prooph/service-bus/blob/master/docs/message_bus.md#invoke-handler):
+Long story short, we need a finder, as described in the [prooph docs](https://github.com/prooph/service-bus/blob/master/docs/message_bus.md#invoke-handler):
 
-> QueryBus: much the same as the command bus but the message handler is invoked with the query message and a React\Promise\Deferred that needs to be resolved by the message handler aka finder. 
+> QueryBus: much the same as the command bus but the message handler is invoked with the query message and a React\Promise\Deferred that needs to be resolved by the message handler aka finder.
 
 Create a new class called `BuildingFinder` in a new directory `Finder` in `src/Infrastructure`.
 
@@ -218,14 +218,15 @@ final class BuildingFinder
 
 ```
 
-This is an **invokable finder** like it is described in the prooph docs. It receives the query message as first argument
-and a `React\Promise\Deferred` as second argument. Instead of returning the query result a finder has to resolve
-the deferred object. The reason for this is that prooph's query bus can be used in an async non-blocking I/O runtime
-as well as a normal blocking PHP runtime. The integrated GraphQL server also supports both runtimes so it is a good
-idea to always work with those promise and deferred objects provided by the `ReactPHP` library (unfortunately, we have no
-PSR for promises yet). Event Machine takes care of resolving promises returned by prooph's query bus.  
+This is an **invokable finder**, as described in the prooph docs. It receives the query message as the first argument
+and a `React\Promise\Deferred` as the second argument.
+prooph's query bus can be used in an async, non-blocking I/O runtime as well as a normal, blocking runtime,
+so the finder must return a deferred object instead of the query result.
+The integrated GraphQL server also supports both runtimes so it is a good
+idea to always work with the `Promise` and `Deferred` objects provided by the `ReactPHP` library (unfortunately, we have no
+PSR for promises yet). Event Machine takes care of resolving promises returned by prooph's query bus.
 
-The finder needs to query the read model. While looking at projections we learned about
+The finder needs to query the read model. While looking at projections we briefly discussed
 Event Machine's `DocumentStore` API. The finder can use it to access documents organized in collections. Let's see
 how that works.
 
@@ -274,25 +275,25 @@ final class BuildingFinder
 
 ```
 
-The implementation is self explanatory. Just a few notes: 
+The implementation is self explanatory, but a few notes should be made.
 
 Every Event Machine message has a `get` and a `getOrDefault`
 method which are both short cuts to access keys of the message payload. The difference between the two is obvious.
-If payload key is NOT set and you use `get` the message will throw an exception. If payload key is NOT set and you use
-`getOrDefault` you get back the default passed as a second argument.
+If the payload key is NOT set and you use `get` the message will throw an exception. If the payload key is NOT set and you use
+`getOrDefault` you get back the default passed as the second argument.
 
 The second note is about the *collection name*. It is injected at runtime rather than defined as a hardcoded string or
 constant. Do you remember the read model table name `em_ds_building_projection_0_1_0`?
-First of all this is again a default naming strategy and can be changed. However, the interesting part here is the version
+First of all, this is also a default naming strategy and can be changed. However, the interesting part here is the version
 number at the end of the name. This is the **application version** which you can pass to `EventMachine::boostrap()` (see docs for details).
 When deploying a new application version it is possible to rebuild all projection tables using the new version while
 the old projection tables remain active until load balancers are switched (Blue Green Deployment).
 
-As a last step we need to configure Event Machine's DI container to inject the dependencies into our new finder.
+Finally, we need to configure Event Machine's DI container to inject the dependencies into our new finder.
 
 ## PSR-11 Container
 
-EventMachine can use any PSR-11 compatible container. By default it uses a very simple implementation included
+Event Machine can use any PSR-11 compatible container. By default it uses a very simple implementation included
 in the Event Machine package. The DI container is inspired by `bitExpert/disco` but removes the need for annotations.
 Dependencies are managed in a single `ServiceFactory` class which is located in `src/Service`.
 
@@ -322,13 +323,13 @@ final class ServiceFactory
     //Finders
     public function buildingFinder(): BuildingFinder //<-- Return type is used as service id
     {
-        //Service is treated as a singleton, DI returns same instance on subsequent gets
+        //Service is treated as a singleton, DI returns the same instance on subsequent gets
         return $this->makeSingleton(BuildingFinder::class /*<-- again service id */, function () {
             return new BuildingFinder(
                 //We can use the AggregateProjector to generate correct collection name
                 AggregateProjector::aggregateCollectionName(
-                    $this->eventMachine()->appVersion(), //<-- Insight a closure we still have access to other methods
-                    Aggregate::BUILDING                  //    of the ServiceFactory like the getter for Event Machine itself
+                    $this->eventMachine()->appVersion(), //<-- Inside a closure we still have access to other methods
+                    Aggregate::BUILDING                  //    of the ServiceFactory, like the getter for Event Machine itself
                 ),
                 $this->documentStore()                   //    or the document store
             );
@@ -359,7 +360,7 @@ class Query implements EventMachineDescription
      * Default Query, used to perform health checks using messagebox or GraphQL endpoint
      */
     const HEALTH_CHECK = 'HealthCheck';
-    
+
     const BUILDING = 'Building';
 
     public static function describe(EventMachine $eventMachine): void
@@ -375,7 +376,7 @@ class Query implements EventMachineDescription
 }
 
 ```
-Ok! We should be able to query buildings by buildingId now. Switch to the GraphQL client and reload the schema (press button "Set endpoint").
+Ok! We should be able to query buildings by buildingId now. Switch to the GraphQL client and reload the schema (press the "Set endpoint" button).
 The Documentation Explorer should show a new Query:  `Building(buildingId: String!): Building!`.
 If we send that query with the `buildingId` used in `AddBuilding`:
 
@@ -443,7 +444,7 @@ class Query implements EventMachineDescription
         $eventMachine->registerQuery(
             self::BUILDINGS,
             JsonSchema::object(
-                [], //No required arguments for that query
+                [], //No required arguments for this query
                 //Optional argument name, is a nullable string
                 ['name' => JsonSchema::nullOr(JsonSchema::string()->withMinLength(1))]
             )
@@ -528,12 +529,12 @@ final class BuildingFinder
 
 ```
 
-`BuildingFinder` can resolve both queries by mapping the query name to an internal resolve* method.
+`BuildingFinder` can resolve both queries by mapping the query name to an internal `resolve*` method.
 For the new `Buildings` query the finder makes use of `DocumentStore\Filter`s. The `LikeFilter` works the same way as
 a SQL like expression using `%` as a placeholder. `AnyFilter` matches any documents in the collection.
 There are many more filters available. Read more about filters in the docs.
 
-Of course you can test the new query using GraphQL. The GraphQL query schema looks like this: `Buildings(name: String): [Building!]!`
+You can test the new query using GraphQL. The GraphQL query schema looks like this: `Buildings(name: String): [Building!]!`
 and this is an example query with a name filter:
 
 ```graphql
@@ -543,11 +544,11 @@ query{
     name
   }
 }
-``` 
+```
 You can add some more buildings and play with the queries. Try to exchange the `LikeFilter` with a `EqFilter` for example.
 Or see what happens if you pass an empty string as name filter.
 
-In part VI we get back to the write model and learn how to work with process managers. But before we continue,
+In part VI we got back to the write model and learned how to work with process managers. But before we continue,
 we should clean up our code a bit. Part V tells you what we can improve.
 
 

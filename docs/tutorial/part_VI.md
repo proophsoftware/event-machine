@@ -1,6 +1,6 @@
 # Part VI - Check in User
 
-The second use case of our Building Management system checks in users into buildings. Users are identified by their name.
+The second use case of our Building Management system checks users into buildings. Users are identified by their name.
 
 ## Command
 
@@ -99,7 +99,7 @@ class Event implements EventMachineDescription
                 ]
             )
         );
-        
+
         $eventMachine->registerEvent(
             self::USER_CHECKED_IN,
             JsonSchema::object([
@@ -144,21 +144,21 @@ final class Building
     {
         return Building\State::fromArray($buildingAdded->payload());
     }
-    
+
     public static function checkInUser(Building\State $state, Message $checkInUser): \Generator
     {
         yield [Event::USER_CHECKED_IN, $checkInUser->payload()];
     }
-    
+
     public static function whenUserCheckedIn(Building\State $state, Message $userCheckedIn): Building\State
     {
         return $state->withCheckedInUser($userCheckedIn->get(Payload::NAME));
     }
 }
 
-``` 
+```
 
-`Building::checkInUser()` is still a dumb function (we change that in a minute) but `Building::whenUserCheckedIn()` 
+`Building::checkInUser()` is still a dumb function (we will change that in a minute) but `Building::whenUserCheckedIn()`
 contains an interesting detail. `Building\State` is an immutable record. But we can add `with*` methods to it to
 modify state. You may know these `with*` methods from the `PSR-7` standard. It is a common practice to prefix
 state changing methods of immutable objects with `with`. Those methods should return a new instance with the modified
@@ -232,8 +232,8 @@ final class State implements ImmutableRecord
         $copy->users[$username] = null;
         return $copy;
     }
-    
-    public function isUserCheckedIn(string $username): bool 
+
+    public function isUserCheckedIn(string $username): bool
     {
         return array_key_exists($username, $this->users);
     }
@@ -241,19 +241,19 @@ final class State implements ImmutableRecord
 
 ```
 
-Technically we can make a copy of the record and modify that. The original record is not modified
+We can make a copy of the record and modify that. The original record is not modified,
 and we return the copy to satisfy the immutable record contract.
 
-Besides `withCheckedInUser` we've added a new property `users` and a getter for it. We also override the `__schema`
+Besides `withCheckedInUser` we've added a new property, `users`, and a getter for it. We also overrode the `__schema`
 method of `ImmutableRecordLogic` to pass a type hint to `ImmutableRecordLogic::generateSchemaFromPropTypeMap()`.
-Unfortunately, it is not possible in PHP to use return type hints like `string[]`. We can only type hint for `array`.
-Hopefully this will change in a future version of PHP. For now we have to live with the workaround and give 
+Unfortunately, we can only type hint for `array` in PHP, and it is not possible to use return type hints like `string[]`.
+Hopefully this will change in a future version of PHP, but, for now, we have to live with the workaround and give
 `ImmutableRecordLogic` a hint that array items of the `users` property are of type `string`.
 
 *Note: ImmutableRecordLogic derives type information by inspecting return types of getter methods named like their
 corresponding private properties.*
 
-Internally, user names are used as array index. So the same user cannot appear twice in the list. With `Building\State::isUserCheckedIn(string $username): bool`
+Internally, user names are used as the array index so the same user cannot appear twice in the list. With `Building\State::isUserCheckedIn(string $username): bool`
 we can look up if the given user is currently in the building. `Building\State::users()` on the other hand returns a list
 of user names like defined in the `__schema`. Internal state is used for fast look ups and external schema is used for the
 read model. More on that in a minute.
@@ -282,7 +282,7 @@ class Aggregate implements EventMachineDescription
     public static function describe(EventMachine $eventMachine): void
     {
         /* ... */
-        
+
         $eventMachine->process(Command::CHECK_IN_USER)
             ->withExisting(self::BUILDING)
             ->handle([Building::class, 'checkInUser'])
@@ -293,8 +293,8 @@ class Aggregate implements EventMachineDescription
 
 ```
 
-Pretty much the same command processing description just with replaced command, event and function names according
-to the new use case. An important difference is that we use `->withExisting` instead of `->withNew`. 
+Pretty much the same command processing description but with command, event and function names based on
+the new use case. An important difference is that we use `->withExisting` instead of `->withNew`.
 As already stated this tells Event Machine to look up an existing Building using the `buildingId` from the `CheckInUser` command.
 
 The following GraphQL mutation should check in *John* into the *Acme Headquarters*.
@@ -318,7 +318,7 @@ Response:
 }
 ```
 
-Looks good! And how does the response of the `Buildings` query look now? If you inspect the GraphQL schema of the query
+Looks good! And what does the response of the `Buildings` query look now? If you inspect the GraphQL schema of the query
 and click on the `Building` return type you'll notice the new property `users: [String!]!`. We can tell GraphQL to
 include the new property in the response:
 
@@ -348,7 +348,7 @@ Response
   }
 }
 ```
-Great! We get back the list of users checked in the building.
+Great! We get back the list of users checked into the building.
 
 ## Protect Invariants
 
@@ -386,7 +386,7 @@ final class Building
                 $checkInUser->get(Payload::NAME)
             ));
         }
-        
+
         yield [Event::USER_CHECKED_IN, $checkInUser->payload()];
     }
 
@@ -406,7 +406,7 @@ Let's try it:
 ```graphql
 mutation{
   CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc", 
+    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
     name:"John"
   )
 }

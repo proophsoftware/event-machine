@@ -1,19 +1,19 @@
 # Part VII - The Unhappy Path
 
 Developers tend to work out the happy path of a feature only and throw exceptions in every unknown situation.
-Often this is caused by bad project management. Developers get domain knowledge from Jira tickets written by a PO
-(Jira is used here as a synonym for any ticket system used in an agile process) 
+This behaviour is often caused by bad project management. Developers get domain knowledge from Jira tickets written by a product owner
+(Jira is used here as a synonym for any ticket system used in an agile process)
 instead of talking to domain experts face-to-face. Most tickets don't include unhappy paths until they happen and find
 their way back to the developer as a bug ticket.
 
-Is this really the best way to deal with unexpected scenarios? Wouldn't it be better to prepare for 
+Is this really the best way to deal with unexpected scenarios? Wouldn't it be better to prepare for
 the unhappy paths as well? Sure, it takes more time upfront but saves a lot of time later when the application runs
 in production and can deal with failure scenarios in a sane way.
 
 Our `Building` aggregate does a bad job with regards to failure handling. Imagine a user is already in a building and tries
 to check in again. What does that mean in the real world? First of all it is not possible to be in and out of a building
 at the same time. So either a hacker has stolen the identity or system state is broken for whatever reason.
-The decision if entrance to the building is blocked or not should be made by the business. And regardless of
+Deciding if entrance to the building is blocked or not should be made by the business. And regardless of
 the decision it is always interesting to have an event in the event stream about the double check in. This makes monitoring
 much simpler than scanning error logs.
 
@@ -97,7 +97,7 @@ final class Building
     {
         return $state->withCheckedInUser($userCheckedIn->get(Payload::NAME));
     }
-    
+
     public static function whenDoubleCheckInDetected(Building\State $state, Message $event): Building\State
     {
         //No state change required, simply return current state
@@ -144,12 +144,12 @@ class Aggregate implements EventMachineDescription
 
 ```
 
-Try to check in *John* again:
+Try to check *John* in again:
 
 ```graphql
 mutation{
   CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc", 
+    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
     name:"John"
   )
 }
@@ -173,19 +173,19 @@ no | event_id | event_name | payload | metadata | created_at
 2 | 0ee8d2fb-...| UserCheckedIn | {"buildingId":"122a63bf-...","name":"John"} | {"_aggregate_id": "122a63bf-...", "_causation_id": "1ce0e46d-...", "_aggregate_type": "Building", "_causation_name": "CheckInUser", "_aggregate_version": 2} | 2018-02-16 21:37:55.131122
 3 | 4f6a8429-...| DoubleCheckInDetected | {"buildingId":"122a63bf-...","name":"John"} | {"_aggregate_id": "122a63bf-...", "_causation_id": "c347dd85-...", "_aggregate_type": "Building", "_causation_name": "CheckInUser", "_aggregate_version": 3} | 2018-02-16 23:03:59.739666
 
-## Process Manager 
+## Process Manager
 
 To complete the user story we have to notify security. The security team uses a dedicated monitoring application that
-can receive arbitrary notification messages. To communicate with that external system we can use a so called **process manager** or
+can receive arbitrary notification messages. To communicate with that external system we can use a so-called **process manager** or
 **policy**. Maybe you're more familiar with the term event listener but be careful to not mix it with event listeners known
-from web frameworks like Symfony or Zend. Listeners in Event Machine **react** on domain events and trigger follow up
-commands, send emails or interact with external systems.
+from web frameworks like Symfony or Zend. Listeners in Event Machine **react** to domain events and trigger follow up
+commands for actions, like sending emails or interacting with external systems.
 
 We can simulate the security monitoring system with a small JS app shipped with the event-machine-skeleton.
 Open `http://localhost:8080/ws.html` in your browser.
 
-*Note: If the app shows a connection error then try to log into the rabbit mgmt console first: `http://localhost:8081`. Accept the self-signed certificate
-and login with usr: `prooph` pwd: `prooph`. If you're locked in switch back to `http://localhost:8080/ws.html` and reload the page.*
+*Note: If the app shows a connection error then try to log into the rabbit mgmt console first: `https://localhost:8081`. Accept the self-signed certificate
+and login with usr: `prooph` pwd: `prooph`. If you're logged in switch back to `http://localhost:8080/ws.html` and reload the page.*
 
 If the app says `Status: Connected to websocket: ui-queue` it is ready to receive messages from Event Machine.
 
@@ -220,41 +220,41 @@ class Listener implements EventMachineDescription
 Whenever a `DoubleCheckInDetected` event is recorded and written to the stream Event Machine invokes the `UiExchange`
 listener that takes the event and pushes it to *rabbit*.
 
-And again try to check in *John* while keeping an eye on the monitoring app `http://localhost:8080/ws.html`:
+Try to check *John* in again, while keeping an eye on the monitoring app `http://localhost:8080/ws.html`.
 
 ```graphql
 mutation{
   CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc", 
+    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
     name:"John"
   )
 }
 ```
 ![Monitoring UI](img/monitoring.png)]
-  
+
 ## The End
 
 Congratulations! You've mastered the Event Machine tutorial. There are two bonus parts available to learn more
-about **custom projections** and **testing with Event Machine**. 
-The current implementation is available as a **demo** branch of `proophsoftware/event-machine-skeleton`. 
+about **custom projections** and **testing with Event Machine**.
+The current implementation is available as a **demo** branch of `proophsoftware/event-machine-skeleton`.
 There is a second branch called **demo-oop** available that contains a similar
-implementation. But the `Building` aggregate is designed using an object oriented approach rather than
+implementation, but the `Building` aggregate is designed using an object oriented approach rather than
 the functional approach shown in the tutorial. If you like that OOP style more you can of course use that.
 
-Functional programming fans might dislike the static class methods. You can also use real functions instead of static class methods but
+Functional programming fans might dislike the static class methods. You can also use real functions instead of static class methods, but
 you have to configure *composer* to always require the files containing your functions. It's up to you.
 
-The Event Machine API docs contain a lot more details and last but not least a reminder that the prooph software team
+The Event Machine API docs contain a lot more details. Last but not least, a reminder that the prooph software team
 offers commercial project support and workshops for Event Machine and the prooph components.
 
-Our workshops include Event Storming sessions and how to turn the results into working prototypes using Event Machine.
+Our workshops include Event Storming sessions and guidance on how to turn the results into working prototypes using Event Machine.
 We can also show and discuss framework integrations. Event Machine can easily be integrated with *Symfony*, *Laravel* and
-other PHP web frameworks. The skeleton is based on *Zend Expressive* so you can handle http related stuff (like authentication)
-using *PSR-15* middlewares. But again, other web frameworks play nice together with Event Machine, too.
+other PHP web frameworks. The skeleton is based on *Zend Expressive* so you can handle http related tasks, like authentication,
+using *PSR-15* middleware. But again, other web frameworks play nicely with Event Machine, too.
 
 [![prooph software](https://github.com/codeliner/php-ddd-cargo-sample/raw/master/docs/assets/prooph-software-logo.png)](http://prooph.de)
 
-If you are interested please [get in touch](http://getprooph.org/#get-in-touch)! 
+If you are interested please [get in touch](http://getprooph.org/#get-in-touch)!
 
 
 

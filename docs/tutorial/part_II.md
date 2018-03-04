@@ -2,18 +2,18 @@
 
 In Event Machine we can take a short cut and skip command handlers.
 This is possible because `Aggregates` in Event Machine are **stateless** and **pure**. This means that
-they don't have internal **state** and also **no dependencies**. 
+they don't have internal **state** and also **no dependencies**.
 
 *Simply put: they are just functions*
 
-Event Machine can take over the boilerplate and we as developers can **focus on the business logic**. I'll explain
-more details later. First we want to see a **pure aggregate function** in action.
+Event Machine can take over the boilerplate and we, as developers, can **focus on the business logic**. I'll explain
+in greater detail later, but first we want to see a **pure aggregate function** in action.
 
 *Note: If you've worked with a CQRS framework before it is maybe confusing
 because normally a command is handled by a command handler (comparable to an application service that handles a domain action)
 and the command handler would load a business entity or "DDD" aggregate from a repository. We still use the aggregate concept but make
 use of a functional programming approach. It keeps the domain model lean and testable and allows some nice
-optimizations for a RAD infrastructure.* 
+optimizations for a RAD infrastructure.*
 
 Let's add the first aggregate called `Building` in a new `Model` folder:
 
@@ -45,10 +45,10 @@ add a new building to our application. But instead of adding a new building dire
 
 ## Domain Events
 
-Domain events are the second message type used by Event Machine. The domain model is event sourced. This means that it records
-all state changes in a series of domain events. Domain events are yielded by aggregate methods and stored in an event store
+Domain events are the second message type used by Event Machine. The domain model is event sourced, meaning it records
+all state changes in a series of domain events. These domain events are yielded by aggregate methods and stored in an event store
 managed by Event Machine. The series of events can then be used to calculate the current state of an aggregate.
-We will see that in action in a later part of the tutorial and get a better understanding of the technique 
+We will see that in action in a later part of the tutorial and get a better understanding of the technique
 when we add more use cases to the application.
 
 For now let's add the first domain event in `src/Api/Event`:
@@ -85,13 +85,13 @@ class Event implements EventMachineDescription
     }
 }
 
-``` 
-It looks similar to the `AddBuilding` command but uses a name in past tense. That is a very important difference.
+```
+It looks similar to the `AddBuilding` command but uses a past tense name. That is a very important difference.
 Commands **tell** the application what it should do and events **represent facts** that have happened.
 
 ## Yielding Events
 
-Aggregate methods can yield null, one or multiple domain events depending on the result of the executed business logic.
+Aggregate methods can yield `null`, one domain event or multiple domain events depending on the result of the executed business logic.
 If an aggregate method yields `null` it indicates that no important fact happened and no event needs to be recorded.
 In many cases an aggregate method will yield one event which is the fact caused by the corresponding command.
 But there is no one-to-one connection between commands and events. In some cases more than one event is needed to communicate
@@ -125,7 +125,7 @@ event name and payload and stores it in the event stream.
 ## Aggregate Description
 
 If we switch back to the GraphQL client and send the `AddBuilding` command again, Event Machine still
-complains about a missing command handler. We need to tell Event Machine about our new aggregate and that it is 
+complains about a missing command handler. We need to tell Event Machine about our new aggregate and that it is
 responsible for handling `AddBuilding` commands. We can do this in another Event Machine Description in `src/Api/Aggregate`.
 
 ```php
@@ -161,11 +161,11 @@ describing methods of Event Machine's fluent interface and it is easy to remembe
 
 - `process` tells Event Machine that the following description is for the given command name.
 - `withNew/withExisting` tells Event Machine which aggregate handles the command and if the aggregate exists already or a new one should be created.
-- `identifiedBy` tells Event Machine which message payload property should be used to identify the responsible aggregate. Every command send to the aggregate and 
+- `identifiedBy` tells Event Machine which message payload property should be used to identify the responsible aggregate. Every command sent to the aggregate and
 every event yielded by the aggregate should contain this property
-- `handle` takes a callable as argument which is the aggregate method responsible for handling the command defined in `process`. We use the callable array syntax of PHP
+- `handle` takes a callable argument which is the aggregate method responsible for handling the command defined in `process`. We use the callable array syntax of PHP
 which can be analyzed by modern IDEs like PHPStorm for auto completion and refactorings.
-- `recordThat` tells event machine which event is yielded by the aggregate's command handling method.   
+- `recordThat` tells Event Machine which event is yielded by the aggregate's command handling method.
 
 If we try again to send the GraphQL `AddBuilding` command we get a new error:
 
