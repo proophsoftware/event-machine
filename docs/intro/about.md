@@ -16,23 +16,23 @@ Event Machine was originally designed as a "workshop framework".
 
 ### Rapid Application Development
 It turned out that Event Machine is not only a very good CQRS and Event Sourcing learning framework but that the same concept
-can be used for rapid application development (short RAD). RAD frameworks share some common concepts. They focus on developer
-happiness and coding speed. Both can be achieved by conventions which allow the framework to do a lot of stuff "under the hood"
+can be used for rapid application development (RAD). RAD frameworks focus on developer happiness and coding speed.
+Both can be achieved by using conventions, which allows the framework to do a lot of work "under the hood"
 so that developers can focus on the important part: **developing the application**.
 
 Having said this, Event Machine can be compared with frameworks like Ruby on Rails or Laravel, but it also has a **unique selling point**.
-Instead of working with a CRUD based approach, **Event Machine uses CQRS and Event Sourcing**. In fact it uses [prooph/components](http://getprooph.org)
+Instead of working with a CRUD based approach, **Event Machine uses CQRS and Event Sourcing**, leveraging [prooph/components](http://getprooph.org)
 under the hood. This enables interesting scenarios like **starting a project with a lean and rapid development approach** and switch to an enterprise
-approach later. With Event Machine you get **separation of concern from day one**. You get separated write and read models which can be scaled
-independent of each other and you also get **a full history of all state changes** so it is not only cheap to develop an application
-with Event Machine but it's also cheap to maintain that application in production. 
+approach later. With Event Machine you get **separation of concerns from day one**. You also get separated write and read models which can be scaled
+independent of each other. Finally, you get **a full history of all state changes**, so it is not only cheap to develop an application
+with Event Machine but it's also cheap to maintain that application in production.
 
 ## Powered By
 
 [![prooph software](https://github.com/codeliner/php-ddd-cargo-sample/raw/master/docs/assets/prooph-software-logo.png)](http://prooph.de)
 
-Event Machine is maintained by the [prooph software team](http://prooph-software.de/). The source code of Event Machine 
-is open sourced along with an API documentation and a [Getting Started Tutorial](#). Prooph software offers commercial support and workshops
+Event Machine is maintained by the [prooph software team](http://prooph-software.de/). The source code of Event Machine
+is open sourced along with the API documentation and a [Getting Started Tutorial](/tutorial). Prooph software offers commercial support and workshops
 for Event Machine as well as for the [prooph components](http://getprooph.org/).
 
 If you are interested please [get in touch](http://getprooph.org/#get-in-touch)

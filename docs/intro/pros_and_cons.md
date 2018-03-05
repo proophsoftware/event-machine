@@ -3,15 +3,15 @@
 ## Pros
 
 - Default set up based on the rich features provided by prooph components
-- Ready-to-use [skeleton](https://github.com/proophsoftware/event-machine-skeleton) 
+- Ready-to-use [skeleton](https://github.com/proophsoftware/event-machine-skeleton)
 - Less code needed
 - Programmatic message routing
 - extension points to inject custom logic
 - Audit log from day one (no data loss)
-- Replay functionality 
+- Replay functionality
 - Projections based on domain events
-- PSR friendly http message box 
-- GraphQL integration 
+- PSR friendly http message box
+- GraphQL integration
 - Message flow analyzer (work in progress)
 - Event store HTTP API (work in progress)
 
@@ -22,11 +22,11 @@
 ## Conclusion
 
 Reading through the pros and cons you may ask yourself when and why you should use Event Machine instead of working only with *prooph components*.
-Here is a list of hints that may help you find a decision but please note that a good choice highly depends on the project, requirements
-and the team. You should definitely try the tutorial and built a prototype with Event Machine! 
-(if you want, you can [contact us](http://getprooph.org/#get-in-touch) for a guided workshop):
+Here is a list of hints that may help you make a decision but please note that the right choice is highly dependent on the project, requirements
+and the team. You should definitely try the tutorial and build a prototype with Event Machine!
+(If you are interested, you can [contact us](http://getprooph.org/#get-in-touch) for a guided workshop):
 
-### You can use Event Machine if:
+### You may want to use Event Machine if:
 
 - You're **new to the concepts** of CQRS and Event Sourcing and want to learn them
 - You want to try CQRS and Event Sourcing in a side project **without spending too much time** with the theory
@@ -39,7 +39,7 @@ and the team. You should definitely try the tutorial and built a prototype with 
 - You're using a modern JavaScript framework in the frontend and need an **API-only backend**
 
 *Note: Even if Event Machine is opinionated it is designed to support loose coupling between different parts of an application.
-This means that if you start a project using Event Machine but it gets in your way later you can get rid of it step by step 
+This means that if you start a project using Event Machine but it gets in your way later you can get rid of it step by step
 (continuous refactoring).*
 
 

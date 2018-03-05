@@ -1,7 +1,7 @@
 # Part I - Add A Building
 
-We're going to add the first action to our buildings application. Event Machine uses CQRS and Event Sourcing.
-In a CQRS system operations and processes are triggered by messages. Those messages can have three different types and
+We're going to add the first action to our buildings application. In a CQRS system, such as
+Event Machine, operations and processes are triggered by messages. Those messages can have three different types and
 define the API of the application. In the first part of the tutorial we learn the first message type: `command`.
 
 ## API
@@ -41,7 +41,7 @@ class Command implements EventMachineDescription
 
 ```
 
-The `Command` description is used to group all commands of our application in one file. It adds semantic meaning to our
+The `Command` description is used to group all commands of our application into one file and add semantic meaning to our
 code. Replace the comment with a real constant `const ADD_BUILDING = 'AddBuilding';` and register the command in the
 `describe` method.
 
@@ -91,7 +91,7 @@ you need to change the namespaces of the classes/interfaces shipped with the ske
 Event Machine Descriptions are very important. They are called at "**compile time**" and used to configure Event Machine.
 Later in the tutorial we learn more about using Event Machine in production. In production mode the descriptions are only
 called once and cached to speed up bootstrapping.
-The GraphQL schema is also compiled at this stage. In development mode this happens on every request. 
+The GraphQL schema is also compiled at this stage. In development mode this happens on every request.
 
 ## GraphQL Integration
 
@@ -109,7 +109,7 @@ mutation {
     name:"Acme Headquarters"
   )
 }
-``` 
+```
 Just hit the send button now. The mutation request will result in an error like this:
 
 ```json
@@ -134,8 +134,8 @@ Just hit the send button now. The mutation request will result in an error like 
 }
 ```
 
-Our command (aka GraphQL mutation) cannot be handled because a command handler is missing. In Event Machine 
-commands can be routed directly to `Aggregates`. 
+Our command (aka GraphQL mutation) cannot be handled because a command handler is missing. In Event Machine
+commands can be routed directly to `Aggregates`.
 In **part II** of the the tutorial you'll learn more about pure aggregates.
 
 *Sum up: Event Machine Descriptions allow you to easily describe the API of your application using messages. The messages get

@@ -5,8 +5,8 @@ functions that can be tested without mocking.
 
 ## Testing Aggregate functions
 
-Aggregate functions are pure which makes them easy to test. event-machine-skeleton provides some small test helpers in
-`tests/BaseTestCase.php`. So if you extend from that base class you're ready to go. Add a folder `Model` in `tests`
+Aggregate functions are pure which makes them easy to test. event-machine-skeleton provides some test helpers in
+`tests/BaseTestCase.php`, so, if you extend from that base class, you're ready to go. Add a folder `Model` in `tests`
 and a class `BuildingTest` with the following content:
 
 ```php
@@ -198,17 +198,17 @@ final class UserBuildingListTest extends BaseTestCase
     }
 }
 
-``` 
+```
 
 ## Testing Finders
 
-Finders can be tested the same way like projectors using the `InMemoryDocumentStore` with prefilled data.
-I leave this as an exercise to you ;)
+Finders can be tested in the same manner as projectors, using the `InMemoryDocumentStore` with prefilled data.
+I will leave implementing these tests as an exercise for you ;)
 
 ## Integration Tests
 
 If you want to test the "whole thing" then you can make use of Event Machine's test mode. In test mode Event Machine is
-set up with an `InMemoryEventStore` and an `InMemoryDocumentStore`. A special PSR-11 container ensures that all other services are mocked. 
+set up with an `InMemoryEventStore` and an `InMemoryDocumentStore`. A special PSR-11 container ensures that all other services are mocked.
 Let's see it in action. The annotated integration test should be self explanatory.
 
 *tests/Integration/NotifySecurityTest.php*
@@ -274,7 +274,7 @@ final class NotifySecurityTest extends BaseTestCase
                 ]),
             ],
             //Provide mocked services used in current test scenario, if you forget one the test will throw an exception
-            //You don't have to mock the event store and document store, this is done internally
+            //You don't have to mock the event store and document store, that is done internally
             [
                 //Remember, UiExchange is our process manager that pushes events to rabbit
                 //Event Machine is configured to push DoubleCheckInDetected events on to UiExchange (src/Api/Listener.php)
@@ -303,5 +303,5 @@ final class NotifySecurityTest extends BaseTestCase
 }
 
 ```
- 
+
 

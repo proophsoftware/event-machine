@@ -1,10 +1,10 @@
-# Part V - DRY 
+# Part V - DRY
 
 You may have noticed that we use the static classes in `src/Api` as a central place to define constants.
 At least we did that for message (Command, Event, Query) and aggregate names. We did not touch `src/Api/Payload` and
 `src/Api/Schema` yet.
 
-The idea behind those two classes is to group some more constants and static methods so that we don't have to repeat them
+The idea behind those two classes is to group some common constants and static methods so that we don't have to repeat them
 over and over again. This makes it much easier to refactor the codebase later.
 
 ## Payload
@@ -29,7 +29,7 @@ class Payload
     const NAME = 'name';
 }
 
-``` 
+```
 ... and replace plain strings with the constants in our codebase:
 
 `src/Api/Command`
@@ -255,7 +255,7 @@ class Schema
     {
         return JsonSchema::string()->withMinLength(1);
     }
-    
+
     public static function buildingNameFilter(): StringType
     {
         return JsonSchema::string()->withMinLength(1);
@@ -270,7 +270,7 @@ class Schema
 }
 
 ```
-Doing this we have one place that gives us an overview of all domain specific schema definitions and we can simply
+Doing this creates one place that gives us an overview of all domain specific schema definitions and we can simply
 change them if requirements change.
 
 *Note: Even if we only use "name" in message payload for building names we use a more precise method name in Schema.
