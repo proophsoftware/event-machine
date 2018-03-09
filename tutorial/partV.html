@@ -559,7 +559,7 @@
 <p>You may have noticed that we use the static classes in <code>src/Api</code> as a central place to define constants.
 At least we did that for message (Command, Event, Query) and aggregate names. We did not touch <code>src/Api/Payload</code> and
 <code>src/Api/Schema</code> yet.</p>
-<p>The idea behind those two classes is to group some more constants and static methods so that we don't have to repeat them
+<p>The idea behind those two classes is to group some common constants and static methods so that we don't have to repeat them
 over and over again. This makes it much easier to refactor the codebase later.</p>
 <h2 id="2-6-1">Payload</h2>
 <p>In <code>src/Api/Payload</code> we simply define a constant for each possible message payload key. We've used two keys so far:
@@ -793,7 +793,7 @@ class Schema
     {
         return JsonSchema::string()-&gt;withMinLength(1);
     }
-    
+
     public static function buildingNameFilter(): StringType
     {
         return JsonSchema::string()-&gt;withMinLength(1);
@@ -808,7 +808,7 @@ class Schema
 }
 
 </code></pre>
-<p>Doing this we have one place that gives us an overview of all domain specific schema definitions and we can simply
+<p>Doing this creates one place that gives us an overview of all domain specific schema definitions and we can simply
 change them if requirements change.</p>
 <p><em>Note: Even if we only use "name" in message payload for building names we use a more precise method name in Schema.
 A message defines the context so we can use a shorter payload key but the schema should be explicit.</em></p>

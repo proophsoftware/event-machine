@@ -559,15 +559,15 @@
         </div>
                 <div class="col-md-9">
 <div id="section-main"><h1 id="2-9">Bonus I - Custom Projection</h1>
-<p>Business comes along with a new feature request. They need a way to look up the building a user is
-checked in, if any.</p>
+<p>The product owner comes along with a new feature request. They need a way to look up the building a user is
+checked into, if any.</p>
 <h2 id="2-9-1">Exercise</h2>
 <p>Before we implement that feature you're asked to implement the <em>check out user</em> use case.
 Add a command <code>CheckOutUser</code> and an event <code>UserCheckedOut</code>. Let the <code>Building</code> aggregate and <code>Building\State</code> handle the command
 and make sure that <code>DoubleCheckOutDetected</code> can also be monitored using the monitoring UI.</p>
 <p>Does it work? Great!</p>
 <h2 id="2-9-2">Implement a Projector</h2>
-<p>What we need is a list of usernames and a reference to the building they are checked in.
+<p>What we need is a list of usernames and a reference to the building they are checked into.
 A custom projection can keep track of <code>UserCheckedIn</code> and <code>UserCheckedOut</code> events to keep the list up-to-date.</p>
 <p>To do that we need our own <code>Prooph\EventMachine\Projecting\Projector</code> implementation. Create a new class called
 <code>UserBuildingList</code> in <code>src/Infrastructure/Projector</code> with the following content:</p>
@@ -766,7 +766,7 @@ class Type implements EventMachineDescription
     {
         return JsonSchema::object([
             'user' =&gt; Schema::username(),
-            'building' =&gt; Schema::building()-&gt;asNullable(), //&lt;-- type ref to building, can be null 
+            'building' =&gt; Schema::building()-&gt;asNullable(), //&lt;-- type ref to building, can be null
         ]);
     }
 
@@ -988,7 +988,7 @@ class Query implements EventMachineDescription
 </code></pre>
 <p>An hour of work (with a bit more practice even less) and we are ready to ship the new feature! Rapid application development at its best!
 RAD is ok, but please don't skip testing! In the second bonus part of the tutorial we'll learn that Event Machine makes it
-easy to run integration tests. You should not miss it!</p>
+easy to run integration tests. Don't miss it!</p>
 </div>        </div>
     </div>
 </div>

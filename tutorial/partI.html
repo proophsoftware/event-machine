@@ -559,8 +559,8 @@
         </div>
                 <div class="col-md-9">
 <div id="section-main"><h1 id="2-2">Part I - Add A Building</h1>
-<p>We're going to add the first action to our buildings application. Event Machine uses CQRS and Event Sourcing.
-In a CQRS system operations and processes are triggered by messages. Those messages can have three different types and
+<p>We're going to add the first action to our buildings application. In a CQRS system, such as
+Event Machine, operations and processes are triggered by messages. Those messages can have three different types and
 define the API of the application. In the first part of the tutorial we learn the first message type: <code>command</code>.</p>
 <h2 id="2-2-1">API</h2>
 <p>The Event Machine skeleton includes an API folder (src/Api) that contains a predefined set of <code>EventMachineDescription</code> classes.
@@ -595,7 +595,7 @@ class Command implements EventMachineDescription
 }
 
 </code></pre>
-<p>The <code>Command</code> description is used to group all commands of our application in one file. It adds semantic meaning to our
+<p>The <code>Command</code> description is used to group all commands of our application into one file and add semantic meaning to our
 code. Replace the comment with a real constant <code>const ADD_BUILDING = 'AddBuilding';</code> and register the command in the
 <code>describe</code> method.</p>
 <pre><code class="language-php">&lt;?php

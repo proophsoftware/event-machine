@@ -557,7 +557,7 @@
                 <div class="col-md-9">
 <div id="section-main"><h1 id="2-8">Part VII - The Unhappy Path</h1>
 <p>Developers tend to work out the happy path of a feature only and throw exceptions in every unknown situation.
-Often this is caused by bad project management. Developers get domain knowledge from Jira tickets written by a PO
+This behaviour is often caused by bad project management. Developers get domain knowledge from Jira tickets written by a product owner
 (Jira is used here as a synonym for any ticket system used in an agile process)
 instead of talking to domain experts face-to-face. Most tickets don't include unhappy paths until they happen and find
 their way back to the developer as a bug ticket.</p>
@@ -567,7 +567,7 @@ in production and can deal with failure scenarios in a sane way.</p>
 <p>Our <code>Building</code> aggregate does a bad job with regards to failure handling. Imagine a user is already in a building and tries
 to check in again. What does that mean in the real world? First of all it is not possible to be in and out of a building
 at the same time. So either a hacker has stolen the identity or system state is broken for whatever reason.
-The decision if entrance to the building is blocked or not should be made by the business. And regardless of
+Deciding if entrance to the building is blocked or not should be made by the business. And regardless of
 the decision it is always interesting to have an event in the event stream about the double check in. This makes monitoring
 much simpler than scanning error logs.</p>
 <p>We've talked to the domain experts and they want us to notify security in case of a <code>DoubleCheckIn</code>. With Event Machine
@@ -644,7 +644,7 @@ final class Building
     {
         return $state-&gt;withCheckedInUser($userCheckedIn-&gt;get(Payload::NAME));
     }
-    
+
     public static function whenDoubleCheckInDetected(Building\State $state, Message $event): Building\State
     {
         //No state change required, simply return current state
@@ -687,10 +687,10 @@ class Aggregate implements EventMachineDescription
 }
 
 </code></pre>
-<p>Try to check in <em>John</em> again:</p>
+<p>Try to check <em>John</em> in again:</p>
 <pre><code class="language-graphql">mutation{
   CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc", 
+    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
     name:"John"
   )
 }
@@ -743,14 +743,14 @@ class Aggregate implements EventMachineDescription
 </table>
 <h2 id="2-8-1">Process Manager</h2>
 <p>To complete the user story we have to notify security. The security team uses a dedicated monitoring application that
-can receive arbitrary notification messages. To communicate with that external system we can use a so called <strong>process manager</strong> or
+can receive arbitrary notification messages. To communicate with that external system we can use a so-called <strong>process manager</strong> or
 <strong>policy</strong>. Maybe you're more familiar with the term event listener but be careful to not mix it with event listeners known
-from web frameworks like Symfony or Zend. Listeners in Event Machine <strong>react</strong> on domain events and trigger follow up
-commands, send emails or interact with external systems.</p>
+from web frameworks like Symfony or Zend. Listeners in Event Machine <strong>react</strong> to domain events and trigger follow up
+commands for actions, like sending emails or interacting with external systems.</p>
 <p>We can simulate the security monitoring system with a small JS app shipped with the event-machine-skeleton.
 Open <code>http://localhost:8080/ws.html</code> in your browser.</p>
-<p><em>Note: If the app shows a connection error then try to log into the rabbit mgmt console first: <code>http://localhost:8081</code>. Accept the self-signed certificate
-and login with usr: <code>prooph</code> pwd: <code>prooph</code>. If you're locked in switch back to <code>http://localhost:8080/ws.html</code> and reload the page.</em></p>
+<p><em>Note: If the app shows a connection error then try to log into the rabbit mgmt console first: <code>https://localhost:8081</code>. Accept the self-signed certificate
+and login with usr: <code>prooph</code> pwd: <code>prooph</code>. If you're logged in switch back to <code>http://localhost:8080/ws.html</code> and reload the page.</em></p>
 <p>If the app says <code>Status: Connected to websocket: ui-queue</code> it is ready to receive messages from Event Machine.</p>
 <p>In <code>src/Service/ServiceFactory</code> you can find a factory method for a <code>App\Infrastructure\ServiceBus\UiExchange</code>.
 It's a default domain event listener shipped with the skeleton that can be used to push events on a <em>RabbitMQ ui-exchange</em>.
@@ -778,10 +778,10 @@ class Listener implements EventMachineDescription
 </code></pre>
 <p>Whenever a <code>DoubleCheckInDetected</code> event is recorded and written to the stream Event Machine invokes the <code>UiExchange</code>
 listener that takes the event and pushes it to <em>rabbit</em>.</p>
-<p>And again try to check in <em>John</em> while keeping an eye on the monitoring app <code>http://localhost:8080/ws.html</code>:</p>
+<p>Try to check <em>John</em> in again, while keeping an eye on the monitoring app <code>http://localhost:8080/ws.html</code>.</p>
 <pre><code class="language-graphql">mutation{
   CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc", 
+    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
     name:"John"
   )
 }
@@ -792,16 +792,16 @@ listener that takes the event and pushes it to <em>rabbit</em>.</p>
 about <strong>custom projections</strong> and <strong>testing with Event Machine</strong>.
 The current implementation is available as a <strong>demo</strong> branch of <code>proophsoftware/event-machine-skeleton</code>.
 There is a second branch called <strong>demo-oop</strong> available that contains a similar
-implementation. But the <code>Building</code> aggregate is designed using an object oriented approach rather than
+implementation, but the <code>Building</code> aggregate is designed using an object oriented approach rather than
 the functional approach shown in the tutorial. If you like that OOP style more you can of course use that.</p>
-<p>Functional programming fans might dislike the static class methods. You can also use real functions instead of static class methods but
+<p>Functional programming fans might dislike the static class methods. You can also use real functions instead of static class methods, but
 you have to configure <em>composer</em> to always require the files containing your functions. It's up to you.</p>
-<p>The Event Machine API docs contain a lot more details and last but not least a reminder that the prooph software team
+<p>The Event Machine API docs contain a lot more details. Last but not least, a reminder that the prooph software team
 offers commercial project support and workshops for Event Machine and the prooph components.</p>
-<p>Our workshops include Event Storming sessions and how to turn the results into working prototypes using Event Machine.
+<p>Our workshops include Event Storming sessions and guidance on how to turn the results into working prototypes using Event Machine.
 We can also show and discuss framework integrations. Event Machine can easily be integrated with <em>Symfony</em>, <em>Laravel</em> and
-other PHP web frameworks. The skeleton is based on <em>Zend Expressive</em> so you can handle http related stuff (like authentication)
-using <em>PSR-15</em> middlewares. But again, other web frameworks play nice together with Event Machine, too.</p>
+other PHP web frameworks. The skeleton is based on <em>Zend Expressive</em> so you can handle http related tasks, like authentication,
+using <em>PSR-15</em> middleware. But again, other web frameworks play nicely with Event Machine, too.</p>
 <p><a href="http://prooph.de"><img src="https://github.com/codeliner/php-ddd-cargo-sample/raw/master/docs/assets/prooph-software-logo.png" alt="prooph software"></a></p>
 <p>If you are interested please <a href="http://getprooph.org/#get-in-touch">get in touch</a>!</p>
 </div>        </div>

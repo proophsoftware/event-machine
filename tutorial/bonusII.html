@@ -565,8 +565,8 @@
 <p>Unit testing the different parts of the application is easy. In most cases we have single purpose classes and
 functions that can be tested without mocking.</p>
 <h2 id="2-10-1">Testing Aggregate functions</h2>
-<p>Aggregate functions are pure which makes them easy to test. event-machine-skeleton provides some small test helpers in
-<code>tests/BaseTestCase.php</code>. So if you extend from that base class you're ready to go. Add a folder <code>Model</code> in <code>tests</code>
+<p>Aggregate functions are pure which makes them easy to test. event-machine-skeleton provides some test helpers in
+<code>tests/BaseTestCase.php</code>, so, if you extend from that base class, you're ready to go. Add a folder <code>Model</code> in <code>tests</code>
 and a class <code>BuildingTest</code> with the following content:</p>
 <pre><code class="language-php">&lt;?php
 declare(strict_types=1);
@@ -755,8 +755,8 @@ final class UserBuildingListTest extends BaseTestCase
 
 </code></pre>
 <h2 id="2-10-3">Testing Finders</h2>
-<p>Finders can be tested the same way like projectors using the <code>InMemoryDocumentStore</code> with prefilled data.
-I leave this as an exercise to you ;)</p>
+<p>Finders can be tested in the same manner as projectors, using the <code>InMemoryDocumentStore</code> with prefilled data.
+I will leave implementing these tests as an exercise for you ;)</p>
 <h2 id="2-10-4">Integration Tests</h2>
 <p>If you want to test the "whole thing" then you can make use of Event Machine's test mode. In test mode Event Machine is
 set up with an <code>InMemoryEventStore</code> and an <code>InMemoryDocumentStore</code>. A special PSR-11 container ensures that all other services are mocked.
@@ -823,7 +823,7 @@ final class NotifySecurityTest extends BaseTestCase
                 ]),
             ],
             //Provide mocked services used in current test scenario, if you forget one the test will throw an exception
-            //You don't have to mock the event store and document store, this is done internally
+            //You don't have to mock the event store and document store, that is done internally
             [
                 //Remember, UiExchange is our process manager that pushes events to rabbit
                 //Event Machine is configured to push DoubleCheckInDetected events on to UiExchange (src/Api/Listener.php)

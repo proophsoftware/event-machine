@@ -561,11 +561,11 @@
 <div id="section-main"><h1 id="2-1">Introduction</h1>
 <p>Event Machine is a rapid application development (RAD) framework so let us jump directly into
 the practical part of the tutorial. Event Machine basic concepts will be explained throughout the tutorial.
-Once finished you should be able to start with your own project. The API docs will help you along the way.</p>
+Once finished, you should be able to start with your own project. The API docs will help you along the way.</p>
 <h2 id="2-1-1">Workshops And Commercial Support</h2>
 <p>Our team can help you to take the first steps and work out a solid foundation for your project based on the power
 and speed offered by Event Machine.
-If you're interested in workshops and commercial support: <a href="http://getprooph.org/#get-in-touch">get in touch</a>.</p>
+If you're interested in workshops or commercial support, <a href="http://getprooph.org/#get-in-touch">get in touch</a>.</p>
 <h2 id="2-1-2">Tutorial Domain</h2>
 <p>We will build a backend for a small application where you can register <code>buildings</code> and then <code>check in</code> and <code>check out</code>
 users in the buildings. The backend will expose a GraphQL endpoint that excepts commands (mutations in GraphQL terms) and queries.
@@ -582,7 +582,7 @@ using <code>prooph-em-buildings</code> as project name.</p>
 <p>Change into the newly created project dir <code>prooph-em-buildings</code>, start the docker containers and run the set up script
 for the event store.</p>
 <pre><code class="language-bash">$ cd prooph-em-buildings
-$ sudo chown $(id -u -n):$(id -g -n) . -R
+$ sudo chown -R $(id -u -n):$(id -g -n) .
 $ docker-compose up -d
 $ docker-compose run php php scripts/create_event_stream.php
 </code></pre>

@@ -565,7 +565,7 @@
         </div>
                 <div class="col-md-9">
 <div id="section-main"><h1 id="2-7">Part VI - Check in User</h1>
-<p>The second use case of our Building Management system checks in users into buildings. Users are identified by their name.</p>
+<p>The second use case of our Building Management system checks users into buildings. Users are identified by their name.</p>
 <h2 id="2-7-1">Command</h2>
 <p>Let's add a new command for the use case in <code>src/Api/Command</code>:</p>
 <pre><code class="language-php">&lt;?php
@@ -656,7 +656,7 @@ class Event implements EventMachineDescription
                 ]
             )
         );
-        
+
         $eventMachine-&gt;registerEvent(
             self::USER_CHECKED_IN,
             JsonSchema::object([
@@ -696,12 +696,12 @@ final class Building
     {
         return Building\State::fromArray($buildingAdded-&gt;payload());
     }
-    
+
     public static function checkInUser(Building\State $state, Message $checkInUser): \Generator
     {
         yield [Event::USER_CHECKED_IN, $checkInUser-&gt;payload()];
     }
-    
+
     public static function whenUserCheckedIn(Building\State $state, Message $userCheckedIn): Building\State
     {
         return $state-&gt;withCheckedInUser($userCheckedIn-&gt;get(Payload::NAME));
@@ -709,7 +709,7 @@ final class Building
 }
 
 </code></pre>
-<p><code>Building::checkInUser()</code> is still a dumb function (we change that in a minute) but <code>Building::whenUserCheckedIn()</code>
+<p><code>Building::checkInUser()</code> is still a dumb function (we will change that in a minute) but <code>Building::whenUserCheckedIn()</code>
 contains an interesting detail. <code>Building\State</code> is an immutable record. But we can add <code>with*</code> methods to it to
 modify state. You may know these <code>with*</code> methods from the <code>PSR-7</code> standard. It is a common practice to prefix
 state changing methods of immutable objects with <code>with</code>. Those methods should return a new instance with the modified
@@ -781,24 +781,24 @@ final class State implements ImmutableRecord
         $copy-&gt;users[$username] = null;
         return $copy;
     }
-    
-    public function isUserCheckedIn(string $username): bool 
+
+    public function isUserCheckedIn(string $username): bool
     {
         return array_key_exists($username, $this-&gt;users);
     }
 }
 
 </code></pre>
-<p>Technically we can make a copy of the record and modify that. The original record is not modified
+<p>We can make a copy of the record and modify that. The original record is not modified,
 and we return the copy to satisfy the immutable record contract.</p>
-<p>Besides <code>withCheckedInUser</code> we've added a new property <code>users</code> and a getter for it. We also override the <code>__schema</code>
+<p>Besides <code>withCheckedInUser</code> we've added a new property, <code>users</code>, and a getter for it. We also overrode the <code>__schema</code>
 method of <code>ImmutableRecordLogic</code> to pass a type hint to <code>ImmutableRecordLogic::generateSchemaFromPropTypeMap()</code>.
-Unfortunately, it is not possible in PHP to use return type hints like <code>string[]</code>. We can only type hint for <code>array</code>.
-Hopefully this will change in a future version of PHP. For now we have to live with the workaround and give
+Unfortunately, we can only type hint for <code>array</code> in PHP, and it is not possible to use return type hints like <code>string[]</code>.
+Hopefully this will change in a future version of PHP, but, for now, we have to live with the workaround and give
 <code>ImmutableRecordLogic</code> a hint that array items of the <code>users</code> property are of type <code>string</code>.</p>
 <p><em>Note: ImmutableRecordLogic derives type information by inspecting return types of getter methods named like their
 corresponding private properties.</em></p>
-<p>Internally, user names are used as array index. So the same user cannot appear twice in the list. With <code>Building\State::isUserCheckedIn(string $username): bool</code>
+<p>Internally, user names are used as the array index so the same user cannot appear twice in the list. With <code>Building\State::isUserCheckedIn(string $username): bool</code>
 we can look up if the given user is currently in the building. <code>Building\State::users()</code> on the other hand returns a list
 of user names like defined in the <code>__schema</code>. Internal state is used for fast look ups and external schema is used for the
 read model. More on that in a minute.</p>
@@ -824,7 +824,7 @@ class Aggregate implements EventMachineDescription
     public static function describe(EventMachine $eventMachine): void
     {
         /* ... */
-        
+
         $eventMachine-&gt;process(Command::CHECK_IN_USER)
             -&gt;withExisting(self::BUILDING)
             -&gt;handle([Building::class, 'checkInUser'])
@@ -834,8 +834,8 @@ class Aggregate implements EventMachineDescription
 }
 
 </code></pre>
-<p>Pretty much the same command processing description just with replaced command, event and function names according
-to the new use case. An important difference is that we use <code>-&gt;withExisting</code> instead of <code>-&gt;withNew</code>.
+<p>Pretty much the same command processing description but with command, event and function names based on
+the new use case. An important difference is that we use <code>-&gt;withExisting</code> instead of <code>-&gt;withNew</code>.
 As already stated this tells Event Machine to look up an existing Building using the <code>buildingId</code> from the <code>CheckInUser</code> command.</p>
 <p>The following GraphQL mutation should check in <em>John</em> into the <em>Acme Headquarters</em>.</p>
 <pre><code class="language-graphql">mutation{
@@ -852,7 +852,7 @@ As already stated this tells Event Machine to look up an existing Building using
   }
 }
 </code></pre>
-<p>Looks good! And how does the response of the <code>Buildings</code> query look now? If you inspect the GraphQL schema of the query
+<p>Looks good! And what does the response of the <code>Buildings</code> query look now? If you inspect the GraphQL schema of the query
 and click on the <code>Building</code> return type you'll notice the new property <code>users: [String!]!</code>. We can tell GraphQL to
 include the new property in the response:</p>
 <pre><code class="language-graphql">query{
@@ -878,7 +878,7 @@ include the new property in the response:</p>
   }
 }
 </code></pre>
-<p>Great! We get back the list of users checked in the building.</p>
+<p>Great! We get back the list of users checked into the building.</p>
 <h2 id="2-7-5">Protect Invariants</h2>
 <p>One of the main tasks of an aggregate is to protect invariants. A user cannot check in twice. The <code>Building</code> aggregate
 should enforce the business rule:</p>
@@ -912,7 +912,7 @@ final class Building
                 $checkInUser-&gt;get(Payload::NAME)
             ));
         }
-        
+
         yield [Event::USER_CHECKED_IN, $checkInUser-&gt;payload()];
     }
 
@@ -928,7 +928,7 @@ If the given user is already checked in we throw an exception to stop command pr
 <p>Let's try it:</p>
 <pre><code class="language-graphql">mutation{
   CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc", 
+    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
     name:"John"
   )
 }

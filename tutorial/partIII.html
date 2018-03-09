@@ -553,20 +553,20 @@
         </div>
                 <div class="col-md-9">
 <div id="section-main"><h1 id="2-4">Part III - Aggregate State</h1>
-<p>In part II we took a closer look at pure aggregate functions (aka static class methods in PHP because of missing function autoloading capabilities).
-Pure functions don't have side effects and are itself stateless. This makes them easy to test and understand.
+<p>In part II we took a closer look at pure aggregate functions (implemented as static class methods in PHP because of missing function autoloading capabilities).
+Pure functions don't have side effects and are stateless. This makes them easy to test and understand.
 But an aggregate without state? How can an aggregate protect invariants (its main purpose) without state?</p>
 <p>The aggregate needs a way "to look back". It needs to know what happened in the past
 according to its own lifecycle. Without its current state and without information about past changes the aggregate could
 only execute business logic and enforce business rules based on the given information of the current command passed to a handling function.
 In most cases this is not enough.</p>
-<p>The functional programming solution to that problem is to pass the current state (which is computed of the past events recorded by the aggregate)
+<p>The functional programming solution to that problem is to pass the current state (which is computed from the past events recorded by the aggregate)
 to each command handling function (except the one handling the first command). This means that aggregate <strong>behaviour</strong> (command handling functions)
 and aggregate <strong>state</strong> (a data structure of a certain type) are two different things and separated from each other.
-How this can look like using Event Machine is shown in this part of the tutorial.</p>
+How this this is implemented in Event Machine is shown in this part of the tutorial.</p>
 <h2 id="2-4-1">Applying Domain Events</h2>
 <p>Aggregate state is computed by iterating over all recorded domain events of the aggregate history starting with the oldest event.
-Event Machine does not provide a generic way to compute current state, instead the aggregate should have an event apply function
+Event Machine does not provide a generic way to compute current state, instead the aggregate should have an apply function
 for each recorded event. Those apply functions are often prefixed with <em>when</em> followed by the event name.</p>
 <p>Let's add such a function for our <code>BuildingAdded</code> domain event.</p>
 <pre><code class="language-php">&lt;?php
@@ -584,8 +584,8 @@ final class Building
     {
         yield [Event::BUILDING_ADDED, $addBuilding-&gt;payload()];
     }
-    
-    public static function whenBuildingAdded(Message $buildingAdded): State
+
+    public static function whenBuildingAdded(Message $buildingAdded): Building\State
     {
         //@TODO: Return new state for the aggregate
     }
@@ -594,7 +594,7 @@ final class Building
 <p><code>BuildingAdded</code> communicates that a new lifecycle of a building was started (new building was added to our system), so the
 <code>Building::whenBuilidngAdded()</code> function has to return a new state object and does not receive a current state object
 as an argument (next when* function will receive one!).</p>
-<p>But how does the <code>State</code> object look like? Well, you can use whatever you want. Event Machine does not care about a particular
+<p>But what does the <code>State</code> object look like? Well, you can use whatever you want. Event Machine does not care about a particular
 implementation (see docs for details). However, Event Machine ships with a default implementation of an <code>ImmutableRecord</code>.
 We use that implementation in the tutorial, but it is your choice if you want to use it in your application, too.</p>
 <p>Create a <code>State</code> class in <code>src/Model/Building</code> (new directory):</p>
@@ -639,8 +639,8 @@ final class State implements ImmutableRecord
 
 </code></pre>
 <p><em>Note: You can use PHPStorm to generate the Getter-Methods. You only have to write the private properties and add the doc blocks with @var type hints.
-Then use PHPStorm's ability to add the Getter-Methods (ALT+EINF). By default PHPStorm sets a get</em> prefix for each method. However, immutable records don't
-have setter methods and don't work with the get* prefix. Just change the template in PHPStorm config: Settings -&gt; Editor -&gt; File and Code Templates -&gt; PHP Getter Method to:*</p>
+Then use PHPStorm's ability to add the Getter-Methods (ALT+EINF). By default PHPStorm sets a <code>get*</code> prefix for each method. However, immutable records don't
+have setter methods and don't work with the <code>get*</code> prefix. Just change the template in your PHPStorm config: Settings -&gt; Editor -&gt; File and Code Templates -&gt; PHP Getter Method to:</em></p>
 <pre><code>/**
  * @return ${TYPE_HINT}
  */
@@ -677,8 +677,8 @@ final class Building
 }
 
 </code></pre>
-<p>Finally, we have to tell Event Machine about that apply function as a last step of the <code>AddBuilding</code> use case description
-in <code>src/Api/Aggregate</code>:</p>
+<p>Finally, we have to tell Event Machine about that apply function to complete the <code>AddBuilding</code> use case description.
+In <code>src/Api/Aggregate</code>:</p>
 <pre><code class="language-php">&lt;?php
 
 declare(strict_types=1);
@@ -719,17 +719,17 @@ client:</p>
   )
 }
 </code></pre>
-<p>... you receive the following response:</p>
+<p>... you should receive the following response:</p>
 <pre><code class="language-json">{
   "data": {
     "AddBuilding": true
   }
 }
 </code></pre>
-<p>Event Machine emphasises a CQRS and Event Sourcing architecture. For commands this means that no data is returned.
-The write model has received and processed the command <code>AddBuilding</code> successfully but we don't know how the new
-application state looks like. Therefor we have to use a query which is the third message type. Head over to tutorial
-part IV to learn more about queries and application state management using projections.</p>
+<p>Event Machine emphasizes a CQRS and Event Sourcing architecture. For commands this means that no data is returned.
+The write model has received and processed the command <code>AddBuilding</code> successfully but we don't know what the new
+application state looks like. We will use a query, which is the third message type, to get this data.
+Head over to tutorial part IV to learn more about queries and application state management using projections.</p>
 </div>        </div>
     </div>
 </div>
