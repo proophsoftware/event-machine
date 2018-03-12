@@ -39,9 +39,9 @@ use Prooph\EventMachine\Http\MessageBox;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
+use Prooph\EventMachine\JsonSchema\Type;
 use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\ObjectType;
-use Prooph\EventMachine\JsonSchema\Type;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
@@ -310,15 +310,6 @@ final class EventMachine
         $this->queryDescriptions[$queryName] = $queryDesc;
 
         return $queryDesc;
-    }
-
-    public function registerQueryResponse(string $queryName, Type $responseType): void
-    {
-        if (!$this->isKnownQuery($queryName)) {
-            throw new \RuntimeException("Query $queryName has not been registered");
-        }
-
-        $this->queryMap[$queryName]['response'] = $responseType->toArray();
     }
 
     public function registerProjection(string $projectionName, ProjectionDescription $projectionDescription): void

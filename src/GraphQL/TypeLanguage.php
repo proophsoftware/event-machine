@@ -94,7 +94,7 @@ final class TypeLanguage
 
             $typeLanguage .= "  $queryName";
 
-            if (!empty($payload['properties'])) {
+            if (! empty($payload['properties'])) {
                 $typeLanguage .= self::convertPayloadToArguments($queryName, $payload, $AST);
             }
 

@@ -91,6 +91,7 @@ final class QueryDescription
     {
         return $this->returnType;
     }
+
     private function assertResolverAndReturnTypeAreSet(): void
     {
         if (! $this->resolver) {
