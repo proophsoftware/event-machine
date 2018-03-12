@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\JsonSchema\Type;
 
-use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\AnnotatedType;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
 
 class EmailType implements AnnotatedType
 {
