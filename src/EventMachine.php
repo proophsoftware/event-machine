@@ -41,6 +41,7 @@ use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\ObjectType;
+use Prooph\EventMachine\JsonSchema\Type;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
@@ -296,6 +297,8 @@ final class EventMachine
         if ($payloadSchema) {
             $payloadSchema = $payloadSchema->toArray();
             $this->jsonSchemaAssertion()->assert("Query $queryName payload schema", $payloadSchema, JsonSchema::metaSchema());
+        } else {
+            $payloadSchema = (new ObjectType())->toArray();
         }
 
         if ($this->isKnownQuery($queryName)) {
@@ -307,6 +310,15 @@ final class EventMachine
         $this->queryDescriptions[$queryName] = $queryDesc;
 
         return $queryDesc;
+    }
+
+    public function registerQueryResponse(string $queryName, Type $responseType): void
+    {
+        if (!$this->isKnownQuery($queryName)) {
+            throw new \RuntimeException("Query $queryName has not been registered");
+        }
+
+        $this->queryMap[$queryName]['response'] = $responseType->toArray();
     }
 
     public function registerProjection(string $projectionName, ProjectionDescription $projectionDescription): void
@@ -753,6 +765,33 @@ final class EventMachine
             'commands' => $this->commandMap,
             'events' => $this->eventMap,
             'queries' => $this->queryMap,
+        ];
+    }
+
+    public function messageBoxSchema(): array
+    {
+        $this->assertInitialized(__METHOD__);
+
+        $querySchemas = [];
+        foreach ($this->queryMap as $queryName => $map) {
+            $description = $this->queryDescriptions[$queryName];
+
+            $map['response'] = $description->getReturnType();
+
+            $querySchemas[$queryName] = $map;
+        }
+
+        return [
+            'title' => 'Event Machine MessageBox',
+            'description' => 'A mechanism for handling prooph messages',
+            '$schema' => 'http://json-schema.org/draft-06/schema#',
+            'type' => 'object',
+            'properties' => [
+                'commands' => $this->commandMap,
+                'events' => $this->eventMap,
+                'queries' => $querySchemas,
+            ],
+            'definitions' => $this->schemaTypes,
         ];
     }
 

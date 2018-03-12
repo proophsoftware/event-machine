@@ -548,7 +548,7 @@ class EventMachineTest extends BasicTestCase
                 Query::GET_USER => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
                 ])->toArray(),
-                Query::GET_USERS => null,
+                Query::GET_USERS => JsonSchema::object([])->toArray(),
                 Query::GET_FILTERED_USERS => JsonSchema::object([], [
                     'filter' => JsonSchema::nullOr(JsonSchema::string()),
                 ])->toArray(),
@@ -556,6 +556,76 @@ class EventMachineTest extends BasicTestCase
             ],
             $this->eventMachine->messageSchemas()
         );
+    }
+
+    /**
+     * @test
+     */
+    public function it_builds_a_message_box_schema(): void
+    {
+        $this->eventMachine->initialize($this->containerChain);
+
+        $this->eventMachine->bootstrap();
+
+        $userId = new UuidType();
+
+        $username = (new StringType())->withMinLength(1);
+
+        $userDataSchema = JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => $username,
+            UserDescription::EMAIL => new EmailType(),
+        ], [
+            'shouldFail' => JsonSchema::boolean(),
+        ]);
+
+        $queries = [
+            Query::GET_USER => JsonSchema::object([
+                UserDescription::IDENTIFIER => $userId,
+            ])->toArray(),
+            Query::GET_USERS => JsonSchema::object([])->toArray(),
+            Query::GET_FILTERED_USERS => JsonSchema::object([], [
+                'filter' => JsonSchema::nullOr(JsonSchema::string()),
+            ])->toArray(),
+        ];
+
+        $queries[Query::GET_USER]['response'] = JsonSchema::typeRef('User')->toArray();
+        $queries[Query::GET_USERS]['response'] = JsonSchema::array(JsonSchema::typeRef('User'))->toArray();
+        $queries[Query::GET_FILTERED_USERS]['response'] = JsonSchema::array(JsonSchema::typeRef('User'))->toArray();
+
+        $this->assertEquals([
+            'title' => 'Event Machine MessageBox',
+            'description' => 'A mechanism for handling prooph messages',
+            '$schema' => 'http://json-schema.org/draft-06/schema#',
+            'type' => 'object',
+            'properties' => [
+                'commands' => [
+                    Command::REGISTER_USER => $userDataSchema->toArray(),
+                    Command::CHANGE_USERNAME => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                        UserDescription::USERNAME => $username,
+                    ])->toArray(),
+                    Command::DO_NOTHING => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                    ])->toArray(),
+                ],
+                'events' => [
+                    Event::USER_WAS_REGISTERED => $userDataSchema->toArray(),
+                    Event::USERNAME_WAS_CHANGED => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                        'oldName' => $username,
+                        'newName' => $username,
+                    ])->toArray(),
+                    Event::USER_REGISTRATION_FAILED => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                    ])->toArray(),
+                ],
+                'queries' => $queries,
+            ],
+            'definitions' => [
+               'User' => $userDataSchema->toArray(),
+            ],
+        ], $this->eventMachine->messageBoxSchema());
     }
 
     /**

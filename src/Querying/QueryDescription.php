@@ -87,6 +87,10 @@ final class QueryDescription
         return $this;
     }
 
+    public function getReturnType(): ?array
+    {
+        return $this->returnType;
+    }
     private function assertResolverAndReturnTypeAreSet(): void
     {
         if (! $this->resolver) {
