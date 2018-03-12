@@ -12,11 +12,12 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\JsonSchema\Type;
 
 use Prooph\EventMachine\JsonSchema\JsonSchema;
-use Prooph\EventMachine\JsonSchema\Type;
+use Prooph\EventMachine\JsonSchema\AnnotatedType;
 
-final class ArrayType implements Type
+final class ArrayType implements AnnotatedType
 {
-    use NullableType;
+    use NullableType,
+        HasAnnotations;
 
     /**
      * @var string|array
@@ -44,6 +45,6 @@ final class ArrayType implements Type
         return array_merge([
             'type' => $this->type,
             'items' => $this->itemSchema->toArray(),
-        ], (array) $this->validation);
+        ], (array) $this->validation, $this->annotations());
     }
 }

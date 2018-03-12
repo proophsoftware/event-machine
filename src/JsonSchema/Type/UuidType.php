@@ -12,20 +12,21 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\JsonSchema\Type;
 
 use Prooph\EventMachine\JsonSchema\JsonSchema;
-use Prooph\EventMachine\JsonSchema\Type;
+use Prooph\EventMachine\JsonSchema\AnnotatedType;
 use Ramsey\Uuid\Uuid;
 
-class UuidType implements Type
+class UuidType implements AnnotatedType
 {
-    use NullableType;
+    use NullableType,
+        HasAnnotations;
 
     private $type = JsonSchema::TYPE_STRING;
 
     public function toArray(): array
     {
-        return [
+        return array_merge([
             'type' => $this->type,
             'pattern' => Uuid::VALID_PATTERN,
-        ];
+        ], $this->annotations());
     }
 }

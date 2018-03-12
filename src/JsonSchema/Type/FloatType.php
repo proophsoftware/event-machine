@@ -12,11 +12,12 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\JsonSchema\Type;
 
 use Prooph\EventMachine\JsonSchema\JsonSchema;
-use Prooph\EventMachine\JsonSchema\Type;
+use Prooph\EventMachine\JsonSchema\AnnotatedType;
 
-class FloatType implements Type
+class FloatType implements AnnotatedType
 {
-    use NullableType;
+    use NullableType,
+        HasAnnotations;
 
     /**
      * @var string|array
@@ -35,7 +36,7 @@ class FloatType implements Type
 
     public function toArray(): array
     {
-        return array_merge(['type' => $this->type], (array) $this->validation);
+        return array_merge(['type' => $this->type], (array) $this->validation, $this->annotations());
     }
 
     public function withMinimum(int $min): self
