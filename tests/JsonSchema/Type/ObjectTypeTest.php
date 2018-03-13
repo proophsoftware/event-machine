@@ -31,14 +31,10 @@ final class ObjectTypeTest extends BasicTestCase
             'properties' => [
                 'name' => [
                     'type' => JsonSchema::TYPE_STRING,
-                    'title' => null,
-                    'description' => null,
                 ],
             ],
             'required' => ['name'],
             'additionalProperties' => false,
-            'title' => null,
-            'description' => null,
         ], $object->toArray());
     }
 
@@ -56,14 +52,10 @@ final class ObjectTypeTest extends BasicTestCase
             'properties' => [
                 'name' => [
                     'type' => JsonSchema::TYPE_STRING,
-                    'title' => null,
-                    'description' => null,
                 ],
             ],
             'required' => ['name'],
             'additionalProperties' => false,
-            'title' => null,
-            'description' => null,
         ], $object->toArray());
     }
 
@@ -85,21 +77,15 @@ final class ObjectTypeTest extends BasicTestCase
             'properties' => [
                 'name' => [
                     'type' => JsonSchema::TYPE_STRING,
-                    'title' => null,
-                    'description' => null,
                 ],
                 'age' => [
                     'type' => JsonSchema::TYPE_INT,
-                    'title' => null,
-                    'description' => null,
                     'minimum' => 18,
                     'maximum' => 150,
                 ],
             ],
             'required' => ['name'],
             'additionalProperties' => false,
-            'title' => null,
-            'description' => null,
         ], $object->toArray());
     }
 
@@ -115,16 +101,12 @@ final class ObjectTypeTest extends BasicTestCase
             'properties' => [
                 'age' => [
                     'type' => JsonSchema::TYPE_INT,
-                    'title' => null,
-                    'description' => null,
                     'minimum' => 18,
                     'maximum' => 150,
                 ],
             ],
             'required' => [],
             'additionalProperties' => false,
-            'title' => null,
-            'description' => null,
         ], $object->toArray());
     }
 
@@ -144,19 +126,13 @@ final class ObjectTypeTest extends BasicTestCase
             'properties' => [
                 'name' => [
                     'type' => JsonSchema::TYPE_STRING,
-                    'title' => null,
-                    'description' => null,
                 ],
                 'id' => [
                     'type' => JsonSchema::TYPE_STRING,
-                    'title' => null,
-                    'description' => null,
                 ],
             ],
             'required' => ['name', 'id'],
             'additionalProperties' => false,
-            'title' => null,
-            'description' => null,
         ], $object->toArray());
     }
 

@@ -13,6 +13,7 @@ namespace Prooph\EventMachine\JsonSchema\Type;
 
 use Prooph\EventMachine\JsonSchema\AnnotatedType;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type;
 
 final class ArrayType implements AnnotatedType
 {

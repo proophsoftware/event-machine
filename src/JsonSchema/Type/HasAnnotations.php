@@ -55,9 +55,16 @@ trait HasAnnotations
 
     public function annotations(): array
     {
-        return [
-            'title' => $this->title,
-            'description' => $this->description,
-        ];
+        $annotations = [];
+
+        if (null !== $this->title) {
+            $annotations['title'] = $this->title;
+        }
+
+        if (null !== $this->description) {
+            $annotations['description'] = $this->description;
+        }
+
+        return $annotations;
     }
 }
