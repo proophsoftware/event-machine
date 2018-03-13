@@ -33,11 +33,6 @@ final class QueryDescription
     private $resolver;
 
     /**
-     * @var int|null
-     */
-    private $queryComplexity;
-
-    /**
      * @var array
      */
     private $returnType;
@@ -55,7 +50,6 @@ final class QueryDescription
         return [
             'name' => $this->queryName,
             'resolver' => $this->resolver,
-            'complexity' => $this->queryComplexity,
             'returnType' => $this->returnType,
         ];
     }
@@ -70,11 +64,6 @@ final class QueryDescription
         $this->resolver = $resolver;
 
         return $this;
-    }
-
-    public function queryComplexity(int $complexity): self
-    {
-        $this->queryComplexity = $complexity;
     }
 
     public function returnType(Type $typeSchema): self
