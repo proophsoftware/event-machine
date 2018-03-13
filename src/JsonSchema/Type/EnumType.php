@@ -11,12 +11,13 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\JsonSchema\Type;
 
+use Prooph\EventMachine\JsonSchema\AnnotatedType;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
-use Prooph\EventMachine\JsonSchema\Type;
 
-class EnumType implements Type
+class EnumType implements AnnotatedType
 {
-    use NullableType;
+    use NullableType,
+        HasAnnotations;
 
     /**
      * @var string|array
@@ -35,9 +36,9 @@ class EnumType implements Type
 
     public function toArray(): array
     {
-        return [
+        return array_merge([
             'type' => $this->type,
             'enum' => $this->entries,
-        ];
+        ], $this->annotations());
     }
 }

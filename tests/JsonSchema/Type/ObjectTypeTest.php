@@ -135,4 +135,31 @@ final class ObjectTypeTest extends BasicTestCase
             'additionalProperties' => false,
         ], $object->toArray());
     }
+
+    /**
+     * @test
+     */
+    public function it_can_be_annotated()
+    {
+        $object = (new ObjectType([
+            'name' => JsonSchema::string()->entitled('Name')->describedAs('The name'),
+        ]))
+        ->entitled('Object')
+        ->describedAs('An object');
+
+        $this->assertEquals([
+            'type' => JsonSchema::TYPE_OBJECT,
+            'properties' => [
+                'name' => [
+                    'type' => JsonSchema::TYPE_STRING,
+                    'title' => 'Name',
+                    'description' => 'The name',
+                ],
+            ],
+            'required' => ['name'],
+            'additionalProperties' => false,
+            'title' => 'Object',
+            'description' => 'An object',
+        ], $object->toArray());
+    }
 }

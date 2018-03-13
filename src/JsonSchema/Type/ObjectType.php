@@ -11,12 +11,14 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\JsonSchema\Type;
 
+use Prooph\EventMachine\JsonSchema\AnnotatedType;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\Type;
 
-class ObjectType implements Type
+class ObjectType implements AnnotatedType
 {
-    use NullableType;
+    use NullableType,
+        HasAnnotations;
 
     /**
      * @var array
@@ -107,6 +109,6 @@ class ObjectType implements Type
             $schema['allOf'] = $allOf;
         }
 
-        return $schema;
+        return array_merge($schema, $this->annotations());
     }
 }
