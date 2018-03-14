@@ -66,7 +66,7 @@ final class QueryDescription
         return $this;
     }
 
-    public function returnType(Type $typeSchema): self
+    public function setReturnType(Type $typeSchema): self
     {
         $typeSchema = $typeSchema->toArray();
         $this->eventMachine->jsonSchemaAssertion()->assert("Query return type {$this->queryName}", $typeSchema, JsonSchema::metaSchema());
@@ -76,7 +76,7 @@ final class QueryDescription
         return $this;
     }
 
-    public function getReturnType(): ?array
+    public function returnType(): ?array
     {
         return $this->returnType;
     }

@@ -767,7 +767,7 @@ final class EventMachine
         foreach ($this->queryMap as $queryName => $map) {
             $description = $this->queryDescriptions[$queryName];
 
-            $map['response'] = $description->getReturnType();
+            $map['response'] = $description->returnType();
 
             $querySchemas[$queryName] = $map;
         }

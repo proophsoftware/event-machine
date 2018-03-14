@@ -133,13 +133,13 @@ class Query implements EventMachineDescription
         //Default query: can be used to check if service is up and running
         $eventMachine->registerQuery(self::HEALTH_CHECK) //<-- Payload schema is optional for queries
             ->resolveWith(HealthCheckResolver::class) //<-- Service id (usually FQCN) to get resolver from DI container
-            ->returnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
+            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
 
         $eventMachine->registerQuery(self::BUILDING, JsonSchema::object([
             Payload::BUILDING_ID => JsonSchema::uuid(),
         ]))
             ->resolveWith(BuildingFinder::class)
-            ->returnType(JsonSchema::typeRef(Aggregate::BUILDING));
+            ->setReturnType(JsonSchema::typeRef(Aggregate::BUILDING));
 
         $eventMachine->registerQuery(
             self::BUILDINGS,
@@ -149,7 +149,7 @@ class Query implements EventMachineDescription
             )
         )
             ->resolveWith(BuildingFinder::class)
-            ->returnType(JsonSchema::array(
+            ->setReturnType(JsonSchema::array(
                 JsonSchema::typeRef(Aggregate::BUILDING)
             ));
     }
@@ -380,13 +380,13 @@ class Query implements EventMachineDescription
         //Default query: can be used to check if service is up and running
         $eventMachine->registerQuery(self::HEALTH_CHECK) //<-- Payload schema is optional for queries
             ->resolveWith(HealthCheckResolver::class) //<-- Service id (usually FQCN) to get resolver from DI container
-            ->returnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
+            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
 
         $eventMachine->registerQuery(self::BUILDING, JsonSchema::object([
             Payload::BUILDING_ID => Schema::buildingId(),
         ]))
             ->resolveWith(BuildingFinder::class)
-            ->returnType(Schema::building());
+            ->setReturnType(Schema::building());
 
         $eventMachine->registerQuery(
             self::BUILDINGS,
@@ -396,7 +396,7 @@ class Query implements EventMachineDescription
             )
         )
             ->resolveWith(BuildingFinder::class)
-            ->returnType(Schema::buildingList());
+            ->setReturnType(Schema::buildingList());
     }
 }
 
