@@ -721,13 +721,13 @@ class Query implements EventMachineDescription
         //Default query: can be used to check if service is up and running
         $eventMachine-&gt;registerQuery(self::HEALTH_CHECK) //&lt;-- Payload schema is optional for queries
             -&gt;resolveWith(HealthCheckResolver::class) //&lt;-- Service id (usually FQCN) to get resolver from DI container
-            -&gt;returnType(Schema::healthCheck()); //&lt;-- Type returned by resolver, this is converted to a GraphQL type
+            -&gt;setReturnType(Schema::healthCheck()); //&lt;-- Type returned by resolver, this is converted to a GraphQL type
 
         $eventMachine-&gt;registerQuery(self::BUILDING, JsonSchema::object([
             'buildingId' =&gt; JsonSchema::uuid(),
         ]))
             -&gt;resolveWith(/* ??? */)
-            -&gt;returnType(JsonSchema::typeRef(Aggregate::BUILDING));
+            -&gt;setReturnType(JsonSchema::typeRef(Aggregate::BUILDING));
     }
 }
 
@@ -904,7 +904,7 @@ class Query implements EventMachineDescription
             'buildingId' =&gt; JsonSchema::uuid(),
         ]))
             -&gt;resolveWith(BuildingFinder::class) //&lt;-- Finder service id
-            -&gt;returnType(JsonSchema::typeRef(Aggregate::BUILDING));
+            -&gt;setReturnType(JsonSchema::typeRef(Aggregate::BUILDING));
     }
 }
 
@@ -961,7 +961,7 @@ class Query implements EventMachineDescription
             'buildingId' =&gt; JsonSchema::uuid(),
         ]))
             -&gt;resolveWith(BuildingFinder::class)
-            -&gt;returnType(JsonSchema::typeRef(Aggregate::BUILDING));
+            -&gt;setReturnType(JsonSchema::typeRef(Aggregate::BUILDING));
 
         //New query
         $eventMachine-&gt;registerQuery(
@@ -975,7 +975,7 @@ class Query implements EventMachineDescription
             //Resolve query with same finder ...
             -&gt;resolveWith(BuildingFinder::class)
             //... but return an array of Building type
-            -&gt;returnType(JsonSchema::array(
+            -&gt;setReturnType(JsonSchema::array(
                 JsonSchema::typeRef(Aggregate::BUILDING)
             ));
     }

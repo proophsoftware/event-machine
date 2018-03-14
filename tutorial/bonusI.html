@@ -959,7 +959,7 @@ class Query implements EventMachineDescription
             JsonSchema::object(['name' =&gt; Schema::username()])
         )
             -&gt;resolveWith(UserBuildingFinder::class)
-            -&gt;returnType(Schema::userBuilding());
+            -&gt;setReturnType(Schema::userBuilding());
     }
 }
 
