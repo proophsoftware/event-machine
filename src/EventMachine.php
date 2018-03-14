@@ -39,6 +39,7 @@ use Prooph\EventMachine\Http\MessageBox;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
+use Prooph\EventMachine\JsonSchema\Type;
 use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\ObjectType;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
@@ -296,6 +297,8 @@ final class EventMachine
         if ($payloadSchema) {
             $payloadSchema = $payloadSchema->toArray();
             $this->jsonSchemaAssertion()->assert("Query $queryName payload schema", $payloadSchema, JsonSchema::metaSchema());
+        } else {
+            $payloadSchema = (new ObjectType())->toArray();
         }
 
         if ($this->isKnownQuery($queryName)) {
@@ -753,6 +756,33 @@ final class EventMachine
             'commands' => $this->commandMap,
             'events' => $this->eventMap,
             'queries' => $this->queryMap,
+        ];
+    }
+
+    public function messageBoxSchema(): array
+    {
+        $this->assertInitialized(__METHOD__);
+
+        $querySchemas = [];
+        foreach ($this->queryMap as $queryName => $map) {
+            $description = $this->queryDescriptions[$queryName];
+
+            $map['response'] = $description->returnType();
+
+            $querySchemas[$queryName] = $map;
+        }
+
+        return [
+            'title' => 'Event Machine MessageBox',
+            'description' => 'A mechanism for handling prooph messages',
+            '$schema' => 'http://json-schema.org/draft-06/schema#',
+            'type' => 'object',
+            'properties' => [
+                'commands' => $this->commandMap,
+                'events' => $this->eventMap,
+                'queries' => $querySchemas,
+            ],
+            'definitions' => $this->schemaTypes,
         ];
     }
 

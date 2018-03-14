@@ -165,13 +165,13 @@ class Query implements EventMachineDescription
         //Default query: can be used to check if service is up and running
         $eventMachine->registerQuery(self::HEALTH_CHECK) //<-- Payload schema is optional for queries
             ->resolveWith(HealthCheckResolver::class) //<-- Service id (usually FQCN) to get resolver from DI container
-            ->returnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
+            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
 
         $eventMachine->registerQuery(self::BUILDING, JsonSchema::object([
             'buildingId' => JsonSchema::uuid(),
         ]))
             ->resolveWith(/* ??? */)
-            ->returnType(JsonSchema::typeRef(Aggregate::BUILDING));
+            ->setReturnType(JsonSchema::typeRef(Aggregate::BUILDING));
     }
 }
 
@@ -371,7 +371,7 @@ class Query implements EventMachineDescription
             'buildingId' => JsonSchema::uuid(),
         ]))
             ->resolveWith(BuildingFinder::class) //<-- Finder service id
-            ->returnType(JsonSchema::typeRef(Aggregate::BUILDING));
+            ->setReturnType(JsonSchema::typeRef(Aggregate::BUILDING));
     }
 }
 
@@ -438,7 +438,7 @@ class Query implements EventMachineDescription
             'buildingId' => JsonSchema::uuid(),
         ]))
             ->resolveWith(BuildingFinder::class)
-            ->returnType(JsonSchema::typeRef(Aggregate::BUILDING));
+            ->setReturnType(JsonSchema::typeRef(Aggregate::BUILDING));
 
         //New query
         $eventMachine->registerQuery(
@@ -452,7 +452,7 @@ class Query implements EventMachineDescription
             //Resolve query with same finder ...
             ->resolveWith(BuildingFinder::class)
             //... but return an array of Building type
-            ->returnType(JsonSchema::array(
+            ->setReturnType(JsonSchema::array(
                 JsonSchema::typeRef(Aggregate::BUILDING)
             ));
     }

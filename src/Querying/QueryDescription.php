@@ -33,11 +33,6 @@ final class QueryDescription
     private $resolver;
 
     /**
-     * @var int|null
-     */
-    private $queryComplexity;
-
-    /**
      * @var array
      */
     private $returnType;
@@ -55,7 +50,6 @@ final class QueryDescription
         return [
             'name' => $this->queryName,
             'resolver' => $this->resolver,
-            'complexity' => $this->queryComplexity,
             'returnType' => $this->returnType,
         ];
     }
@@ -72,12 +66,7 @@ final class QueryDescription
         return $this;
     }
 
-    public function queryComplexity(int $complexity): self
-    {
-        $this->queryComplexity = $complexity;
-    }
-
-    public function returnType(Type $typeSchema): self
+    public function setReturnType(Type $typeSchema): self
     {
         $typeSchema = $typeSchema->toArray();
         $this->eventMachine->jsonSchemaAssertion()->assert("Query return type {$this->queryName}", $typeSchema, JsonSchema::metaSchema());
@@ -85,6 +74,11 @@ final class QueryDescription
         $this->returnType = $typeSchema;
 
         return $this;
+    }
+
+    public function returnType(): ?array
+    {
+        return $this->returnType;
     }
 
     private function assertResolverAndReturnTypeAreSet(): void
