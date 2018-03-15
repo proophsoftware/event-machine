@@ -671,6 +671,7 @@ final class EventMachine
                 $this->commandMap,
                 $this->eventMap,
                 $this->queryMap,
+                $this->schemaTypes,
                 $this->container->get(self::SERVICE_ID_JSON_SCHEMA_ASSERTION)
             );
         }

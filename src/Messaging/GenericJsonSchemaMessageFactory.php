@@ -55,12 +55,20 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
      */
     private $queryMap = [];
 
-    public function __construct(array $commandMap, array $eventMap, array $queryMap, JsonSchemaAssertion $jsonSchemaAssertion)
+    /**
+     * Map of type definitions used within other json schemas.
+     *
+     * @var array
+     */
+    private $definitions = [];
+
+    public function __construct(array $commandMap, array $eventMap, array $queryMap, array $definitions, JsonSchemaAssertion $jsonSchemaAssertion)
     {
         $this->jsonSchemaAssertion = $jsonSchemaAssertion;
         $this->commandMap = $commandMap;
         $this->eventMap = $eventMap;
         $this->queryMap = $queryMap;
+        $this->definitions = $definitions;
         //@@TODO: Add optional metadata schema that is then used to validate metadata of all messages
     }
 
@@ -103,6 +111,8 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
         if (null === $payloadSchema && $messageType === DomainMessage::TYPE_QUERY) {
             $payloadSchema = [];
         }
+
+        $payloadSchema['definitions'] = $this->definitions;
 
         $this->jsonSchemaAssertion->assert($messageName, $messageData['payload'], $payloadSchema);
 
