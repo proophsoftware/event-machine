@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachineTest;
 
-use Interop\Http\Server\RequestHandlerInterface;
 use Prooph\Common\Event\ProophActionEventEmitter;
 use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\Container\ContainerChain;
@@ -50,6 +49,7 @@ use ProophExample\Resolver\GetUserResolver;
 use ProophExample\Resolver\GetUsersResolver;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Ramsey\Uuid\Uuid;
 use React\Promise\Deferred;
 use Zend\Diactoros\ServerRequest;

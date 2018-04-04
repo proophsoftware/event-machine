@@ -12,12 +12,12 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Http;
 
 use Fig\Http\Message\StatusCodeInterface;
-use Interop\Http\Server\RequestHandlerInterface;
 use Prooph\EventMachine\Data\DataConverter;
 use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
 use Prooph\EventMachine\EventMachine;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use Ramsey\Uuid\Uuid;
 use React\Promise\Promise;
 use Zend\Diactoros\Response\EmptyResponse;
