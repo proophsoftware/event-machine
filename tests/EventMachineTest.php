@@ -49,10 +49,8 @@ use ProophExample\Resolver\GetUserResolver;
 use ProophExample\Resolver\GetUsersResolver;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
-use Psr\Http\Server\RequestHandlerInterface;
 use Ramsey\Uuid\Uuid;
 use React\Promise\Deferred;
-use Zend\Diactoros\ServerRequest;
 
 class EventMachineTest extends BasicTestCase
 {
@@ -141,8 +139,6 @@ class EventMachineTest extends BasicTestCase
         $this->appContainer->has(EventMachine::SERVICE_ID_ASYNC_EVENT_PRODUCER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_DOCUMENT_STORE)->willReturn(false);
-        $this->appContainer->has(EventMachine::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR)->willReturn(false);
-        $this->appContainer->has(EventMachine::SERVICE_ID_GRAPHQL_FIELD_RESOLVER)->willReturn(false);
 
         $this->containerChain = new ContainerChain(
             $this->appContainer->reveal(),
@@ -769,151 +765,6 @@ class EventMachineTest extends BasicTestCase
         $this->eventMachine->jsonSchemaAssertion()->assert('UserIdentityData', $userIdentityData, JsonSchema::object([
             'identity' => JsonSchema::typeRef(TestIdentityVO::__type()),
         ])->toArray());
-    }
-
-    /**
-     * @test
-     */
-    public function it_sets_up_a_graphql_server()
-    {
-        $getUserResolver = new class() {
-            public function __invoke(Message $getUser, Deferred $deferred)
-            {
-                $deferred->resolve([
-                    UserDescription::IDENTIFIER => $getUser->payload()[UserDescription::IDENTIFIER],
-                    UserDescription::USERNAME => 'Alex',
-                ]);
-            }
-        };
-
-        $this->appContainer->has(GetUserResolver::class)->willReturn(true);
-        $this->appContainer->get(GetUserResolver::class)->will(function ($args) use ($getUserResolver) {
-            return $getUserResolver;
-        });
-
-        $this->eventMachine->initialize($this->containerChain);
-
-        $server = $this->eventMachine->bootstrap(EventMachine::ENV_TEST, true)->graphqlServer();
-
-        $this->assertInstanceOf(RequestHandlerInterface::class, $server);
-
-        $userId = Uuid::uuid4()->toString();
-
-        $queryName = Query::GET_USER;
-        $identifier = UserDescription::IDENTIFIER;
-        $username = UserDescription::USERNAME;
-
-        $query = "{ $queryName({$identifier}: \"$userId\") { $username } }";
-
-        $stream = new \Zend\Diactoros\CallbackStream(function () use ($query) {
-            return $query;
-        });
-
-        $request = new ServerRequest([], [], '/graphql', 'POST', $stream, [
-            'Content-Type' => 'application/graphql',
-        ]);
-
-        $response = $server->handle($request);
-
-        $this->assertEquals(json_encode([
-            'data' => ['GetUser' => [$username => 'Alex']],
-        ]), (string) $response->getBody());
-    }
-
-    /**
-     * @test
-     */
-    public function it_handles_queries_without_args_with_graphql()
-    {
-        $getUsersResolver = new class() {
-            public function __invoke(Message $getUsers, Deferred $deferred)
-            {
-                $deferred->resolve([
-                    [
-                        UserDescription::IDENTIFIER => '123',
-                        UserDescription::USERNAME => 'Alex',
-                    ],
-                ]);
-            }
-        };
-
-        $this->appContainer->has(GetUsersResolver::class)->willReturn(true);
-        $this->appContainer->get(GetUsersResolver::class)->will(function ($args) use ($getUsersResolver) {
-            return $getUsersResolver;
-        });
-
-        $this->eventMachine->initialize($this->containerChain);
-
-        $server = $this->eventMachine->bootstrap(EventMachine::ENV_TEST, true)->graphqlServer();
-
-        $this->assertInstanceOf(RequestHandlerInterface::class, $server);
-
-        $queryName = Query::GET_USERS;
-        $username = UserDescription::USERNAME;
-
-        $query = "{ $queryName { $username } }";
-
-        $stream = new \Zend\Diactoros\CallbackStream(function () use ($query) {
-            return $query;
-        });
-
-        $request = new ServerRequest([], [], '/graphql', 'POST', $stream, [
-            'Content-Type' => 'application/graphql',
-        ]);
-
-        $response = $server->handle($request);
-
-        $this->assertEquals(json_encode([
-            'data' => ['GetUsers' => [[$username => 'Alex']]],
-        ]), (string) $response->getBody());
-    }
-
-    /**
-     * @test
-     */
-    public function it_handles_queries_with_missing_optional_args_with_graphql()
-    {
-        $getUsersResolver = new class() {
-            public function __invoke(Message $getUsers, Deferred $deferred)
-            {
-                $deferred->resolve([
-                    [
-                        UserDescription::IDENTIFIER => '123',
-                        UserDescription::USERNAME => 'Alex',
-                    ],
-                ]);
-            }
-        };
-
-        $this->appContainer->has(GetUsersResolver::class)->willReturn(true);
-        $this->appContainer->get(GetUsersResolver::class)->will(function ($args) use ($getUsersResolver) {
-            return $getUsersResolver;
-        });
-
-        $this->eventMachine->initialize($this->containerChain);
-
-        $server = $this->eventMachine->bootstrap(EventMachine::ENV_TEST, true)->graphqlServer();
-
-        $this->assertInstanceOf(RequestHandlerInterface::class, $server);
-
-        $queryName = Query::GET_FILTERED_USERS;
-        $username = UserDescription::USERNAME;
-
-        $query = "{ $queryName { $username } }";
-
-        $stream = new \Zend\Diactoros\CallbackStream(function () use ($query) {
-            return $query;
-        });
-
-        $request = new ServerRequest([], [], '/graphql', 'POST', $stream, [
-            'Content-Type' => 'application/graphql',
-        ]);
-
-        $response = $server->handle($request);
-
-        $this->assertEquals(json_encode([
-            'data' => ['GetFilteredUsers' => [[$username => 'Alex']]],
-        ]), (string) $response->getBody());
     }
 
     /**
