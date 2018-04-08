@@ -522,6 +522,11 @@ class EventMachineTest extends BasicTestCase
             'shouldFail' => JsonSchema::boolean(),
         ]);
 
+        $filterInput = JsonSchema::object([
+            'username' => JsonSchema::nullOr(JsonSchema::string()),
+            'email' => JsonSchema::nullOr(JsonSchema::email()),
+        ]);
+
         self::assertEquals([
             'commands' => [
                 Command::REGISTER_USER => $userDataSchema->toArray(),
@@ -550,7 +555,7 @@ class EventMachineTest extends BasicTestCase
                 ])->toArray(),
                 Query::GET_USERS => JsonSchema::object([])->toArray(),
                 Query::GET_FILTERED_USERS => JsonSchema::object([], [
-                    'filter' => JsonSchema::nullOr(JsonSchema::string()),
+                    'filter' => JsonSchema::nullOr(JsonSchema::typeRef('UserFilterInput')),
                 ])->toArray(),
             ],
             ],
@@ -579,13 +584,18 @@ class EventMachineTest extends BasicTestCase
             'shouldFail' => JsonSchema::boolean(),
         ]);
 
+        $filterInput = JsonSchema::object([
+            'username' => JsonSchema::nullOr(JsonSchema::string()),
+            'email' => JsonSchema::nullOr(JsonSchema::email()),
+        ]);
+
         $queries = [
             Query::GET_USER => JsonSchema::object([
                 UserDescription::IDENTIFIER => $userId,
             ])->toArray(),
             Query::GET_USERS => JsonSchema::object([])->toArray(),
             Query::GET_FILTERED_USERS => JsonSchema::object([], [
-                'filter' => JsonSchema::nullOr(JsonSchema::string()),
+                'filter' => JsonSchema::nullOr(JsonSchema::typeRef('UserFilterInput')),
             ])->toArray(),
         ];
 
@@ -623,7 +633,8 @@ class EventMachineTest extends BasicTestCase
                 'queries' => $queries,
             ],
             'definitions' => [
-               'User' => $userDataSchema->toArray(),
+                'User' => $userDataSchema->toArray(),
+                'UserFilterInput' => $filterInput->toArray(),
             ],
         ], $this->eventMachine->messageBoxSchema());
     }
