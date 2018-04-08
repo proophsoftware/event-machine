@@ -524,7 +524,7 @@ class EventMachineTest extends BasicTestCase
 
         $filterInput = JsonSchema::object([
             'username' => JsonSchema::nullOr(JsonSchema::string()),
-            'email' => JsonSchema::nullOr(JsonSchema::email())
+            'email' => JsonSchema::nullOr(JsonSchema::email()),
         ]);
 
         self::assertEquals([
@@ -586,7 +586,7 @@ class EventMachineTest extends BasicTestCase
 
         $filterInput = JsonSchema::object([
             'username' => JsonSchema::nullOr(JsonSchema::string()),
-            'email' => JsonSchema::nullOr(JsonSchema::email())
+            'email' => JsonSchema::nullOr(JsonSchema::email()),
         ]);
 
         $queries = [
@@ -634,7 +634,7 @@ class EventMachineTest extends BasicTestCase
             ],
             'definitions' => [
                 'User' => $userDataSchema->toArray(),
-                'UserFilterInput' => $filterInput->toArray()
+                'UserFilterInput' => $filterInput->toArray(),
             ],
         ], $this->eventMachine->messageBoxSchema());
     }

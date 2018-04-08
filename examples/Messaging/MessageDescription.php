@@ -87,7 +87,7 @@ final class MessageDescription implements EventMachineDescription
 
         $filterInput = JsonSchema::object([
             'username' => JsonSchema::nullOr(JsonSchema::string()),
-            'email' => JsonSchema::nullOr(JsonSchema::email())
+            'email' => JsonSchema::nullOr(JsonSchema::email()),
         ]);
         $eventMachine->registerInputType('UserFilterInput', $filterInput);
         $eventMachine->registerQuery(Query::GET_FILTERED_USERS, JsonSchema::object([], [
