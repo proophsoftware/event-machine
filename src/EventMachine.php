@@ -783,7 +783,7 @@ final class EventMachine
                 'events' => $this->eventMap,
                 'queries' => $querySchemas,
             ],
-            'definitions' => $this->schemaTypes,
+            'definitions' => array_merge($this->schemaTypes, $this->schemaInputTypes),
         ];
     }
 
