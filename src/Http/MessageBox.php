@@ -94,18 +94,6 @@ final class MessageBox implements RequestHandlerInterface
                 StatusCodeInterface::STATUS_BAD_REQUEST,
                 $e
             );
-        } catch (\Throwable $e) {
-            $code = StatusCodeInterface::STATUS_INTERNAL_SERVER_ERROR;
-
-            if ($e->getCode() >= 300 && $e->getCode() <= 599) {
-                $code = $e->getCode();
-            }
-
-            throw new \RuntimeException(
-                sprintf('An error occurred during dispatching of message "%s"', $messageName),
-                $code,
-                $e
-            );
         }
     }
 

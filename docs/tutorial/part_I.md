@@ -91,14 +91,13 @@ you need to change the namespaces of the classes/interfaces shipped with the ske
 Event Machine Descriptions are very important. They are called at "**compile time**" and used to configure Event Machine.
 Later in the tutorial we learn more about using Event Machine in production. In production mode the descriptions are only
 called once and cached to speed up bootstrapping.
-The GraphQL schema is also compiled at this stage. In development mode this happens on every request.
 
-## GraphQL Integration
+## Swagger Integration
 
-Switch to the GraphQL client and reload it (press Set endpoint button).
-The GraphQL client should show a new **mutation** called `AddBuilding` in the documentation explorer (in ChromeiQL it is on the right side).
-When you start typing in the query window the GraphQL client will suggest possibilities. Just try it by typing `mutation { Add`.
-Select `AddBuilding`, type `(` followed by `buildi`. The client should suggest `buildingId` as input argument.
+Switch to the Swagger UI and reload the schema (press explore button).
+Swagger UI should show a new **command** called `AddBuilding` in the commands section.
+
+Click on the "Try it out" button and **execute** the following command 
 
 Finally your mutation should look like this:
 
