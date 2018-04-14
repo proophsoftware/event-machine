@@ -24,7 +24,7 @@ use Prooph\EventMachine\JsonSchema\Type\UuidType;
 
 final class JsonSchema
 {
-    public const DEFINITIONS = 'definitions';
+    public const DEFINITIONS = 'components/schemas';
 
     public const TYPE_STRING = 'string';
     public const TYPE_INT = 'integer';

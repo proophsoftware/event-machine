@@ -618,9 +618,11 @@ class EventMachineTest extends BasicTestCase
                 ],
                 'queries' => $queries,
             ],
-            'definitions' => [
-               'User' => $userDataSchema->toArray(),
-            ],
+            'components' => [
+                'schemas' => [
+                    'User' => $userDataSchema->toArray(),
+                ],
+            ]
         ], $this->eventMachine->messageBoxSchema());
     }
 

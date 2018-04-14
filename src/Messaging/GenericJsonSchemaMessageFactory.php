@@ -112,7 +112,7 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
             $payloadSchema = [];
         }
 
-        $payloadSchema['definitions'] = $this->definitions;
+        $payloadSchema['components']['schemas'] = $this->definitions;
 
         $this->jsonSchemaAssertion->assert($messageName, $messageData['payload'], $payloadSchema);
 
