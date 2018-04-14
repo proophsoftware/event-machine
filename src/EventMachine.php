@@ -221,7 +221,6 @@ final class EventMachine
         $self->compiledQueryDescriptions = $config['compiledQueryDescriptions'];
         $self->queryMap = $config['queryMap'];
         $self->schemaTypes = $config['schemaTypes'];
-        $self->schemaInputTypes = $config['schemaInputTypes'];
         $self->appVersion = $config['appVersion'];
         $self->writeModelStreamName = $config['writeModelStreamName'];
 
@@ -344,21 +343,6 @@ final class EventMachine
         $this->schemaTypes[$typeName] = $schema;
     }
 
-    public function registerInputType(string $name, ObjectType $schema): void
-    {
-        $this->assertNotInitialized(__METHOD__);
-
-        if ($this->isKnownType($name)) {
-            throw new \RuntimeException("Input type $name is already registered. If you have a return type with the same name then add a Input suffix.");
-        }
-
-        $schema = $schema->toArray();
-
-        $this->jsonSchemaAssertion()->assert("Input type $name", $schema, JsonSchema::metaSchema());
-
-        $this->schemaInputTypes[$name] = $schema;
-    }
-
     public function preProcess(string $commandName, $preProcessor): self
     {
         $this->assertNotInitialized(__METHOD__);
@@ -442,7 +426,7 @@ final class EventMachine
 
     public function isKnownType(string $typeName): bool
     {
-        return array_key_exists($typeName, $this->schemaTypes) || array_key_exists($typeName, $this->schemaInputTypes);
+        return array_key_exists($typeName, $this->schemaTypes);
     }
 
     public function isTestMode(): bool
@@ -633,7 +617,6 @@ final class EventMachine
             'compiledQueryDescriptions' => $this->compiledQueryDescriptions,
             'queryMap' => $this->queryMap,
             'schemaTypes' => $this->schemaTypes,
-            'schemaInputTypes' => $this->schemaInputTypes,
             'appVersion' => $this->appVersion,
             'writeModelStreamName' => $this->writeModelStreamName,
         ];
