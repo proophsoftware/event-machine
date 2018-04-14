@@ -642,19 +642,21 @@ final class EventMachine
     public function jsonSchemaAssertion(): JsonSchemaAssertion
     {
         if (null === $this->jsonSchemaAssertion) {
-            $this->jsonSchemaAssertion = new class($this->schemaTypes) implements JsonSchemaAssertion {
+            $this->jsonSchemaAssertion = new class($this->schemaTypes, $this->schemaInputTypes) implements JsonSchemaAssertion {
                 private $jsonSchemaAssertion;
                 private $schemaTypes;
+                private $schemaInputTypes;
 
-                public function __construct(array &$schemaTypes)
+                public function __construct(array &$schemaTypes, array &$schemaInputTypes)
                 {
                     $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
                     $this->schemaTypes = &$schemaTypes;
+                    $this->schemaInputTypes = &$schemaInputTypes;
                 }
 
                 public function assert(string $objectName, array $data, array $jsonSchema)
                 {
-                    $jsonSchema['components']['schemas'] = array_merge($jsonSchema['components']['schemas'] ?? [], $this->schemaTypes);
+                    $jsonSchema['definitions'] = array_merge($jsonSchema['definitions'] ?? [], $this->schemaTypes, $this->schemaInputTypes);
 
                     $this->jsonSchemaAssertion->assert($objectName, $data, $jsonSchema);
                 }
@@ -709,9 +711,7 @@ final class EventMachine
                 'events' => $this->eventMap,
                 'queries' => $querySchemas,
             ],
-            'components' => [
-                'schemas' => $this->schemaTypes,
-            ]
+            'definitions' => $this->schemaTypes,
         ];
     }
 
