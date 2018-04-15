@@ -11,9 +11,6 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine;
 
-use GraphQL\Language\Parser;
-use GraphQL\Utils\AST;
-use GraphQL\Utils\BuildSchema;
 use Prooph\Common\Event\ActionEvent;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
@@ -28,18 +25,10 @@ use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\ContextProviderFactory;
 use Prooph\EventMachine\Container\TestEnvContainer;
 use Prooph\EventMachine\Data\ImmutableRecord;
-use Prooph\EventMachine\GraphQL\ArraySourceFieldResolver;
-use Prooph\EventMachine\GraphQL\FieldResolverChain;
-use Prooph\EventMachine\GraphQL\FieldResolverProxy;
-use Prooph\EventMachine\GraphQL\MessageFieldResolver;
-use Prooph\EventMachine\GraphQL\Server;
-use Prooph\EventMachine\GraphQL\TypeConfigDecoratorProxy;
-use Prooph\EventMachine\GraphQL\TypeLanguage;
 use Prooph\EventMachine\Http\MessageBox;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
-use Prooph\EventMachine\JsonSchema\Type;
 use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\ObjectType;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
@@ -80,8 +69,6 @@ final class EventMachine
     const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
     const SERVICE_ID_MESSAGE_FACTORY = 'EventMachine.MessageFactory';
     const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
-    const SERVICE_ID_GRAPHQL_FIELD_RESOLVER = 'EventMachine.GraphQLFieldResolver';
-    const SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR = 'EventMachine.TypeConfigDecorator';
 
     /**
      * Map of command names and corresponding json schema of payload
@@ -167,8 +154,6 @@ final class EventMachine
      */
     private $compiledProjectionDescriptions = [];
 
-    private $graphQlSchemaDocument;
-
     /**
      * @var ContainerInterface
      */
@@ -200,11 +185,6 @@ final class EventMachine
      * @var MessageBox
      */
     private $httpMessageBox;
-
-    /**
-     * @var Server
-     */
-    private $graphqlServer;
 
     private $testSessionEvents = [];
 
@@ -241,9 +221,7 @@ final class EventMachine
         $self->compiledQueryDescriptions = $config['compiledQueryDescriptions'];
         $self->queryMap = $config['queryMap'];
         $self->schemaTypes = $config['schemaTypes'];
-        $self->schemaInputTypes = $config['schemaInputTypes'];
         $self->appVersion = $config['appVersion'];
-        $self->graphQlSchemaDocument = AST::fromArray($config['graphQlSchemaDocument']);
         $self->writeModelStreamName = $config['writeModelStreamName'];
 
         $self->initialized = true;
@@ -365,21 +343,6 @@ final class EventMachine
         $this->schemaTypes[$typeName] = $schema;
     }
 
-    public function registerInputType(string $name, ObjectType $schema): void
-    {
-        $this->assertNotInitialized(__METHOD__);
-
-        if ($this->isKnownType($name)) {
-            throw new \RuntimeException("Input type $name is already registered. If you have a return type with the same name then add a Input suffix.");
-        }
-
-        $schema = $schema->toArray();
-
-        $this->jsonSchemaAssertion()->assert("Input type $name", $schema, JsonSchema::metaSchema());
-
-        $this->schemaInputTypes[$name] = $schema;
-    }
-
     public function preProcess(string $commandName, $preProcessor): self
     {
         $this->assertNotInitialized(__METHOD__);
@@ -463,7 +426,7 @@ final class EventMachine
 
     public function isKnownType(string $typeName): bool
     {
-        return array_key_exists($typeName, $this->schemaTypes) || array_key_exists($typeName, $this->schemaInputTypes);
+        return array_key_exists($typeName, $this->schemaTypes);
     }
 
     public function isTestMode(): bool
@@ -478,7 +441,6 @@ final class EventMachine
         $this->determineAggregateAndRoutingDescriptions();
         $this->compileProjectionDescriptions();
         $this->compileQueryDescriptions();
-        $this->compileGraphQlSchema();
 
         $this->initialized = true;
 
@@ -655,9 +617,7 @@ final class EventMachine
             'compiledQueryDescriptions' => $this->compiledQueryDescriptions,
             'queryMap' => $this->queryMap,
             'schemaTypes' => $this->schemaTypes,
-            'schemaInputTypes' => $this->schemaInputTypes,
             'appVersion' => $this->appVersion,
-            'graphQlSchemaDocument' => AST::toArray($this->graphQlSchemaDocument),
             'writeModelStreamName' => $this->writeModelStreamName,
         ];
     }
@@ -682,21 +642,19 @@ final class EventMachine
     public function jsonSchemaAssertion(): JsonSchemaAssertion
     {
         if (null === $this->jsonSchemaAssertion) {
-            $this->jsonSchemaAssertion = new class($this->schemaTypes, $this->schemaInputTypes) implements JsonSchemaAssertion {
+            $this->jsonSchemaAssertion = new class($this->schemaTypes) implements JsonSchemaAssertion {
                 private $jsonSchemaAssertion;
                 private $schemaTypes;
-                private $schemaInputTypes;
 
-                public function __construct(array &$schemaTypes, array &$schemaInputTypes)
+                public function __construct(array &$schemaTypes)
                 {
                     $this->jsonSchemaAssertion = new JustinRainbowJsonSchemaAssertion();
                     $this->schemaTypes = &$schemaTypes;
-                    $this->schemaInputTypes = &$schemaInputTypes;
                 }
 
                 public function assert(string $objectName, array $data, array $jsonSchema)
                 {
-                    $jsonSchema['definitions'] = array_merge($jsonSchema['definitions'] ?? [], $this->schemaTypes, $this->schemaInputTypes);
+                    $jsonSchema['definitions'] = array_merge($jsonSchema['definitions'] ?? [], $this->schemaTypes);
 
                     $this->jsonSchemaAssertion->assert($objectName, $data, $jsonSchema);
                 }
@@ -715,38 +673,6 @@ final class EventMachine
         }
 
         return $this->httpMessageBox;
-    }
-
-    public function graphqlServer(): Server
-    {
-        $this->assertBootstrapped(__METHOD__);
-
-        if (null === $this->graphqlServer) {
-            $typeDecorator = null;
-
-            if ($this->container->has(self::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR)) {
-                $typeDecorator = new TypeConfigDecoratorProxy($this->container->get(self::SERVICE_ID_GRAPHQL_TYPE_CONFIG_DECORATOR));
-            }
-
-            $schema = BuildSchema::build($this->graphQlSchemaDocument, $typeDecorator);
-
-            if ($this->container->has(self::SERVICE_ID_GRAPHQL_FIELD_RESOLVER)) {
-                $fieldResolver = new FieldResolverChain(
-                    $this->container->get(self::SERVICE_ID_GRAPHQL_FIELD_RESOLVER),
-                    new MessageFieldResolver($this),
-                    new ArraySourceFieldResolver()
-                );
-            } else {
-                $fieldResolver = new FieldResolverChain(
-                    new MessageFieldResolver($this),
-                    new ArraySourceFieldResolver()
-                );
-            }
-
-            $this->graphqlServer = new Server($schema, new FieldResolverProxy($fieldResolver), $this->debugMode());
-        }
-
-        return $this->graphqlServer;
     }
 
     public function messageSchemas(): array
@@ -889,29 +815,6 @@ final class EventMachine
         foreach ($this->queryDescriptions as $name => $description) {
             $this->compiledQueryDescriptions[$name] = $description();
         }
-    }
-
-    private function compileGraphQlSchema(): void
-    {
-        $queryReturnTypes = [];
-
-        foreach ($this->compiledQueryDescriptions as $name => $description) {
-            if ($description['returnType']) {
-                $queryReturnTypes[$name] = $description['returnType'];
-            }
-        }
-
-        $typeSchemaStr = TypeLanguage::fromEventMachineDescriptions(
-            $this->queryMap,
-            $this->schemaInputTypes,
-            $queryReturnTypes,
-            $this->schemaTypes,
-            $this->commandMap
-        );
-
-        $document = Parser::parse($typeSchemaStr);
-
-        $this->graphQlSchemaDocument = $document;
     }
 
     private function attachRouterToCommandBus(): void

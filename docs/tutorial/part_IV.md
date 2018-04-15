@@ -6,7 +6,7 @@ The table should contain the first domain event yielded by the `Building` aggreg
 
 no | event_id | event_name | payload | metadata | created_at
 ---|-----------|------------|--------|--------|---------
-1 | bce42506-...| BuildingAdded | {"buildingId":"122a63bf-...","name":"Acme Headquarters"} | {"_aggregate_id": "122a63bf-...", "_causation_id": "e482f5b8-...", "_aggregate_type": "Building", "_causation_name": "AddBuilding", "_aggregate_version": 1} | 2018-02-14 22:09:32.039848
+1 | bce42506-...| BuildingAdded | {"buildingId":"9ee8d8a8-...","name":"Acme Headquarters"} | {"_aggregate_id": "9ee8d8a8-...", "_causation_id": "e482f5b8-...", "_aggregate_type": "Building", "_causation_name": "AddBuilding", "_aggregate_version": 1} | 2018-02-14 22:09:32.039848
 
 *If you're wondering why the event stream table has a sha1 hashed name this is because by default prooph/event-store uses that
 naming strategy to avoid database vendor specific character constraints. You can however configure a different
@@ -75,17 +75,12 @@ JSON representation of the `Building\State`.
 *Note: If you cannot see the table please check the troubleshooting section of event-machine-skeleton README.*
 
 You can learn more about projections in the docs. For now it is enough to know how to register them. Let's complete the picture
-and query the projection table using GraphQL.
+and query the projection table using Swagger UI.
 
 ## Query, Resolver and Return Type
 
-GraphQL has a type system that makes it possible to auto generate API docs and provide auto completion when writing GraphQL
-mutations and queries. Event Machine on the other hand uses JSON Schema to describe message types and define validation rules.
-It is possible to generate a GraphQL schema from a JSON Schema as long as only a subset of JSON Schema is used.
-You get the best of both worlds.
-
-Event Machine offers an API that eases integration of JSON Schema and GraphQL. For queries this means that we can
-register **return types** in Event Machine and those return types will appear in our GraphQL schema definition.
+We already know that Event Machine uses JSON Schema to describe message types and define validation rules.
+For queries we can also register **return types** in Event Machine and those return types will appear in the **Model** section of the Swagger UI.
 
 Registering types is done in `src/Api/Type`:
 
@@ -177,21 +172,18 @@ class Query implements EventMachineDescription
 
 ```
 
-Queries are named like the "things" they return. This results in a clean and easy to use GraphQL schema.
+Queries are named like the "things" they return. This results in a clean and easy to use messagebox schema.
 
 Please note that the return type is a reference: `JsonSchema::typeRef()`.
-In GraphQL this resolves to the type defined in `src/Api/Type`.
 
-Last but not least, the query needs to be handled by a so-called finder (prooph term). If you've worked with GraphQL
-before, a finder is similar to a resolver.
+Last but not least, the query needs to be handled by a so-called finder (prooph term).
 
-When the query is sent to the GraphQL endpoint it is parsed by the integrated GraphQL server and translated into a
+When the query is sent to the messagebox endpoint it is translated into a
 query message that is passed on to prooph's query bus. The query message is validated against the schema
 defined during query registration `$eventMachine->registerQuery(self::BUILDING, JsonSchema::object(...))`.
 
-Our first query has a required argument, `buildingId`, which should be a valid `Uuid`. The GraphQL type is a `string`.
-An invalid uuid will pass the GraphQL server but fail when the query is parsed into a Event Machine message.
-It's a two step validation process handled internally by Event Machine.
+Our first query has a required argument, `buildingId`, which should be a valid `Uuid`.
+An invalid uuid will fail when the query is parsed into a Event Machine message.
 
 Long story short, we need a finder, as described in the [prooph docs](https://github.com/prooph/service-bus/blob/master/docs/message_bus.md#invoke-handler):
 
@@ -222,8 +214,7 @@ This is an **invokable finder**, as described in the prooph docs. It receives th
 and a `React\Promise\Deferred` as the second argument.
 prooph's query bus can be used in an async, non-blocking I/O runtime as well as a normal, blocking runtime,
 so the finder must return a deferred object instead of the query result.
-The integrated GraphQL server also supports both runtimes so it is a good
-idea to always work with the `Promise` and `Deferred` objects provided by the `ReactPHP` library (unfortunately, we have no
+We work with the `Promise` and `Deferred` objects provided by the `ReactPHP` library (unfortunately, we have no
 PSR for promises yet). Event Machine takes care of resolving promises returned by prooph's query bus.
 
 The finder needs to query the read model. While looking at projections we briefly discussed
@@ -376,15 +367,14 @@ class Query implements EventMachineDescription
 }
 
 ```
-Ok! We should be able to query buildings by buildingId now. Switch to the GraphQL client and reload the schema (press the "Set endpoint" button).
-The Documentation Explorer should show a new Query:  `Building(buildingId: String!): Building!`.
+Ok! We should be able to query buildings by buildingId now. Switch to Swagger and reload the schema (press the "explore" button).
+The Documentation Explorer should show a new Query:  `Building`.
 If we send that query with the `buildingId` used in `AddBuilding`:
 
-```graphql
-query{
-  Building(buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc") {
-    buildingId
-    name
+```json
+{
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb"
   }
 }
 ```
@@ -392,12 +382,8 @@ We get back:
 
 ```json
 {
-  "data": {
-    "Building": {
-      "buildingId": "122a63bf-7388-4cc0-b615-c5cc857a9adc",
-      "name": "Acme Headquarters"
-    }
-  }
+  "name": "Acme Headquarters",
+  "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb"
 }
 ```
 
@@ -534,14 +520,13 @@ For the new `Buildings` query the finder makes use of `DocumentStore\Filter`s. T
 a SQL like expression using `%` as a placeholder. `AnyFilter` matches any documents in the collection.
 There are many more filters available. Read more about filters in the docs.
 
-You can test the new query using GraphQL. The GraphQL query schema looks like this: `Buildings(name: String): [Building!]!`
-and this is an example query with a name filter:
+You can test the new query using Swagger. 
+This is an example query with a name filter:
 
-```graphql
-query{
-  Buildings(name:"Acme") {
-    buildingId
-    name
+```json
+{
+  "payload": {
+    "name": "Acme"
   }
 }
 ```

@@ -91,56 +91,41 @@ you need to change the namespaces of the classes/interfaces shipped with the ske
 Event Machine Descriptions are very important. They are called at "**compile time**" and used to configure Event Machine.
 Later in the tutorial we learn more about using Event Machine in production. In production mode the descriptions are only
 called once and cached to speed up bootstrapping.
-The GraphQL schema is also compiled at this stage. In development mode this happens on every request.
 
-## GraphQL Integration
+## Swagger Integration
 
-Switch to the GraphQL client and reload it (press Set endpoint button).
-The GraphQL client should show a new **mutation** called `AddBuilding` in the documentation explorer (in ChromeiQL it is on the right side).
-When you start typing in the query window the GraphQL client will suggest possibilities. Just try it by typing `mutation { Add`.
-Select `AddBuilding`, type `(` followed by `buildi`. The client should suggest `buildingId` as input argument.
+Switch to the Swagger UI and reload the schema (press explore button).
+Swagger UI should show a new **command** called `AddBuilding` in the commands section.
+
+Click on the "Try it out" button and **execute** the `AddBuilding` command with the this request body:
 
 Finally your mutation should look like this:
 
-```graphql
-mutation {
-  AddBuilding(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
-    name:"Acme Headquarters"
-  )
+```json
+{
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "Acme Headquarters"
+  }
 }
 ```
-Just hit the send button now. The mutation request will result in an error like this:
 
 ```json
 {
-  "errors": [
-    {
-      "debugMessage": "CommandBus was not able to identify a CommandHandler for command AddBuilding",
-      "message": "Internal server error",
-      "category": "internal",
-      "locations": [
-        {
-          "line": 28,
-          "column": 3
-        }
-      ],
-      "path": [
-        "AddBuilding"
-      ]
-    }
-  ],
-  "data": []
+  "error": {
+    "message": "Command dispatch failed. See previous exception for details.",
+    "details": "..."
+  }
 }
 ```
 
-Our command (aka GraphQL mutation) cannot be handled because a command handler is missing. In Event Machine
+Our command cannot be handled because a command handler is missing. In Event Machine
 commands can be routed directly to `Aggregates`.
 In **part II** of the the tutorial you'll learn more about pure aggregates.
 
 *Sum up: Event Machine Descriptions allow you to easily describe the API of your application using messages. The messages get
 a unique name and their payload is described with JSON Schema which allow us to add validation rules. The messages and their
-schema are translated to a GraphQL Schema and we can use GraphQL queries and mutations to interact with the backend
+schema are translated to an OpenAPI v3 Schema and we can use Swagger UI to interact with the backend
 service.*
 
 

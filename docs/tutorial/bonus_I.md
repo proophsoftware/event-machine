@@ -186,7 +186,7 @@ Here we go:
 
 id | doc
 ---|---
-John | {"buildingId": "122a63bf-7388-4cc0-b615-c5cc857a9adc"}
+John | {"buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb"}
 
 ## Look up
 
@@ -422,14 +422,11 @@ class Query implements EventMachineDescription
 }
 
 ```
-*GraphQL*
-```graphql
-query{
-  UserBuilding(name:"John") {
-    user
-    building {
-      name
-    }
+*Swagger - UserBuilding query*
+```json
+{
+  "payload": {
+    "name": "John"
   }
 }
 ```
@@ -437,13 +434,13 @@ query{
 *Response*
 ```json
 {
-  "data": {
-    "UserBuilding": {
-      "user": "John",
-      "building": {
-        "name": "Acme Headquarters"
-      }
-    }
+  "user": "John",
+  "building": {
+    "name": "Acme Headquarters",
+    "users": [
+      "John"
+    ],
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb"
   }
 }
 ```

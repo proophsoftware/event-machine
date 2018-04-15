@@ -297,56 +297,39 @@ Pretty much the same command processing description but with command, event and 
 the new use case. An important difference is that we use `->withExisting` instead of `->withNew`.
 As already stated this tells Event Machine to look up an existing Building using the `buildingId` from the `CheckInUser` command.
 
-The following GraphQL mutation should check in *John* into the *Acme Headquarters*.
-
-```graphql
-mutation{
-  CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc"
-    name:"John"
-  )
-}
-```
-
-Response:
+The following command should check in *John* into the *Acme Headquarters*.
 
 ```json
 {
-  "data": {
-    "CheckInUser": true
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "John"
   }
 }
 ```
 
-Looks good! And what does the response of the `Buildings` query look now? If you inspect the GraphQL schema of the query
-and click on the `Building` return type you'll notice the new property `users: [String!]!`. We can tell GraphQL to
-include the new property in the response:
+Looks good! And what does the response of the `Buildings` query look now? If you inspect the schema of the query
+and click on the `Building` return type you'll notice the new property `users`. 
 
-```graphql
-query{
-  Buildings(name:"Acme") {
-    buildingId
-    name
-    users
+```json
+{
+  "payload": {
+    "name": "Acme"
   }
 }
 ```
 Response
 
 ```json
-{
-  "data": {
-    "Buildings": [
-      {
-        "buildingId": "122a63bf-7388-4cc0-b615-c5cc857a9adc",
-        "name": "Acme Headquarters",
-        "users": [
-          "John"
-        ]
-      }
-    ]
+[
+  {
+    "name": "Acme Headquarters",
+    "users": [
+      "John"
+    ],
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb"
   }
-}
+]
 ```
 Great! We get back the list of users checked into the building.
 
@@ -403,12 +386,12 @@ If the given user is already checked in we throw an exception to stop command pr
 
 Let's try it:
 
-```graphql
-mutation{
-  CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
-    name:"John"
-  )
+```json
+{
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "John"
+  }
 }
 ```
 
@@ -416,23 +399,10 @@ Response:
 
 ```json
 {
-  "errors": [
-    {
-      "debugMessage": "User John is already in the building",
-      "message": "Internal server error",
-      "category": "internal",
-      "locations": [
-        {
-          "line": 28,
-          "column": 3
-        }
-      ],
-      "path": [
-        "CheckInUser"
-      ]
-    }
-  ],
-  "data": []
+  "error": {
+    "message": "User John is already in the building",
+    "details": "..."
+  }
 }
 ```
 

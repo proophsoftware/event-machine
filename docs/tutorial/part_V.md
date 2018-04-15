@@ -265,7 +265,11 @@ class Schema
     {
         return JsonSchema::typeRef(Aggregate::BUILDING);
     }
-
+    
+    public static function buildingList(): ArrayType
+    {
+        return JsonSchema::array(self::building());
+    } 
     /* ... */
 }
 

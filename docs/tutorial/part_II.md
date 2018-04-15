@@ -124,7 +124,7 @@ event name and payload and stores it in the event stream.
 
 ## Aggregate Description
 
-If we switch back to the GraphQL client and send the `AddBuilding` command again, Event Machine still
+If we switch back to the Swagger UI and send the `AddBuilding` command again, Event Machine still
 complains about a missing command handler. We need to tell Event Machine about our new aggregate and that it is
 responsible for handling `AddBuilding` commands. We can do this in another Event Machine Description in `src/Api/Aggregate`.
 
@@ -167,21 +167,16 @@ every event yielded by the aggregate should contain this property
 which can be analyzed by modern IDEs like PHPStorm for auto completion and refactorings.
 - `recordThat` tells Event Machine which event is yielded by the aggregate's command handling method.
 
-If we try again to send the GraphQL `AddBuilding` command we get a new error:
+If we try again to send `AddBuilding` we get a new error:
 
 ```json
 {
-  "errors": [
-    {
-      "debugMessage": "No apply function specified for event: BuildingAdded",
-      "message": "Internal server error",
-      "category": "internal"
+  "error": { 
+      "message": "No apply function specified for event: BuildingAdded",
+      "details": "..."
     }
-  ],
-  "data": []
 }
 ```
-
 Command handling works now but an apply function is missing. In part III of the tutorial you'll learn how to add such a function and why it is needed.
 
 
