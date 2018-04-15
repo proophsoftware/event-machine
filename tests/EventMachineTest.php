@@ -630,7 +630,6 @@ class EventMachineTest extends BasicTestCase
             ],
             'definitions' => [
                 'User' => $userDataSchema->toArray(),
-                'UserFilterInput' => $filterInput->toArray(),
             ],
         ], $this->eventMachine->messageBoxSchema());
     }
