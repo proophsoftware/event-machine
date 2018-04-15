@@ -175,27 +175,19 @@ class Aggregate implements EventMachineDescription
 }
 
 ```
-We're done with the write model for the first use case. If you send the `AddBuilding` command again using your GraphQL
-client:
-
-```graphql
-mutation {
-  AddBuilding(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
-    name:"Acme Headquarters"
-  )
-}
-```
-
-... you should receive the following response:
+We're done with the write model for the first use case. If you send the `AddBuilding` command again using Swagger UI:
 
 ```json
 {
-  "data": {
-    "AddBuilding": true
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "Acme Headquarters"
   }
 }
 ```
+
+... you should receive a `[202] command accepted` response
+
 Event Machine emphasizes a CQRS and Event Sourcing architecture. For commands this means that no data is returned.
 The write model has received and processed the command `AddBuilding` successfully but we don't know what the new
 application state looks like. We will use a query, which is the third message type, to get this data.

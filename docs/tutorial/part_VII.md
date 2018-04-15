@@ -146,32 +146,24 @@ class Aggregate implements EventMachineDescription
 
 Try to check *John* in again:
 
-```graphql
-mutation{
-  CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
-    name:"John"
-  )
-}
-```
-
-Instead of an error response we get back a success response:
-
 ```json
 {
-  "data": {
-    "CheckInUser": true
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "John"
   }
 }
 ```
+
+Instead of an error we get a 202 command accepted response.
 
 But when we look at the event stream (table `_4228e4a00331b5d5e751db0481828e22a2c3c8ef`) we see a `DoubleCheckInDetected` event.
 
 no | event_id | event_name | payload | metadata | created_at
 ---|-----------|------------|--------|--------|---------
-1 | bce42506-...| BuildingAdded | {"buildingId":"122a63bf-...","name":"Acme Headquarters"} | {"_aggregate_id": "122a63bf-...", "_causation_id": "e482f5b8-...", "_aggregate_type": "Building", "_causation_name": "AddBuilding", "_aggregate_version": 1} | 2018-02-14 22:09:32.039848
-2 | 0ee8d2fb-...| UserCheckedIn | {"buildingId":"122a63bf-...","name":"John"} | {"_aggregate_id": "122a63bf-...", "_causation_id": "1ce0e46d-...", "_aggregate_type": "Building", "_causation_name": "CheckInUser", "_aggregate_version": 2} | 2018-02-16 21:37:55.131122
-3 | 4f6a8429-...| DoubleCheckInDetected | {"buildingId":"122a63bf-...","name":"John"} | {"_aggregate_id": "122a63bf-...", "_causation_id": "c347dd85-...", "_aggregate_type": "Building", "_causation_name": "CheckInUser", "_aggregate_version": 3} | 2018-02-16 23:03:59.739666
+1 | bce42506-...| BuildingAdded | {"buildingId":"9ee8d8a8-...","name":"Acme Headquarters"} | {"_aggregate_id": "9ee8d8a8-...", "_causation_id": "e482f5b8-...", "_aggregate_type": "Building", "_causation_name": "AddBuilding", "_aggregate_version": 1} | 2018-02-14 22:09:32.039848
+2 | 0ee8d2fb-...| UserCheckedIn | {"buildingId":"9ee8d8a8-...","name":"John"} | {"_aggregate_id": "9ee8d8a8-...", "_causation_id": "1ce0e46d-...", "_aggregate_type": "Building", "_causation_name": "CheckInUser", "_aggregate_version": 2} | 2018-02-16 21:37:55.131122
+3 | 4f6a8429-...| DoubleCheckInDetected | {"buildingId":"9ee8d8a8-...","name":"John"} | {"_aggregate_id": "9ee8d8a8-...", "_causation_id": "c347dd85-...", "_aggregate_type": "Building", "_causation_name": "CheckInUser", "_aggregate_version": 3} | 2018-02-16 23:03:59.739666
 
 ## Process Manager
 
@@ -222,12 +214,12 @@ listener that takes the event and pushes it to *rabbit*.
 
 Try to check *John* in again, while keeping an eye on the monitoring app `http://localhost:8080/ws.html`.
 
-```graphql
-mutation{
-  CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
-    name:"John"
-  )
+```json
+{
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "John"
+  }
 }
 ```
 ![Monitoring UI](img/monitoring.png)]
@@ -249,7 +241,7 @@ offers commercial project support and workshops for Event Machine and the prooph
 
 Our workshops include Event Storming sessions and guidance on how to turn the results into working prototypes using Event Machine.
 We can also show and discuss framework integrations. Event Machine can easily be integrated with *Symfony*, *Laravel* and
-other PHP web frameworks. The skeleton is based on *Zend Expressive* so you can handle http related tasks, like authentication,
+other PHP web frameworks. The skeleton is based on *Zend Strategility* so you can handle http related tasks, like authentication,
 using *PSR-15* middleware. But again, other web frameworks play nicely with Event Machine, too.
 
 [![prooph software](https://github.com/codeliner/php-ddd-cargo-sample/raw/master/docs/assets/prooph-software-logo.png)](http://prooph.de)
