@@ -761,7 +761,7 @@ final class BuildingFinder
 <p>This is an <strong>invokable finder</strong>, as described in the prooph docs. It receives the query message as the first argument
 and a <code>React\Promise\Deferred</code> as the second argument.
 prooph's query bus can be used in an async, non-blocking I/O runtime as well as a normal, blocking runtime,
-so the finder must return a deferred object instead of the query result.
+so the finder must resolve the deferred object instead of returning a result.
 We work with the <code>Promise</code> and <code>Deferred</code> objects provided by the <code>ReactPHP</code> library (unfortunately, we have no
 PSR for promises yet). Event Machine takes care of resolving promises returned by prooph's query bus.</p>
 <p>The finder needs to query the read model. While looking at projections we briefly discussed

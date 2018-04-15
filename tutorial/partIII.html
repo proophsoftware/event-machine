@@ -563,7 +563,7 @@ In most cases this is not enough.</p>
 <p>The functional programming solution to that problem is to pass the current state (which is computed from the past events recorded by the aggregate)
 to each command handling function (except the one handling the first command). This means that aggregate <strong>behaviour</strong> (command handling functions)
 and aggregate <strong>state</strong> (a data structure of a certain type) are two different things and separated from each other.
-How this this is implemented in Event Machine is shown in this part of the tutorial.</p>
+How this is implemented in Event Machine is shown in this part of the tutorial.</p>
 <h2 id="2-4-1">Applying Domain Events</h2>
 <p>Aggregate state is computed by iterating over all recorded domain events of the aggregate history starting with the oldest event.
 Event Machine does not provide a generic way to compute current state, instead the aggregate should have an apply function
