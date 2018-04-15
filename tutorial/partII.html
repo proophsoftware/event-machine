@@ -663,7 +663,7 @@ final class Building
 <p>The special array syntax for yielding events is a short cut used by Event Machine. It creates the event based on given
 event name and payload and stores it in the event stream.</p>
 <h2 id="2-3-3">Aggregate Description</h2>
-<p>If we switch back to the GraphQL client and send the <code>AddBuilding</code> command again, Event Machine still
+<p>If we switch back to the Swagger UI and send the <code>AddBuilding</code> command again, Event Machine still
 complains about a missing command handler. We need to tell Event Machine about our new aggregate and that it is
 responsible for handling <code>AddBuilding</code> commands. We can do this in another Event Machine Description in <code>src/Api/Aggregate</code>.</p>
 <pre><code class="language-php">&lt;?php
@@ -709,16 +709,12 @@ which can be analyzed by modern IDEs like PHPStorm for auto completion and refac
 <li>
 <code>recordThat</code> tells Event Machine which event is yielded by the aggregate's command handling method.</li>
 </ul>
-<p>If we try again to send the GraphQL <code>AddBuilding</code> command we get a new error:</p>
+<p>If we try again to send <code>AddBuilding</code> we get a new error:</p>
 <pre><code class="language-json">{
-  "errors": [
-    {
-      "debugMessage": "No apply function specified for event: BuildingAdded",
-      "message": "Internal server error",
-      "category": "internal"
+  "error": { 
+      "message": "No apply function specified for event: BuildingAdded",
+      "details": "..."
     }
-  ],
-  "data": []
 }
 </code></pre>
 <p>Command handling works now but an apply function is missing. In part III of the tutorial you'll learn how to add such a function and why it is needed.</p>

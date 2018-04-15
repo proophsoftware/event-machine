@@ -837,46 +837,32 @@ class Aggregate implements EventMachineDescription
 <p>Pretty much the same command processing description but with command, event and function names based on
 the new use case. An important difference is that we use <code>-&gt;withExisting</code> instead of <code>-&gt;withNew</code>.
 As already stated this tells Event Machine to look up an existing Building using the <code>buildingId</code> from the <code>CheckInUser</code> command.</p>
-<p>The following GraphQL mutation should check in <em>John</em> into the <em>Acme Headquarters</em>.</p>
-<pre><code class="language-graphql">mutation{
-  CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc"
-    name:"John"
-  )
-}
-</code></pre>
-<p>Response:</p>
+<p>The following command should check in <em>John</em> into the <em>Acme Headquarters</em>.</p>
 <pre><code class="language-json">{
-  "data": {
-    "CheckInUser": true
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "John"
   }
 }
 </code></pre>
-<p>Looks good! And what does the response of the <code>Buildings</code> query look now? If you inspect the GraphQL schema of the query
-and click on the <code>Building</code> return type you'll notice the new property <code>users: [String!]!</code>. We can tell GraphQL to
-include the new property in the response:</p>
-<pre><code class="language-graphql">query{
-  Buildings(name:"Acme") {
-    buildingId
-    name
-    users
+<p>Looks good! And what does the response of the <code>Buildings</code> query look now? If you inspect the schema of the query
+and click on the <code>Building</code> return type you'll notice the new property <code>users</code>.</p>
+<pre><code class="language-json">{
+  "payload": {
+    "name": "Acme"
   }
 }
 </code></pre>
 <p>Response</p>
-<pre><code class="language-json">{
-  "data": {
-    "Buildings": [
-      {
-        "buildingId": "122a63bf-7388-4cc0-b615-c5cc857a9adc",
-        "name": "Acme Headquarters",
-        "users": [
-          "John"
-        ]
-      }
-    ]
+<pre><code class="language-json">[
+  {
+    "name": "Acme Headquarters",
+    "users": [
+      "John"
+    ],
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb"
   }
-}
+]
 </code></pre>
 <p>Great! We get back the list of users checked into the building.</p>
 <h2 id="2-7-5">Protect Invariants</h2>
@@ -926,32 +912,19 @@ final class Building
 <p>The command handling function can make use of <code>$state</code> passed to it as this will always be the current state of the aggregate.
 If the given user is already checked in we throw an exception to stop command processing.</p>
 <p>Let's try it:</p>
-<pre><code class="language-graphql">mutation{
-  CheckInUser(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
-    name:"John"
-  )
+<pre><code class="language-json">{
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "John"
+  }
 }
 </code></pre>
 <p>Response:</p>
 <pre><code class="language-json">{
-  "errors": [
-    {
-      "debugMessage": "User John is already in the building",
-      "message": "Internal server error",
-      "category": "internal",
-      "locations": [
-        {
-          "line": 28,
-          "column": 3
-        }
-      ],
-      "path": [
-        "CheckInUser"
-      ]
-    }
-  ],
-  "data": []
+  "error": {
+    "message": "User John is already in the building",
+    "details": "..."
+  }
 }
 </code></pre>
 <p>Throwing an exception is the simplest way to protect invariants. However, with event sourcing we have a different

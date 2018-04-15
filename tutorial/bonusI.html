@@ -736,7 +736,7 @@ This will fill the new read model with data from the past. That's cool, isn't it
 <tbody>
 <tr>
 <td>John</td>
-<td>{"buildingId": "122a63bf-7388-4cc0-b615-c5cc857a9adc"}</td>
+<td>{"buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb"}</td>
 </tr>
 </tbody>
 </table>
@@ -964,25 +964,22 @@ class Query implements EventMachineDescription
 }
 
 </code></pre>
-<p><em>GraphQL</em></p>
-<pre><code class="language-graphql">query{
-  UserBuilding(name:"John") {
-    user
-    building {
-      name
-    }
+<p><em>Swagger - UserBuilding query</em></p>
+<pre><code class="language-json">{
+  "payload": {
+    "name": "John"
   }
 }
 </code></pre>
 <p><em>Response</em></p>
 <pre><code class="language-json">{
-  "data": {
-    "UserBuilding": {
-      "user": "John",
-      "building": {
-        "name": "Acme Headquarters"
-      }
-    }
+  "user": "John",
+  "building": {
+    "name": "Acme Headquarters",
+    "users": [
+      "John"
+    ],
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb"
   }
 }
 </code></pre>

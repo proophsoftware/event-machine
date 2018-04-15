@@ -552,7 +552,7 @@
                 <a href="#2-2-2" title="Descriptions">Descriptions</a>
             </li>
                                 <li>
-                <a href="#2-2-3" title="GraphQL&#x20;Integration">GraphQL Integration</a>
+                <a href="#2-2-3" title="Swagger&#x20;Integration">Swagger Integration</a>
             </li>
             </ul>
 </nav>
@@ -639,48 +639,32 @@ you need to change the namespaces of the classes/interfaces shipped with the ske
 <h2 id="2-2-2">Descriptions</h2>
 <p>Event Machine Descriptions are very important. They are called at "<strong>compile time</strong>" and used to configure Event Machine.
 Later in the tutorial we learn more about using Event Machine in production. In production mode the descriptions are only
-called once and cached to speed up bootstrapping.
-The GraphQL schema is also compiled at this stage. In development mode this happens on every request.</p>
-<h2 id="2-2-3">GraphQL Integration</h2>
-<p>Switch to the GraphQL client and reload it (press Set endpoint button).
-The GraphQL client should show a new <strong>mutation</strong> called <code>AddBuilding</code> in the documentation explorer (in ChromeiQL it is on the right side).
-When you start typing in the query window the GraphQL client will suggest possibilities. Just try it by typing <code>mutation { Add</code>.
-Select <code>AddBuilding</code>, type <code>(</code> followed by <code>buildi</code>. The client should suggest <code>buildingId</code> as input argument.</p>
+called once and cached to speed up bootstrapping.</p>
+<h2 id="2-2-3">Swagger Integration</h2>
+<p>Switch to the Swagger UI and reload the schema (press explore button).
+Swagger UI should show a new <strong>command</strong> called <code>AddBuilding</code> in the commands section.</p>
+<p>Click on the "Try it out" button and <strong>execute</strong> the <code>AddBuilding</code> command with the this request body:</p>
 <p>Finally your mutation should look like this:</p>
-<pre><code class="language-graphql">mutation {
-  AddBuilding(
-    buildingId:"122a63bf-7388-4cc0-b615-c5cc857a9adc",
-    name:"Acme Headquarters"
-  )
-}
-</code></pre>
-<p>Just hit the send button now. The mutation request will result in an error like this:</p>
 <pre><code class="language-json">{
-  "errors": [
-    {
-      "debugMessage": "CommandBus was not able to identify a CommandHandler for command AddBuilding",
-      "message": "Internal server error",
-      "category": "internal",
-      "locations": [
-        {
-          "line": 28,
-          "column": 3
-        }
-      ],
-      "path": [
-        "AddBuilding"
-      ]
-    }
-  ],
-  "data": []
+  "payload": {
+    "buildingId": "9ee8d8a8-3bd3-4425-acee-f6f08b8633bb",
+    "name": "Acme Headquarters"
+  }
 }
 </code></pre>
-<p>Our command (aka GraphQL mutation) cannot be handled because a command handler is missing. In Event Machine
+<pre><code class="language-json">{
+  "error": {
+    "message": "Command dispatch failed. See previous exception for details.",
+    "details": "..."
+  }
+}
+</code></pre>
+<p>Our command cannot be handled because a command handler is missing. In Event Machine
 commands can be routed directly to <code>Aggregates</code>.
 In <strong>part II</strong> of the the tutorial you'll learn more about pure aggregates.</p>
 <p><em>Sum up: Event Machine Descriptions allow you to easily describe the API of your application using messages. The messages get
 a unique name and their payload is described with JSON Schema which allow us to add validation rules. The messages and their
-schema are translated to a GraphQL Schema and we can use GraphQL queries and mutations to interact with the backend
+schema are translated to an OpenAPI v3 Schema and we can use Swagger UI to interact with the backend
 service.</em></p>
 </div>        </div>
     </div>
