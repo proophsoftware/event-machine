@@ -660,6 +660,9 @@ class BuildingTest extends BaseTestCase
 }
 
 </code></pre>
+<p>You can run tests with:</p>
+<pre><code class="language-bash">docker-compose run php php vendor/bin/phpunit
+</code></pre>
 <h2 id="2-10-2">Testing Projectors</h2>
 <p>Testing projectors is also easy when they use the <code>DocumentStore</code> API to manage projections. Event Machine ships with
 an <code>InMemoryDocumentStore</code> implementation that works great in test cases. Here is an example:</p>
