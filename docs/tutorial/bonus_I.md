@@ -16,6 +16,8 @@ Does it work? Great!
 What we need is a list of usernames and a reference to the building they are checked into.
 A custom projection can keep track of `UserCheckedIn` and `UserCheckedOut` events to keep the list up-to-date.
 
+First check in John again (in case he is checked out because you've successfully tested the `CheckOutUser` command)!
+
 To do that we need our own `Prooph\EventMachine\Projecting\Projector` implementation. Create a new class called
 `UserBuildingList` in `src/Infrastructure/Projector` with the following content:
 
