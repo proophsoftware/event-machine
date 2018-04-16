@@ -111,7 +111,7 @@ Click on the "Try it out" button and **execute** the `AddBuilding` command with 
 ```json
 {
   "error": {
-    "message": "Command dispatch failed. See previous exception for details.",
+    "message": "CommandBus was not able to identify a CommandHandler for command AddBuilding",
     "details": "..."
   }
 }
