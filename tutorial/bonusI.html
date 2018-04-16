@@ -569,6 +569,7 @@ and make sure that <code>DoubleCheckOutDetected</code> can also be monitored usi
 <h2 id="2-9-2">Implement a Projector</h2>
 <p>What we need is a list of usernames and a reference to the building they are checked into.
 A custom projection can keep track of <code>UserCheckedIn</code> and <code>UserCheckedOut</code> events to keep the list up-to-date.</p>
+<p>First check in John again (in case he is checked out because you've successfully tested the <code>CheckOutUser</code> command)!</p>
 <p>To do that we need our own <code>Prooph\EventMachine\Projecting\Projector</code> implementation. Create a new class called
 <code>UserBuildingList</code> in <code>src/Infrastructure/Projector</code> with the following content:</p>
 <pre><code class="language-php">&lt;?php
