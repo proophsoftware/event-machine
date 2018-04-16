@@ -149,7 +149,7 @@ use Prooph\EventMachine\JsonSchema\JsonSchema;
 class Query implements EventMachineDescription
 {
     /**
-     * Default Query, used to perform health checks using messagebox or GraphQL endpoint
+     * Default Query, used to perform health checks using messagebox endpoint
      */
     const HEALTH_CHECK = 'HealthCheck';
 
@@ -160,7 +160,7 @@ class Query implements EventMachineDescription
         //Default query: can be used to check if service is up and running
         $eventMachine->registerQuery(self::HEALTH_CHECK) //<-- Payload schema is optional for queries
             ->resolveWith(HealthCheckResolver::class) //<-- Service id (usually FQCN) to get resolver from DI container
-            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
+            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver
 
         $eventMachine->registerQuery(self::BUILDING, JsonSchema::object([
             'buildingId' => JsonSchema::uuid(),
@@ -213,7 +213,7 @@ final class BuildingFinder
 This is an **invokable finder**, as described in the prooph docs. It receives the query message as the first argument
 and a `React\Promise\Deferred` as the second argument.
 prooph's query bus can be used in an async, non-blocking I/O runtime as well as a normal, blocking runtime,
-so the finder must return a deferred object instead of the query result.
+so the finder must resolve the deferred object instead of returning a result.
 We work with the `Promise` and `Deferred` objects provided by the `ReactPHP` library (unfortunately, we have no
 PSR for promises yet). Event Machine takes care of resolving promises returned by prooph's query bus.
 
@@ -348,7 +348,7 @@ use Prooph\EventMachine\JsonSchema\JsonSchema;
 class Query implements EventMachineDescription
 {
     /**
-     * Default Query, used to perform health checks using messagebox or GraphQL endpoint
+     * Default Query, used to perform health checks using messagebox endpoint
      */
     const HEALTH_CHECK = 'HealthCheck';
 

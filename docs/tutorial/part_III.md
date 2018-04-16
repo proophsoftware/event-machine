@@ -12,7 +12,7 @@ In most cases this is not enough.
 The functional programming solution to that problem is to pass the current state (which is computed from the past events recorded by the aggregate)
 to each command handling function (except the one handling the first command). This means that aggregate **behaviour** (command handling functions)
 and aggregate **state** (a data structure of a certain type) are two different things and separated from each other.
-How this this is implemented in Event Machine is shown in this part of the tutorial.
+How this is implemented in Event Machine is shown in this part of the tutorial.
 
 ## Applying Domain Events
 

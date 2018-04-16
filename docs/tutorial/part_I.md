@@ -99,8 +99,6 @@ Swagger UI should show a new **command** called `AddBuilding` in the commands se
 
 Click on the "Try it out" button and **execute** the `AddBuilding` command with the this request body:
 
-Finally your mutation should look like this:
-
 ```json
 {
   "payload": {

@@ -47,7 +47,18 @@ The last command should output `done.` otherwise it will throw an exception.
 ### Verify set up
 
 #### Database
-Verify database set up by connecting to the Postgres database using the credentials defined in `app.env`.
+Verify database set up by connecting to the Postgres database using: 
+
+```
+host: localhost
+port: 5432
+dbname: event_machine
+user: postgres
+pwd: 
+``` 
+
+*Note: Credentials are defined in `app.env` and can be changed there.*
+
 You should see three tables: `event_streams`, `projections` and `_<sha1>`. The latter is a table created by `prooph/event-store`.
 It will contain all `domain events`.
 

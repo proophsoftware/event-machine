@@ -122,7 +122,7 @@ use Prooph\EventMachine\JsonSchema\JsonSchema;
 class Query implements EventMachineDescription
 {
     /**
-     * Default Query, used to perform health checks using messagebox or GraphQL endpoint
+     * Default Query, used to perform health checks using messagebox endpoint
      */
     const HEALTH_CHECK = 'HealthCheck';
     const BUILDING = 'Building';
@@ -133,7 +133,7 @@ class Query implements EventMachineDescription
         //Default query: can be used to check if service is up and running
         $eventMachine->registerQuery(self::HEALTH_CHECK) //<-- Payload schema is optional for queries
             ->resolveWith(HealthCheckResolver::class) //<-- Service id (usually FQCN) to get resolver from DI container
-            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
+            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver
 
         $eventMachine->registerQuery(self::BUILDING, JsonSchema::object([
             Payload::BUILDING_ID => JsonSchema::uuid(),
@@ -373,7 +373,7 @@ use Prooph\EventMachine\JsonSchema\JsonSchema;
 class Query implements EventMachineDescription
 {
     /**
-     * Default Query, used to perform health checks using messagebox or GraphQL endpoint
+     * Default Query, used to perform health checks using messagebox endpoint
      */
     const HEALTH_CHECK = 'HealthCheck';
     const BUILDING = 'Building';
@@ -384,7 +384,7 @@ class Query implements EventMachineDescription
         //Default query: can be used to check if service is up and running
         $eventMachine->registerQuery(self::HEALTH_CHECK) //<-- Payload schema is optional for queries
             ->resolveWith(HealthCheckResolver::class) //<-- Service id (usually FQCN) to get resolver from DI container
-            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver, this is converted to a GraphQL type
+            ->setReturnType(Schema::healthCheck()); //<-- Type returned by resolver
 
         $eventMachine->registerQuery(self::BUILDING, JsonSchema::object([
             Payload::BUILDING_ID => Schema::buildingId(),

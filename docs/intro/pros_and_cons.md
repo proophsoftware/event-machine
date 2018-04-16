@@ -11,7 +11,7 @@
 - Replay functionality
 - Projections based on domain events
 - PSR friendly http message box
-- GraphQL integration
+- OpenAPI v3 Swagger integration
 - Message flow analyzer (work in progress)
 - Event store HTTP API (work in progress)
 
