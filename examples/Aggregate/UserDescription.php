@@ -39,6 +39,7 @@ final class UserDescription implements EventMachineDescription
     const IDENTIFIER = 'userId';
     const USERNAME = 'username';
     const EMAIL = 'email';
+    const DATA_FROM_EXTERNAL_SERVICE = 'dataFromExternalService';
 
     const STATE_CLASS = UserState::class;
 

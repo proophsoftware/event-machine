@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace ProophExample\Aggregate;
 
 use Prooph\Common\Messaging\Message;
+use ProophExample\Infrastructure\ExternalServiceClient;
 use ProophExample\Messaging\Event;
 
 final class CachableUserFunction
@@ -65,6 +66,26 @@ final class CachableUserFunction
     public static function doNothing(UserState $user, Message $doNothing)
     {
         yield null;
+    }
+
+    public static function callExternalService(
+        UserState $user,
+        Message $callExternalService,
+        ExternalServiceClient $externalServiceClient
+    ) {
+        $data = $externalServiceClient->retrieveData($user->id);
+
+        yield [Event::EXTERNAL_SERVICE_WAS_CALLED, [
+            CacheableUserDescription::IDENTIFIER => $user->id,
+            'dataFromExternalService' => $data
+        ]];
+    }
+
+    public static function whenExternalServiceWasCalled(UserState $user, Message $externalServiceWasCalled)
+    {
+        $user->dataFromExternalService = $externalServiceWasCalled->payload()['dataFromExternalService'];
+
+        return $user;
     }
 
     private function __construct()

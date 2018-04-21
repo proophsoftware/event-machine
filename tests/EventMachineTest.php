@@ -18,6 +18,7 @@ use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type\ArrayType;
 use Prooph\EventMachine\JsonSchema\Type\EmailType;
 use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\StringType;
@@ -510,12 +511,14 @@ class EventMachineTest extends BasicTestCase
 
         $username = (new StringType())->withMinLength(1);
 
+        $dataFromExternalService = new ArrayType(new StringType());
+
         $userDataSchema = JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username,
             UserDescription::EMAIL => new EmailType(),
         ], [
-            'shouldFail' => JsonSchema::boolean(),
+            'shouldFail' => JsonSchema::boolean()
         ]);
 
         $filterInput = JsonSchema::object([
@@ -533,6 +536,9 @@ class EventMachineTest extends BasicTestCase
                 Command::DO_NOTHING => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
                 ])->toArray(),
+                Command::CALL_EXTERNAL_SERVICE => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                ])->toArray(),
             ],
             'events' => [
                 Event::USER_WAS_REGISTERED => $userDataSchema->toArray(),
@@ -543,6 +549,10 @@ class EventMachineTest extends BasicTestCase
                 ])->toArray(),
                 Event::USER_REGISTRATION_FAILED => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
+                ])->toArray(),
+                Event::EXTERNAL_SERVICE_WAS_CALLED => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                    UserDescription::DATA_FROM_EXTERNAL_SERVICE => $dataFromExternalService
                 ])->toArray(),
             ],
             'queries' => [
@@ -571,6 +581,8 @@ class EventMachineTest extends BasicTestCase
         $userId = new UuidType();
 
         $username = (new StringType())->withMinLength(1);
+
+        $dataFromExternalService = new ArrayType(new StringType());
 
         $userDataSchema = JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
@@ -614,6 +626,9 @@ class EventMachineTest extends BasicTestCase
                     Command::DO_NOTHING => JsonSchema::object([
                         UserDescription::IDENTIFIER => $userId,
                     ])->toArray(),
+                    Command::CALL_EXTERNAL_SERVICE => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                    ])->toArray(),
                 ],
                 'events' => [
                     Event::USER_WAS_REGISTERED => $userDataSchema->toArray(),
@@ -625,6 +640,10 @@ class EventMachineTest extends BasicTestCase
                     Event::USER_REGISTRATION_FAILED => JsonSchema::object([
                         UserDescription::IDENTIFIER => $userId,
                     ])->toArray(),
+                    Event::EXTERNAL_SERVICE_WAS_CALLED => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                        UserDescription::DATA_FROM_EXTERNAL_SERVICE => $dataFromExternalService
+                    ])->toArray()
                 ],
                 'queries' => $queries,
             ],

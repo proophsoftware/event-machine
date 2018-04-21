@@ -16,6 +16,7 @@ final class Command
     const REGISTER_USER = 'RegisterUser';
     const CHANGE_USERNAME = 'ChangeUsername';
     const DO_NOTHING = 'DoNothing';
+    const CALL_EXTERNAL_SERVICE = 'CallExternalService';
 
     private function __construct()
     {

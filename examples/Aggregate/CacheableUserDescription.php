@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace ProophExample\Aggregate;
 
 use Prooph\EventMachine\EventMachine;
+use ProophExample\Infrastructure\ExternalServiceClient;
 use ProophExample\Messaging\Command;
 use ProophExample\Messaging\Event;
 
@@ -36,6 +37,7 @@ final class CacheableUserDescription
         self::describeRegisterUser($eventMachine);
         self::describeChangeUsername($eventMachine);
         self::describeDoNothing($eventMachine);
+        self::describeCallExternalService($eventMachine);
     }
 
     private static function describeRegisterUser(EventMachine $eventMachine): void
@@ -68,6 +70,15 @@ final class CacheableUserDescription
             ->handle([CachableUserFunction::class, 'doNothing'])
             ->orRecordThat(Event::USERNAME_WAS_CHANGED)
             ->apply([CachableUserFunction::class, 'whenUsernameWasChanged']);
+    }
+
+    private static function describeCallExternalService(EventMachine $eventMachine): void
+    {
+        $eventMachine->process(Command::CALL_EXTERNAL_SERVICE)
+            ->withExisting(Aggregate::USER)
+            ->handle([CachableUserFunction::class, 'callExternalService'], [ExternalServiceClient::class])
+            ->recordThat(Event::EXTERNAL_SERVICE_WAS_CALLED)
+            ->apply([CachableUserFunction::class, 'whenExternalServiceWasCalled']);
     }
 
     private function __construct()
