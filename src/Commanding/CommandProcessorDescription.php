@@ -46,6 +46,14 @@ final class CommandProcessorDescription
      */
     private $aggregateFunction;
 
+    /**
+     * @var array
+     */
+    private $servicesToInject;
+
+    /**
+     * @var array
+     */
     private $eventRecorderMap = [];
 
     /**
@@ -97,11 +105,12 @@ final class CommandProcessorDescription
         return $this;
     }
 
-    public function handle(callable $aggregateFunction): self
+    public function handle(callable $aggregateFunction, array $servicesToInject = []): self
     {
         $this->assertWithAggregateWasCalled(__METHOD__);
 
         $this->aggregateFunction = $aggregateFunction;
+        $this->servicesToInject = $servicesToInject;
 
         return $this;
     }
@@ -151,6 +160,7 @@ final class CommandProcessorDescription
             'aggregateType' => $this->aggregateType,
             'aggregateIdentifier' => $this->aggregateIdentifier,
             'aggregateFunction' => $this->aggregateFunction,
+            'servicesToInject' => $this->servicesToInject,
             'eventRecorderMap' => $eventRecorderMap,
             'streamName' => $this->eventMachine->writeModelStreamName(),
             'contextProvider' => $this->contextProvider,

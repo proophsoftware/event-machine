@@ -18,9 +18,15 @@ use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\MessageBus;
 use Prooph\ServiceBus\Plugin\AbstractPlugin;
 use Prooph\SnapshotStore\SnapshotStore;
+use Psr\Container\ContainerInterface;
 
 final class CommandToProcessorRouter extends AbstractPlugin
 {
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     /**
      * Map with command name being the key and CommandProcessorDescription the value
      *
@@ -54,6 +60,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
     private $snapshotStore;
 
     public function __construct(
+        ContainerInterface $container,
         array $routingMap,
         array $aggregateDescriptions,
         MessageFactory $messageFactory,
@@ -61,6 +68,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
         ContextProviderFactory $providerFactory,
         SnapshotStore $snapshotStore = null
     ) {
+        $this->container = $container;
         $this->routingMap = $routingMap;
         $this->aggregateDescriptions = $aggregateDescriptions;
         $this->messageFactory = $messageFactory;
@@ -107,6 +115,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
         $contextProvider = $processorDesc['contextProvider'] ? $this->contextProviderFactory->build($processorDesc['contextProvider']) : null;
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $this->container,
             $processorDesc,
             $this->messageFactory,
             $this->eventStore,

@@ -828,6 +828,7 @@ final class EventMachine
         }
 
         $router = new CommandToProcessorRouter(
+            $this->container,
             $this->compiledCommandRouting,
             $this->aggregateDescriptions,
             $this->container->get(self::SERVICE_ID_MESSAGE_FACTORY),
