@@ -77,7 +77,7 @@ final class CachableUserFunction
 
         yield [Event::EXTERNAL_SERVICE_WAS_CALLED, [
             CacheableUserDescription::IDENTIFIER => $user->id,
-            'dataFromExternalService' => $data
+            'dataFromExternalService' => $data,
         ]];
     }
 

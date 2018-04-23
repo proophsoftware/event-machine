@@ -518,7 +518,7 @@ class EventMachineTest extends BasicTestCase
             UserDescription::USERNAME => $username,
             UserDescription::EMAIL => new EmailType(),
         ], [
-            'shouldFail' => JsonSchema::boolean()
+            'shouldFail' => JsonSchema::boolean(),
         ]);
 
         $filterInput = JsonSchema::object([
@@ -552,7 +552,7 @@ class EventMachineTest extends BasicTestCase
                 ])->toArray(),
                 Event::EXTERNAL_SERVICE_WAS_CALLED => JsonSchema::object([
                     UserDescription::IDENTIFIER => $userId,
-                    UserDescription::DATA_FROM_EXTERNAL_SERVICE => $dataFromExternalService
+                    UserDescription::DATA_FROM_EXTERNAL_SERVICE => $dataFromExternalService,
                 ])->toArray(),
             ],
             'queries' => [
@@ -642,8 +642,8 @@ class EventMachineTest extends BasicTestCase
                     ])->toArray(),
                     Event::EXTERNAL_SERVICE_WAS_CALLED => JsonSchema::object([
                         UserDescription::IDENTIFIER => $userId,
-                        UserDescription::DATA_FROM_EXTERNAL_SERVICE => $dataFromExternalService
-                    ])->toArray()
+                        UserDescription::DATA_FROM_EXTERNAL_SERVICE => $dataFromExternalService,
+                    ])->toArray(),
                 ],
                 'queries' => $queries,
             ],

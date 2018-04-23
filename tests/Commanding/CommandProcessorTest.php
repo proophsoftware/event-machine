@@ -378,7 +378,7 @@ final class CommandProcessorTest extends BasicTestCase
         $eventMachine->load(CacheableUserDescription::class);
 
         $container = $this->prophesize(ContainerInterface::class);
-        $container->get(ExternalServiceClient::class)->will(function() {
+        $container->get(ExternalServiceClient::class)->will(function () {
             return new ExternalServiceClient();
         });
 
@@ -445,8 +445,8 @@ final class CommandProcessorTest extends BasicTestCase
             UserDescription::IDENTIFIER => $userId,
             'dataFromExternalService' => [
                 UserDescription::IDENTIFIER => $userId,
-                'test' => 'succeeded'
-            ]
+                'test' => 'succeeded',
+            ],
         ], $event->payload());
     }
 }

@@ -10,7 +10,7 @@ final class ExternalServiceClient
     {
         return [
             'userId' => $userId,
-            'test' => 'succeeded'
+            'test' => 'succeeded',
         ];
     }
 }

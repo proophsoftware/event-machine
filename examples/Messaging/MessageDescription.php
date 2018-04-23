@@ -79,7 +79,7 @@ final class MessageDescription implements EventMachineDescription
 
         $eventMachine->registerEvent(Event::EXTERNAL_SERVICE_WAS_CALLED, JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
-            'dataFromExternalService' => new ArrayType(new StringType())
+            'dataFromExternalService' => new ArrayType(new StringType()),
         ]));
 
         //Register user state as a Type so that we can reference it as query return type

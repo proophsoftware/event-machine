@@ -239,7 +239,7 @@ final class CommandProcessor
         $arFunc = $this->aggregateFunction;
 
         $events = $arFunc(...$arFuncArgs, ...array_map(
-            function($service) {
+            function ($service) {
                 return $this->container->get($service);
             },
             $this->servicesToInject
