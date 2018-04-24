@@ -25,7 +25,7 @@ trait HasAnnotations
      */
     protected $description;
 
-    public function entitled(string $title): AnnotatedType
+    public function entitled(string $title): self
     {
         $cp = clone $this;
 
@@ -39,7 +39,7 @@ trait HasAnnotations
         return $this->title;
     }
 
-    public function describedAs(string $description): AnnotatedType
+    public function describedAs(string $description): self
     {
         $cp = clone $this;
 
