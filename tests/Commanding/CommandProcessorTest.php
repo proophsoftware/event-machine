@@ -400,7 +400,6 @@ final class CommandProcessorTest extends BasicTestCase
             yield [$eventName, $payload, ['additional' => 'metadata']];
         };
 
-
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
             $this->getMockedEventMessageFactory(),
@@ -427,7 +426,7 @@ final class CommandProcessorTest extends BasicTestCase
             '_aggregate_version' => 1,
             '_aggregate_id' => $userId,
             '_aggregate_type' => 'User',
-            'additional' => 'metadata'
+            'additional' => 'metadata',
         ], $event->metadata());
     }
 }
