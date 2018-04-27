@@ -13,7 +13,7 @@ namespace Prooph\EventMachine\JsonSchema;
 
 interface AnnotatedType extends Type
 {
-    public function entitled(string $title): self;
+    public function entitled(string $title);
 
-    public function describedAs(string $title): self;
+    public function describedAs(string $description);
 }

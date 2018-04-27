@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\JsonSchema\Type;
 
-use Prooph\EventMachine\JsonSchema\AnnotatedType;
-
 trait HasAnnotations
 {
     /**
@@ -25,7 +23,7 @@ trait HasAnnotations
      */
     protected $description;
 
-    public function entitled(string $title): AnnotatedType
+    public function entitled(string $title): self
     {
         $cp = clone $this;
 
@@ -39,7 +37,7 @@ trait HasAnnotations
         return $this->title;
     }
 
-    public function describedAs(string $description): AnnotatedType
+    public function describedAs(string $description): self
     {
         $cp = clone $this;
 
