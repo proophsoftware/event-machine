@@ -240,13 +240,27 @@ final class CommandProcessor
             }
             [$eventName, $payload] = $event;
 
+            $metadata = [];
+
+            if(array_key_exists(2, $event)) {
+                $metadata = $event[2];
+                if(! is_array($metadata)) {
+                    throw new \RuntimeException(sprintf(
+                        'Event returned by aggregate of type %s while handling command %s contains additional metadata but metadata type is not array. Detected type is: %s',
+                        $this->aggregateType,
+                        $this->commandName,
+                        (is_object($metadata)? get_class($metadata) : gettype($metadata))
+                    ));
+                }
+            }
+
             /** @var GenericJsonSchemaEvent $event */
             $event = $this->messageFactory->createMessageFromArray($eventName, [
                 'payload' => $payload,
-                'metadata' => [
+                'metadata' => array_merge([
                     '_causation_id' => $command->uuid()->toString(),
                     '_causation_name' => $this->commandName,
-                ],
+                ], $metadata),
             ]);
 
             $aggregate->recordThat($event);

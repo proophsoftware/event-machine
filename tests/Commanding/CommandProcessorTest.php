@@ -360,4 +360,74 @@ final class CommandProcessorTest extends BasicTestCase
             'context' => ['msg' => 'it works'],
         ], $event->payload());
     }
+
+    /**
+     * @test
+     */
+    public function it_adds_additional_metadata_to_event()
+    {
+        $eventMachine = new EventMachine();
+
+        $eventMachine->load(MessageDescription::class);
+        $eventMachine->load(CacheableUserDescription::class);
+
+        $container = $this->prophesize(ContainerInterface::class);
+
+        $eventMachine->initialize($container->reveal());
+
+        $config = $eventMachine->compileCacheableConfig();
+
+        $commandRouting = $config['compiledCommandRouting'];
+        $aggregateDescriptions = $config['aggregateDescriptions'];
+
+        $recordedEvents = [];
+
+        $eventStore = $this->prophesize(EventStore::class);
+
+        $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
+            $recordedEvents = iterator_to_array($args[1]);
+        });
+
+        $processorDesc = $commandRouting[Command::REGISTER_USER];
+        $processorDesc['eventApplyMap'] = $aggregateDescriptions[Aggregate::USER]['eventApplyMap'];
+
+        $arFunc = $processorDesc['aggregateFunction'];
+
+        //Wrap ar function to add additional metadata for this test
+        $processorDesc['aggregateFunction'] = function (Message $registerUser) use ($arFunc): \Generator {
+            [$event] = iterator_to_array($arFunc($registerUser));
+            [$eventName, $payload] = $event;
+            yield [$eventName, $payload, ['additional' => 'metadata']];
+        };
+
+
+        $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $processorDesc,
+            $this->getMockedEventMessageFactory(),
+            $eventStore->reveal()
+        );
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->getMockedCommandMessageFactory()->createMessageFromArray(Command::REGISTER_USER, [
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => 'Alex',
+            UserDescription::EMAIL => 'contact@prooph.de',
+        ]);
+
+        $commandProcessor($registerUser);
+
+        self::assertCount(1, $recordedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
+        self::assertEquals([
+            '_causation_id' => $registerUser->uuid()->toString(),
+            '_causation_name' => $registerUser->messageName(),
+            '_aggregate_version' => 1,
+            '_aggregate_id' => $userId,
+            '_aggregate_type' => 'User',
+            'additional' => 'metadata'
+        ], $event->metadata());
+    }
 }
