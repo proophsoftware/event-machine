@@ -9,17 +9,15 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Messaging;
+namespace ProophExample\Infrastructure;
 
-final class Command
+final class ExternalServiceClient
 {
-    const REGISTER_USER = 'RegisterUser';
-    const CHANGE_USERNAME = 'ChangeUsername';
-    const DO_NOTHING = 'DoNothing';
-    const CALL_EXTERNAL_SERVICE = 'CallExternalService';
-
-    private function __construct()
+    public function retrieveData(string $userId): array
     {
-        //static class only
+        return [
+            'userId' => $userId,
+            'test' => 'succeeded',
+        ];
     }
 }

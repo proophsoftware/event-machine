@@ -14,6 +14,7 @@ namespace ProophExample\Messaging;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\EventMachineDescription;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type\ArrayType;
 use Prooph\EventMachine\JsonSchema\Type\EmailType;
 use Prooph\EventMachine\JsonSchema\Type\StringType;
 use Prooph\EventMachine\JsonSchema\Type\UuidType;
@@ -61,6 +62,9 @@ final class MessageDescription implements EventMachineDescription
         $eventMachine->registerCommand(Command::DO_NOTHING, JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
         ]));
+        $eventMachine->registerCommand(Command::CALL_EXTERNAL_SERVICE, JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+        ]));
 
         $eventMachine->registerEvent(Event::USER_WAS_REGISTERED, $userDataSchema);
         $eventMachine->registerEvent(Event::USERNAME_WAS_CHANGED, JsonSchema::object([
@@ -71,6 +75,11 @@ final class MessageDescription implements EventMachineDescription
 
         $eventMachine->registerEvent(Event::USER_REGISTRATION_FAILED, JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
+        ]));
+
+        $eventMachine->registerEvent(Event::EXTERNAL_SERVICE_WAS_CALLED, JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+            'dataFromExternalService' => new ArrayType(new StringType()),
         ]));
 
         //Register user state as a Type so that we can reference it as query return type

@@ -22,9 +22,15 @@ use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\StreamName;
 use Prooph\SnapshotStore\SnapshotStore;
+use Psr\Container\ContainerInterface;
 
 final class CommandProcessor
 {
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
     /**
      * @var string
      */
@@ -71,6 +77,11 @@ final class CommandProcessor
     private $aggregateFunction;
 
     /**
+     * @var array
+     */
+    private $servicesToInject;
+
+    /**
      * @var MessageFactory
      */
     private $messageFactory;
@@ -91,6 +102,7 @@ final class CommandProcessor
     private $aggregateRepository;
 
     public static function fromDescriptionArrayAndDependencies(
+        ContainerInterface $container,
         array $description,
         MessageFactory $messageFactory,
         EventStore $eventStore,
@@ -117,6 +129,10 @@ final class CommandProcessor
             throw new \InvalidArgumentException('Missing key aggregateFunction in commandProcessorDescription');
         }
 
+        if (! array_key_exists('servicesToInject', $description)) {
+            throw new \InvalidArgumentException('Missing key servicesToInject in commandProcessorDescription');
+        }
+
         if (! array_key_exists('eventRecorderMap', $description)) {
             throw new \InvalidArgumentException('Missing key eventRecorderMap in commandProcessorDescription');
         }
@@ -130,11 +146,13 @@ final class CommandProcessor
         }
 
         return new self(
+            $container,
             $description['commandName'],
             $description['aggregateType'],
             $description['createAggregate'],
             $description['aggregateIdentifier'],
             $description['aggregateFunction'],
+            $description['servicesToInject'],
             $description['eventRecorderMap'],
             $description['eventApplyMap'],
             $description['streamName'],
@@ -146,11 +164,13 @@ final class CommandProcessor
     }
 
     public function __construct(
+        ContainerInterface $container,
         string $commandName,
         string $aggregateType,
         bool $createAggregate,
         string $aggregateIdentifier,
         callable $aggregateFunction,
+        array $servicesToInject,
         array $eventRecorderMap,
         array $eventApplyMap,
         string $streamName,
@@ -159,11 +179,13 @@ final class CommandProcessor
         SnapshotStore $snapshotStore = null,
         ContextProvider $contextProvider = null
     ) {
+        $this->container = $container;
         $this->commandName = $commandName;
         $this->aggregateType = $aggregateType;
         $this->aggregateIdentifier = $aggregateIdentifier;
         $this->createAggregate = $createAggregate;
         $this->aggregateFunction = $aggregateFunction;
+        $this->servicesToInject = $servicesToInject;
         $this->eventRecorderMap = $eventRecorderMap;
         $this->eventApplyMap = $eventApplyMap;
         $this->streamName = $streamName;
@@ -216,7 +238,12 @@ final class CommandProcessor
 
         $arFunc = $this->aggregateFunction;
 
-        $events = $arFunc(...$arFuncArgs);
+        $events = $arFunc(...$arFuncArgs, ...array_map(
+            function ($service) {
+                return $this->container->get($service);
+            },
+            $this->servicesToInject
+        ));
 
         if (! $events instanceof \Generator) {
             throw new \InvalidArgumentException(

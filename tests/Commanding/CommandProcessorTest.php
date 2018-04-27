@@ -24,6 +24,7 @@ use Prooph\EventStore\StreamName;
 use ProophExample\Aggregate\Aggregate;
 use ProophExample\Aggregate\CacheableUserDescription;
 use ProophExample\Aggregate\UserDescription;
+use ProophExample\Infrastructure\ExternalServiceClient;
 use ProophExample\Messaging\Command;
 use ProophExample\Messaging\Event;
 use ProophExample\Messaging\MessageDescription;
@@ -64,6 +65,7 @@ final class CommandProcessorTest extends BasicTestCase
         $processorDesc['eventApplyMap'] = $aggregateDescriptions[Aggregate::USER]['eventApplyMap'];
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $container->reveal(),
             $processorDesc,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
@@ -147,6 +149,7 @@ final class CommandProcessorTest extends BasicTestCase
         $processorDesc['eventApplyMap'] = $aggregateDescriptions[Aggregate::USER]['eventApplyMap'];
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $container->reveal(),
             $processorDesc,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
@@ -203,6 +206,7 @@ final class CommandProcessorTest extends BasicTestCase
         $processorDesc['eventApplyMap'] = $aggregateDescriptions[Aggregate::USER]['eventApplyMap'];
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $container->reveal(),
             $processorDesc,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
@@ -288,6 +292,7 @@ final class CommandProcessorTest extends BasicTestCase
         $processorDesc['eventApplyMap'] = $aggregateDescriptions[Aggregate::USER]['eventApplyMap'];
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $container->reveal(),
             $processorDesc,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
@@ -340,6 +345,7 @@ final class CommandProcessorTest extends BasicTestCase
         }
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $container->reveal(),
             $processorDesc,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal(),
@@ -358,6 +364,89 @@ final class CommandProcessorTest extends BasicTestCase
         self::assertEquals([
             'id' => 1,
             'context' => ['msg' => 'it works'],
+        ], $event->payload());
+    }
+
+    /**
+     * @test
+     */
+    public function it_injects_defined_services_into_command_handler()
+    {
+        $eventMachine = new EventMachine();
+
+        $eventMachine->load(MessageDescription::class);
+        $eventMachine->load(CacheableUserDescription::class);
+
+        $container = $this->prophesize(ContainerInterface::class);
+        $container->get(ExternalServiceClient::class)->will(function () {
+            return new ExternalServiceClient();
+        });
+
+        $eventMachine->initialize($container->reveal());
+
+        $config = $eventMachine->compileCacheableConfig();
+
+        $commandRouting = $config['compiledCommandRouting'];
+        $aggregateDescriptions = $config['aggregateDescriptions'];
+
+        $userId = Uuid::uuid4()->toString();
+
+        $recordedEvents = [];
+
+        $eventStore = $this->prophesize(EventStore::class);
+
+        $eventFactory = $this->getMockedEventMessageFactory();
+
+        $eventStore->load(new StreamName('event_stream'), 1, null, Argument::type(MetadataMatcher::class))
+            ->will(function ($args) use ($userId, $eventFactory) {
+                $event = $eventFactory->createMessageFromArray('UserWasRegistered', [
+                    'payload' => [
+                        UserDescription::IDENTIFIER => $userId,
+                        UserDescription::USERNAME => 'Alex',
+                        UserDescription::EMAIL => 'contact@prooph.de',
+                    ],
+                    'metadata' => [
+                        '_causation_id' => Uuid::uuid4()->toString(),
+                        '_causation_name' => 'RegisterUser',
+                        '_aggregate_version' => 1,
+                        '_aggregate_id' => $userId,
+                        '_aggregate_type' => 'User',
+                    ],
+                ]);
+
+                return new \ArrayIterator([$event]);
+            });
+
+        $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
+            $recordedEvents = iterator_to_array($args[1]);
+        });
+
+        $processorDesc = $commandRouting[Command::CALL_EXTERNAL_SERVICE];
+        $processorDesc['eventApplyMap'] = $aggregateDescriptions[Aggregate::USER]['eventApplyMap'];
+
+        $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
+            $container->reveal(),
+            $processorDesc,
+            $this->getMockedEventMessageFactory(),
+            $eventStore->reveal()
+        );
+
+        $callExternalService = $this->getMockedCommandMessageFactory()->createMessageFromArray(Command::CALL_EXTERNAL_SERVICE, [
+            UserDescription::IDENTIFIER => $userId,
+        ]);
+
+        $commandProcessor($callExternalService);
+
+        self::assertCount(1, $recordedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        self::assertEquals(Event::EXTERNAL_SERVICE_WAS_CALLED, $event->messageName());
+        self::assertEquals([
+            UserDescription::IDENTIFIER => $userId,
+            'dataFromExternalService' => [
+                UserDescription::IDENTIFIER => $userId,
+                'test' => 'succeeded',
+            ],
         ], $event->payload());
     }
 }

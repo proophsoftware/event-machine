@@ -22,6 +22,7 @@ use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\MessageBus;
 use Prooph\SnapshotStore\SnapshotStore;
 use Prophecy\Argument;
+use Psr\Container\ContainerInterface;
 
 final class CommandToProcessorRouterTest extends BasicTestCase
 {
@@ -38,6 +39,7 @@ final class CommandToProcessorRouterTest extends BasicTestCase
                 'aggregateIdentifier' => 'id',
                 'aggregateFunction' => function () {
                 },
+                'servicesToInject' => [],
                 'eventRecorderMap' => [],
                 'streamName' => 'event_stream',
                 'contextProvider' => 'TestContextProvider',
@@ -53,6 +55,7 @@ final class CommandToProcessorRouterTest extends BasicTestCase
             ],
         ];
 
+        $container = $this->prophesize(ContainerInterface::class);
         $messageFactory = $this->prophesize(MessageFactory::class);
         $eventStore = $this->prophesize(EventStore::class);
         $snapshotStore = $this->prophesize(SnapshotStore::class);
@@ -61,6 +64,7 @@ final class CommandToProcessorRouterTest extends BasicTestCase
         $contextProviderFactory->build(Argument::exact('TestContextProvider'))->willReturn($contextProvider->reveal())->shouldBeCalled();
 
         $router = new CommandToProcessorRouter(
+            $container->reveal(),
             $commandMap,
             $aggregateDescriptions,
             $messageFactory->reveal(),
