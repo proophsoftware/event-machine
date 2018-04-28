@@ -57,7 +57,7 @@ trait FilterTestHelperTrait
             'name' => 'Hasso',
             'animal' => 'dog',
             'age' => 7,
-            'race' => 'Golden Retriever'
+            'race' => 'Golden Retriever',
         ]);
 
         $this->store->addDoc($this->collection, '3', [
@@ -70,7 +70,7 @@ trait FilterTestHelperTrait
             'name' => 'Tiger',
             'animal' => 'cat',
             'age' => 3,
-            'status' => ['hungry', 'tired']
+            'status' => ['hungry', 'tired'],
         ]);
 
         $this->store->addDoc($this->collection, '5', [
