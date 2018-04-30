@@ -39,7 +39,7 @@ class FloatType implements AnnotatedType
         return array_merge(['type' => $this->type], (array) $this->validation, $this->annotations());
     }
 
-    public function withMinimum(int $min): self
+    public function withMinimum(float $min): self
     {
         $cp = clone $this;
 
@@ -52,7 +52,7 @@ class FloatType implements AnnotatedType
         return $cp;
     }
 
-    public function withMaximum(int $max): self
+    public function withMaximum(float $max): self
     {
         $cp = clone $this;
 
@@ -65,7 +65,7 @@ class FloatType implements AnnotatedType
         return $cp;
     }
 
-    public function withRange(int $min, int $max): self
+    public function withRange(float $min, float $max): self
     {
         $cp = clone $this;
 
