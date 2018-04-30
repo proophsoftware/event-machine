@@ -24,7 +24,7 @@ final class FieldIndexTest extends BasicTestCase
         $index = FieldIndex::fromArray([
             'field' => 'testField',
             'sort' => FieldIndex::SORT_DESC,
-            'unique' => false
+            'unique' => false,
         ]);
 
         $this->assertEquals('testField', $index->field());
@@ -43,7 +43,7 @@ final class FieldIndexTest extends BasicTestCase
             [
                 'field' => 'testField',
                 'sort' => FieldIndex::SORT_ASC,
-                'unique' => false
+                'unique' => false,
             ],
             $index->toArray()
         );

@@ -26,7 +26,7 @@ final class MultiFieldIndexTest extends BasicTestCase
         $this->assertEquals(
             [
                 '{"field":"testField1","sort":1,"unique":false}',
-                '{"field":"testField2","sort":1,"unique":false}'
+                '{"field":"testField2","sort":1,"unique":false}',
             ],
             array_map(
                 function($index) {
@@ -41,7 +41,7 @@ final class MultiFieldIndexTest extends BasicTestCase
         $this->assertEquals(
             [
                 'fields' => ['testField1', 'testField2'],
-                'unique' => true
+                'unique' => true,
             ],
             $index->toArray()
         );
