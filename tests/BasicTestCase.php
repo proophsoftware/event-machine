@@ -44,7 +44,7 @@ class BasicTestCase extends TestCase
      */
     protected function extractRecordedEvents(GenericAggregateRoot $aggregateRoot): array
     {
-        $aggregateRootTranslator = new ClosureAggregateTranslator('unknown', []);
+        $aggregateRootTranslator = new ClosureAggregateTranslator('unknown', [], []);
 
         return $aggregateRootTranslator->extractPendingStreamEvents($aggregateRoot);
     }

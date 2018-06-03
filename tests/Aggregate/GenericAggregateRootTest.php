@@ -42,7 +42,7 @@ class GenericAggregateRootTest extends BasicTestCase
 
         $arId = Uuid::uuid4()->toString();
 
-        $user = new GenericAggregateRoot($arId, AggregateType::fromString('User'), $eventApplyMap);
+        $user = new GenericAggregateRoot($arId, AggregateType::fromString('User'), $eventApplyMap, []);
 
         $userWasRegistered = new GenericJsonSchemaEvent(
             'UserWasRegistered',
@@ -68,7 +68,7 @@ class GenericAggregateRootTest extends BasicTestCase
 
         self::assertCount(2, $recordedEvents);
 
-        $translator = new ClosureAggregateTranslator($arId, $eventApplyMap);
+        $translator = new ClosureAggregateTranslator($arId, $eventApplyMap, []);
 
         $sameUser = $translator->reconstituteAggregateFromHistory(AggregateType::fromString('User'), new \ArrayIterator([$recordedEvents[0]]));
 

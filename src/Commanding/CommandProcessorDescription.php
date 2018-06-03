@@ -27,6 +27,11 @@ final class CommandProcessorDescription
     private $commandName;
 
     /**
+     * @var string|null
+     */
+    private $commandClass;
+
+    /**
      * @var bool
      */
     private $createAggregate;
@@ -53,10 +58,11 @@ final class CommandProcessorDescription
      */
     private $contextProvider;
 
-    public function __construct(string $commandName, EventMachine $eventMachine)
+    public function __construct(string $commandName, EventMachine $eventMachine, string $commandClass = null)
     {
         $this->commandName = $commandName;
         $this->eventMachine = $eventMachine;
+        $this->commandClass = $commandClass;
     }
 
     public function withNew(string $aggregateType): self
@@ -147,6 +153,7 @@ final class CommandProcessorDescription
 
         return [
             'commandName' => $this->commandName,
+            'commandClass' => $this->commandClass,
             'createAggregate' => $this->createAggregate,
             'aggregateType' => $this->aggregateType,
             'aggregateIdentifier' => $this->aggregateIdentifier,

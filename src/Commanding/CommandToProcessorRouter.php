@@ -34,6 +34,11 @@ final class CommandToProcessorRouter extends AbstractPlugin
     private $aggregateDescriptions;
 
     /**
+     * @var array
+     */
+    private $eventClassMap;
+
+    /**
      * @var MessageFactory
      */
     private $messageFactory;
@@ -56,6 +61,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
     public function __construct(
         array $routingMap,
         array $aggregateDescriptions,
+        array $eventClassMap,
         MessageFactory $messageFactory,
         EventStore $eventStore,
         ContextProviderFactory $providerFactory,
@@ -63,6 +69,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
     ) {
         $this->routingMap = $routingMap;
         $this->aggregateDescriptions = $aggregateDescriptions;
+        $this->eventClassMap = $eventClassMap;
         $this->messageFactory = $messageFactory;
         $this->eventStore = $eventStore;
         $this->contextProviderFactory = $providerFactory;
@@ -103,6 +110,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
         }
 
         $processorDesc['eventApplyMap'] = $aggregateDesc['eventApplyMap'];
+        $processorDesc['eventClassMap'] = $this->eventClassMap;
 
         $contextProvider = $processorDesc['contextProvider'] ? $this->contextProviderFactory->build($processorDesc['contextProvider']) : null;
 
