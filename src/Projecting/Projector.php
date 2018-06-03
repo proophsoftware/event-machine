@@ -31,7 +31,7 @@ interface Projector
 {
     public function prepareForRun(string $appVersion, string $projectionName): void;
 
-    public function handle(string $appVersion, string $projectionName, Message $event): void;
+    public function handle(string $appVersion, string $projectionName, $event): void;
 
     public function deleteReadModel(string $appVersion, string $projectionName): void;
 }

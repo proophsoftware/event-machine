@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
+use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\Stream;
@@ -24,6 +25,11 @@ final class ReadModelProxy extends AbstractReadModel
     private $projectionDescriptions;
 
     /**
+     * @var array
+     */
+    private $eventClassMap;
+
+    /**
      * @var EventMachine
      */
     private $eventMachine;
@@ -35,9 +41,11 @@ final class ReadModelProxy extends AbstractReadModel
 
     public function __construct(
         array $projectionDescriptions,
+        array $eventClassMap,
         EventMachine $eventMachine)
     {
         $this->projectionDescriptions = $projectionDescriptions;
+        $this->eventClassMap = $eventClassMap;
         $this->eventMachine = $eventMachine;
     }
 
@@ -58,7 +66,7 @@ final class ReadModelProxy extends AbstractReadModel
             $stream = Stream::fromArray($desc[ProjectionDescription::SOURCE_STREAM]);
 
             if ($stream->isLocalService()) {
-                $readModel = ReadModel::fromProjectionDescription($desc, $this->eventMachine);
+                $readModel = ReadModel::fromProjectionDescription($desc, $this->eventClassMap, $this->eventMachine);
                 $readModel->prepareForRun();
                 $this->readModels[] = $readModel;
             }

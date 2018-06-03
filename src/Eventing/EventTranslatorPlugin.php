@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Eventing;
 
 use Prooph\Common\Event\ActionEvent;
-use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\MessageBus;
 use Prooph\ServiceBus\Plugin\AbstractPlugin;

@@ -11,6 +11,7 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
+use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\Stream;
@@ -21,6 +22,11 @@ final class ReadModel
      * @var array
      */
     private $desc;
+
+    /**
+     * @var array
+     */
+    private $eventClassMap;
 
     /**
      * @var Stream
@@ -37,16 +43,17 @@ final class ReadModel
      */
     private $appVersion;
 
-    public static function fromProjectionDescription(array $desc, EventMachine $eventMachine): ReadModel
+    public static function fromProjectionDescription(array $desc, array $eventClassMap, EventMachine $eventMachine): ReadModel
     {
         $projector = $eventMachine->loadProjector($desc[ProjectionDescription::PROJECTOR_SERVICE_ID]);
 
-        return new self($desc, $projector, $eventMachine->appVersion());
+        return new self($desc, $eventClassMap, $projector, $eventMachine->appVersion());
     }
 
-    private function __construct(array $desc, Projector $projector, string $appVersion)
+    private function __construct(array $desc, array $eventClassMap, Projector $projector, string $appVersion)
     {
         $this->desc = $desc;
+        $this->eventClassMap = $eventClassMap;
         $this->sourceStream = Stream::fromArray($this->desc[ProjectionDescription::SOURCE_STREAM]);
         $this->projector = $projector;
         $this->appVersion = $appVersion;
@@ -86,6 +93,15 @@ final class ReadModel
 
     public function handle(Message $event): void
     {
+        if(! $this->projector instanceof AggregateProjector
+            && $event instanceof GenericJsonSchemaEvent
+            && array_key_exists($event->messageName(), $this->eventClassMap))
+        {
+            $evtClass = $this->eventClassMap[$event->messageName()];
+
+            $event = ([$evtClass, 'fromArray'])($event->toArray());
+        }
+
         $this->projector->handle($this->appVersion, $this->desc[ProjectionDescription::PROJECTION_NAME], $event);
     }
 
