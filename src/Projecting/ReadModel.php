@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
-use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\Stream;
 
@@ -93,10 +93,9 @@ final class ReadModel
 
     public function handle(Message $event): void
     {
-        if(! $this->projector instanceof AggregateProjector
+        if (! $this->projector instanceof AggregateProjector
             && $event instanceof GenericJsonSchemaEvent
-            && array_key_exists($event->messageName(), $this->eventClassMap))
-        {
+            && array_key_exists($event->messageName(), $this->eventClassMap)) {
             $evtClass = $this->eventClassMap[$event->messageName()];
 
             $event = ([$evtClass, 'fromArray'])($event->toArray());

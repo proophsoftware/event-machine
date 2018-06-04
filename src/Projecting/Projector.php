@@ -11,8 +11,6 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
-use Prooph\EventMachine\Messaging\Message;
-
 /**
  * Projections are rebuilt on each deployment
  *

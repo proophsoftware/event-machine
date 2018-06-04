@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -13,8 +20,8 @@ final class TodoPosted
     public static function fromArray(array $genericMsgData): TodoPosted
     {
         return new self(
-            (string)$genericMsgData['payload']['todoId'] ?? '',
-            (string)$genericMsgData['payload']['text'] ?? ''
+            (string) $genericMsgData['payload']['todoId'] ?? '',
+            (string) $genericMsgData['payload']['text'] ?? ''
         );
     }
 
@@ -43,7 +50,7 @@ final class TodoPosted
     {
         return [
             'todoId' => $this->todoId,
-            'text' => $this->text
+            'text' => $this->text,
         ];
     }
 }

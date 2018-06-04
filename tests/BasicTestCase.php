@@ -16,9 +16,9 @@ use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
-use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prophecy\Argument;
 
 class BasicTestCase extends TestCase

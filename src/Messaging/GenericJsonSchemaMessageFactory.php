@@ -16,7 +16,6 @@ use Prooph\Common\Messaging\DomainMessage;
 use Prooph\Common\Messaging\Message;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
-use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\Querying\GenericJsonSchemaQuery;
 use Ramsey\Uuid\Uuid;

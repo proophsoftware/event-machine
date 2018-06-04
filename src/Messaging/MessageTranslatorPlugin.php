@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -34,20 +41,20 @@ final class MessageTranslatorPlugin extends AbstractPlugin
     {
         $msgName = $e->getParam(MessageBus::EVENT_PARAM_MESSAGE_NAME);
 
-        if(! array_key_exists($msgName, $this->messageClassMap)) {
+        if (! array_key_exists($msgName, $this->messageClassMap)) {
             return;
         }
 
         /** @var GenericJsonSchemaMessage $msg */
         $msg = $e->getParam(MessageBus::EVENT_PARAM_MESSAGE);
 
-        if(! $msg instanceof GenericJsonSchemaMessage) {
+        if (! $msg instanceof GenericJsonSchemaMessage) {
             return;
         }
 
         $msgClass = $this->messageClassMap[$msgName];
 
-        if(! is_callable([$msgClass, 'fromArray'])) {
+        if (! is_callable([$msgClass, 'fromArray'])) {
             throw new \RuntimeException(sprintf(
                 'Custom message class %s should have a static fromArray method',
                 $msgClass

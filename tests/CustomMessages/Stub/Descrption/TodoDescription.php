@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -32,21 +39,21 @@ final class TodoDescription implements EventMachineDescription
         //Custom DTOs used as messages
         $eventMachine->registerCommand(self::CMD_POST_TODO, JsonSchema::object([
             'todoId' => JsonSchema::uuid(),
-            'text' => JsonSchema::string()
+            'text' => JsonSchema::string(),
         ]), PostTodo::class);
 
         $eventMachine->registerEvent(self::EVT_TODO_POSTED, JsonSchema::object([
             'todoId' => JsonSchema::uuid(),
-            'text' => JsonSchema::string()
+            'text' => JsonSchema::string(),
         ]), TodoPosted::class);
 
         $eventMachine->registerQuery(self::QRY_GET_TODO, JsonSchema::object([
-            'todoId' => JsonSchema::uuid()
+            'todoId' => JsonSchema::uuid(),
         ]), GetTodo::class)
             ->resolveWith(TodoFinder::class)
             ->setReturnType(JsonSchema::object([
                 'todoId' => JsonSchema::uuid(),
-                'text' => JsonSchema::string()
+                'text' => JsonSchema::string(),
             ]));
 
         $eventMachine->process(self::CMD_POST_TODO)
@@ -58,15 +65,15 @@ final class TodoDescription implements EventMachineDescription
 
         //prooph messages
         $eventMachine->registerCommand(self::CMD_MARK_AS_DONE, JsonSchema::object([
-            'todoId' => JsonSchema::uuid()
+            'todoId' => JsonSchema::uuid(),
         ]), MarkAsDone::class);
 
         $eventMachine->registerEvent(self::EVT_TODO_MAKRED_AS_DONE, JsonSchema::object([
-            'todoId' => JsonSchema::uuid()
+            'todoId' => JsonSchema::uuid(),
         ]), TodoMarkedAsDone::class);
 
         $eventMachine->registerQuery(self::QRY_GET_DONE_TODOS, JsonSchema::object([
-            'todoId' => JsonSchema::uuid()
+            'todoId' => JsonSchema::uuid(),
         ]), GetDoneTodos::class)
             ->resolveWith(TodoFinder::class)
             ->setReturnType(JsonSchema::array(JsonSchema::uuid()));

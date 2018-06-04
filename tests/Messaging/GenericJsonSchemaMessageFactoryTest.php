@@ -12,10 +12,10 @@ declare(strict_types=1);
 namespace Prooph\EventMachineTest\Messaging;
 
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
-use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventMachine\Querying\GenericJsonSchemaQuery;
 use Prooph\EventMachineTest\BasicTestCase;

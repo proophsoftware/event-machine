@@ -1,4 +1,11 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
 declare(strict_types=1);
 
@@ -45,7 +52,7 @@ class CustomMessagesTest extends BasicTestCase
 
         $eventMachine->bootstrapInTestMode([], [
             TodoFinder::class => $todoFinder,
-            TodoProjector::class => $todoProjector
+            TodoProjector::class => $todoProjector,
         ]);
 
         $todoId = Uuid::uuid4()->toString();
@@ -55,7 +62,7 @@ class CustomMessagesTest extends BasicTestCase
             [
                 'payload' => [
                     'todoId' => $todoId,
-                    'text' => 'Test todo'
+                    'text' => 'Test todo',
                 ],
             ]
         );
@@ -64,7 +71,7 @@ class CustomMessagesTest extends BasicTestCase
 
         $expectedTodo = [
             'todoId' => $todoId,
-            'text' => 'Test todo'
+            'text' => 'Test todo',
         ];
 
         $recordedEvents = $eventMachine->popRecordedEventsOfTestSession();
@@ -79,7 +86,7 @@ class CustomMessagesTest extends BasicTestCase
 
         $this->assertEquals([
             'todoId' => $todoId,
-            'text' => 'Test todo'
+            'text' => 'Test todo',
         ], $todo);
 
         $this->assertInstanceOf(TodoPosted::class, $pmEvt);
@@ -136,13 +143,13 @@ class CustomMessagesTest extends BasicTestCase
                 [
                     'payload' => [
                         'todoId' => $todoId,
-                        'text' => 'Test todo'
+                        'text' => 'Test todo',
                     ],
                 ]
-            )
+            ),
         ], [
             TodoFinder::class => $todoFinder,
-            TodoProjector::class => $todoProjector
+            TodoProjector::class => $todoProjector,
         ]);
 
         $markAsDone = $eventMachine->messageFactory()->createMessageFromArray(
@@ -169,7 +176,7 @@ class CustomMessagesTest extends BasicTestCase
         $this->assertEquals([
             'todoId' => $todoId,
             'text' => 'Test todo',
-            'done' => true
+            'done' => true,
         ], $todo);
 
         $this->assertInstanceOf(TodoMarkedAsDone::class, $pmEvt);

@@ -43,7 +43,7 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
     {
         $this->aggregateId = $aggregateId;
         $this->eventApplyMap = $eventApplyMap;
-        $this->eventClassMap =  $eventClassMap;
+        $this->eventClassMap = $eventClassMap;
     }
 
     /**

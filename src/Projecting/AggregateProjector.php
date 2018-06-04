@@ -85,8 +85,8 @@ final class AggregateProjector implements Projector
 
     public function handle(string $appVersion, string $projectionName, $event): void
     {
-        if(! $event instanceof Message) {
-            throw new \RuntimeException(__CLASS__ . ' requires event to be an instance of '  . Message::class . '. Got ' . (is_object($event)? get_class($event) : gettype($event)));
+        if (! $event instanceof Message) {
+            throw new \RuntimeException(__CLASS__ . ' requires event to be an instance of '  . Message::class . '. Got ' . (is_object($event) ? get_class($event) : gettype($event)));
         }
 
         $aggregateId = $event->metadata()['_aggregate_id'] ?? null;

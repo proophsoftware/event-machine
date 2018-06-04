@@ -213,7 +213,7 @@ final class CommandProcessor
         $commandUuid = $command->uuid()->toString();
 
         if ($this->commandClass) {
-            if(! is_callable([$this->commandClass, 'fromArray'])) {
+            if (! is_callable([$this->commandClass, 'fromArray'])) {
                 throw new \RuntimeException(sprintf('Custom command class %s should have a static fromArray method', $this->commandClass));
             }
 
@@ -257,7 +257,7 @@ final class CommandProcessor
 
             if (! is_array($event) || ! array_key_exists(0, $event) || ! array_key_exists(1, $event)
                 || ! is_string($event[0])
-                || ( ! is_array($event[1]) && ! is_object($event[1]))) {
+                || (! is_array($event[1]) && ! is_object($event[1]))) {
                 throw new \RuntimeException(sprintf(
                     'Event returned by aggregate of type %s while handling command %s does not have the format [string eventName, array payload | object event]!',
                     $this->aggregateType,
@@ -269,11 +269,11 @@ final class CommandProcessor
 
             [$eventName, $payload] = $event;
 
-            if(is_array($payload)) {
+            if (is_array($payload)) {
                 $metadata = [];
             } else {
                 //Custom event class used instead of payload array
-                if(!method_exists($payload, 'toArray')) {
+                if (! method_exists($payload, 'toArray')) {
                     throw new \RuntimeException(sprintf(
                         'Event %s returned by aggregate of type %s while handling command %s should have a toArray method',
                         get_class($payload),
@@ -288,8 +288,6 @@ final class CommandProcessor
 
                 $metadata = $evtArr['metadata'] ?? [];
             }
-
-
 
             if (array_key_exists(2, $event)) {
                 $metadata = $event[2];

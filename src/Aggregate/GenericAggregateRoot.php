@@ -140,10 +140,10 @@ final class GenericAggregateRoot implements AggregateTypeProvider
     {
         $apply = $this->eventApplyMap[$event->messageName()];
 
-        if(array_key_exists($event->messageName(), $this->eventClassMap)) {
+        if (array_key_exists($event->messageName(), $this->eventClassMap)) {
             $eventClass = $this->eventClassMap[$event->messageName()];
 
-            if(! is_callable([$eventClass, 'fromArray'])) {
+            if (! is_callable([$eventClass, 'fromArray'])) {
                 throw new \RuntimeException(sprintf(
                     'Custom event class %s should have a static fromArray method',
                     $eventClass

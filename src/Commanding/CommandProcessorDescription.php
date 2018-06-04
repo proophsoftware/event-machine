@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Commanding;
 
-use Prooph\EventMachine\Messaging\EventRecorderDescription;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\EventRecorderDescription;
 
 final class CommandProcessorDescription
 {
