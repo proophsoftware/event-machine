@@ -4,28 +4,46 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\CustomMessages\Stub\Event;
 
-use Prooph\Common\Messaging\DomainEvent;
-use Prooph\Common\Messaging\PayloadTrait;
-
-final class TodoPosted extends DomainEvent
+final class TodoPosted
 {
-    use PayloadTrait;
+    private $todoId;
+
+    private $text;
+
+    public static function fromArray(array $genericMsgData): TodoPosted
+    {
+        return new self(
+            (string)$genericMsgData['payload']['todoId'] ?? '',
+            (string)$genericMsgData['payload']['text'] ?? ''
+        );
+    }
 
     public static function with(string $todoId, string $text): TodoPosted
     {
-        return new self([
-            'todoId' => $todoId,
-            'text' => $text
-        ]);
+        return new self($todoId, $text);
+    }
+
+    private function __construct(string $todoId, string $text)
+    {
+        $this->todoId = $todoId;
+        $this->text = $text;
     }
 
     public function todoId(): string
     {
-        return $this->payload['todoId'];
+        return $this->todoId;
     }
 
     public function text(): string
     {
-        return $this->payload['text'];
+        return $this->text;
+    }
+
+    public function toArray(): array
+    {
+        return [
+            'todoId' => $this->todoId,
+            'text' => $this->text
+        ];
     }
 }

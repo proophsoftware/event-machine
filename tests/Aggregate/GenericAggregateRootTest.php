@@ -14,7 +14,7 @@ namespace Prooph\EventMachineTest\Aggregate;
 use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
-use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachineTest\BasicTestCase;
 use Prooph\EventSourcing\Aggregate\AggregateType;

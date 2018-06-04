@@ -16,7 +16,7 @@ use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
-use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\EventStore;
@@ -210,6 +210,7 @@ final class CommandProcessor
         $arId = (string) $payload[$this->aggregateIdentifier];
         $arRepository = $this->getAggregateRepository($arId);
         $arFuncArgs = [];
+        $commandUuid = $command->uuid()->toString();
 
         if ($this->commandClass) {
             if(! is_callable([$this->commandClass, 'fromArray'])) {
@@ -283,15 +284,6 @@ final class CommandProcessor
 
                 $evtArr = $payload->toArray();
 
-                if(! array_key_exists('payload', $evtArr)) {
-                    throw new \RuntimeException(sprintf(
-                        'Event %s returned by aggregate of type %s while handling command %s should return an array with a payload key from toArray',
-                        get_class($payload),
-                        $this->aggregateType,
-                        $this->commandName
-                    ));
-                }
-
                 $payload = $evtArr['payload'] ?? $evtArr;
 
                 $metadata = $evtArr['metadata'] ?? [];
@@ -315,7 +307,7 @@ final class CommandProcessor
             $event = $this->messageFactory->createMessageFromArray($eventName, [
                 'payload' => $payload,
                 'metadata' => array_merge([
-                    '_causation_id' => $command->uuid()->toString(),
+                    '_causation_id' => $commandUuid,
                     '_causation_name' => $this->commandName,
                 ], $metadata),
             ]);

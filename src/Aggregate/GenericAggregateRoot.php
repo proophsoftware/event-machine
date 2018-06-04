@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Aggregate;
 
-use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventSourcing\Aggregate\AggregateTypeProvider;
 use Prooph\EventSourcing\Aggregate\Exception\RuntimeException;

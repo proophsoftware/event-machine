@@ -16,7 +16,7 @@ use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
 use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\EventMachineContainer;
-use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Exception\TransactionCommitFailed;
 use Prooph\EventMachine\JsonSchema\JsonSchema;

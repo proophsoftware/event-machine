@@ -4,20 +4,29 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\CustomMessages\Stub\Command;
 
-use Prooph\Common\Messaging\Command;
-use Prooph\Common\Messaging\PayloadTrait;
-
-final class PostTodo extends Command
+final class PostTodo
 {
-    use PayloadTrait;
+    private $todoId;
+
+    private $text;
+
+    public static function fromArray(array $genericMsgData): PostTodo
+    {
+        $self = new self();
+
+        $self->todoId = (string)$genericMsgData['payload']['todoId'] ?? '';
+        $self->text = (string)$genericMsgData['payload']['text'] ?? '';
+
+        return $self;
+    }
 
     public function todoId(): string
     {
-        return $this->payload['todoId'];
+        return $this->todoId;
     }
 
     public function text(): string
     {
-        return $this->payload['text'];
+        return $this->text;
     }
 }

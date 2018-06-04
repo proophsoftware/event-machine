@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace Prooph\EventMachine\Eventing;
+namespace Prooph\EventMachine\Messaging;
 
 use Prooph\Common\Messaging\DomainMessage;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessage;
