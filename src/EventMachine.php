@@ -262,6 +262,14 @@ final class EventMachine
         return $this;
     }
 
+    /**
+     * @return bool
+     */
+    public function immediateConsistency(): bool
+    {
+        return $this->immediateConsistency;
+    }
+
     public function registerCommand(string $commandName, ObjectType $schema): self
     {
         $this->assertNotInitialized(__METHOD__);

@@ -17,6 +17,7 @@ use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
 use Prooph\EventMachine\Persistence\DocumentStore\OrderBy\AndOrder;
 use Prooph\EventMachine\Persistence\DocumentStore\OrderBy\Asc;
 use Prooph\EventMachine\Persistence\DocumentStore\OrderBy\Desc;
+use Prooph\EventMachine\Persistence\InMemoryConnection;
 use Prooph\EventMachineTest\BasicTestCase;
 
 final class InMemoryDocumentStoreTest extends BasicTestCase
@@ -30,7 +31,7 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
 
     protected function setUp()
     {
-        $this->store = new InMemoryDocumentStore();
+        $this->store = new InMemoryDocumentStore(new InMemoryConnection());
     }
 
     /**

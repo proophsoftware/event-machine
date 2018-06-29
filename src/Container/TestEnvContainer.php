@@ -14,9 +14,11 @@ namespace Prooph\EventMachine\Container;
 use Prooph\Common\Event\ProophActionEventEmitter;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
+use Prooph\EventMachine\Persistence\InMemoryConnection;
+use Prooph\EventMachine\Persistence\InMemoryEventStore;
+use Prooph\EventMachine\Persistence\TransactionManager;
+use Prooph\EventMachine\Projecting\InMemory\InMemoryProjectionManager;
 use Prooph\EventStore\ActionEventEmitterEventStore;
-use Prooph\EventStore\InMemoryEventStore;
-use Prooph\EventStore\Projection\InMemoryProjectionManager;
 use Prooph\EventStore\Stream;
 use Prooph\EventStore\StreamName;
 use Prooph\ServiceBus\CommandBus;
@@ -47,6 +49,16 @@ final class TestEnvContainer implements ContainerInterface
     private $writeModelStreamName;
 
     /**
+     * @var InMemoryConnection
+     */
+    private $inMemoryConnection;
+
+    /**
+     * @var TransactionManager
+     */
+    private $transactionManager;
+
+    /**
      * @var array
      */
     private $services;
@@ -72,7 +84,7 @@ final class TestEnvContainer implements ContainerInterface
         switch ($id) {
             case EventMachine::SERVICE_ID_EVENT_STORE:
                 if (null === $this->eventStore) {
-                    $es = new InMemoryEventStore();
+                    $es = new InMemoryEventStore($this->getInMemoryConnection());
                     $es->create(new Stream(new StreamName($this->writeModelStreamName), new \ArrayIterator([])));
                     $this->eventStore = new ActionEventEmitterEventStore($es, new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS));
                 }
@@ -100,16 +112,25 @@ final class TestEnvContainer implements ContainerInterface
                 return $this->getSnapshotStore();
             case EventMachine::SERVICE_ID_PROJECTION_MANAGER:
                 if (null === $this->projectionManager) {
-                    $this->projectionManager = new InMemoryProjectionManager($this->get(EventMachine::SERVICE_ID_EVENT_STORE));
+                    $this->projectionManager = new InMemoryProjectionManager(
+                        $this->get(EventMachine::SERVICE_ID_EVENT_STORE),
+                        $this->getInMemoryConnection()
+                    );
                 }
 
                 return $this->projectionManager;
             case EventMachine::SERVICE_ID_DOCUMENT_STORE:
                 if (null === $this->documentStore) {
-                    $this->documentStore = new InMemoryDocumentStore();
+                    $this->documentStore = new InMemoryDocumentStore($this->getInMemoryConnection());
                 }
 
                 return $this->documentStore;
+            case EventMachine::SERVICE_ID_TRANSACTION_MANAGER:
+                if (null === $this->transactionManager) {
+                    $this->transactionManager = new TransactionManager($this->getInMemoryConnection());
+                }
+
+                return $this->transactionManager;
             default:
                 if (! array_key_exists($id, $this->services)) {
                     throw ServiceNotFound::withServiceId($id);
@@ -140,6 +161,7 @@ final class TestEnvContainer implements ContainerInterface
             case EventMachine::SERVICE_ID_QUERY_BUS:
             case EventMachine::SERVICE_ID_PROJECTION_MANAGER:
             case EventMachine::SERVICE_ID_DOCUMENT_STORE:
+            case EventMachine::SERVICE_ID_TRANSACTION_MANAGER:
                 return true;
             default:
                 return array_key_exists($id, $this->services);
@@ -168,5 +190,14 @@ final class TestEnvContainer implements ContainerInterface
         }
 
         return $this->snapshotStore;
+    }
+
+    private function getInMemoryConnection(): InMemoryConnection
+    {
+        if (null === $this->inMemoryConnection) {
+            $this->inMemoryConnection = new InMemoryConnection();
+        }
+
+        return $this->inMemoryConnection;
     }
 }
