@@ -50,6 +50,7 @@
   "autoload-dev": {
     "psr-4": {
       "Prooph\\EventMachineTest\\": "tests/",
+      "ProophTest\\EventStore\\": "vendor/prooph/event-store/tests",
       "ProophExample\\": "examples"
     }
   },

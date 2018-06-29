@@ -13,20 +13,26 @@ namespace Prooph\EventMachine\Persistence\DocumentStore;
 
 use Codeliner\ArrayReader\ArrayReader;
 use Prooph\EventMachine\Persistence\DocumentStore;
+use Prooph\EventMachine\Persistence\InMemoryConnection;
 
 final class InMemoryDocumentStore implements DocumentStore
 {
     /**
-     * @var array indexed by collection name
+     * @var InMemoryConnection
      */
-    private $collections = [];
+    private $inMemoryConnection;
+
+    public function __construct(InMemoryConnection $inMemoryConnection)
+    {
+        $this->inMemoryConnection = $inMemoryConnection;
+    }
 
     /**
      * @return string[] list of all available collections
      */
     public function listCollections(): array
     {
-        return array_keys($this->collections);
+        return array_keys($this->inMemoryConnection['documents']);
     }
 
     /**
@@ -35,7 +41,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function filterCollectionsByPrefix(string $prefix): array
     {
-        return array_filter(array_keys($this->collections), function (string $colName) use ($prefix): bool {
+        return array_filter(array_keys($this->inMemoryConnection['documents']), function (string $colName) use ($prefix): bool {
             return mb_strpos($colName, $prefix) === 0;
         });
     }
@@ -46,7 +52,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function hasCollection(string $collectionName): bool
     {
-        return array_key_exists($collectionName, $this->collections);
+        return array_key_exists($collectionName, $this->inMemoryConnection['documents']);
     }
 
     /**
@@ -55,7 +61,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function addCollection(string $collectionName, Index ...$indices): void
     {
-        $this->collections[$collectionName] = [];
+        $this->inMemoryConnection['documents'][$collectionName] = [];
     }
 
     /**
@@ -65,7 +71,7 @@ final class InMemoryDocumentStore implements DocumentStore
     public function dropCollection(string $collectionName): void
     {
         if ($this->hasCollection($collectionName)) {
-            unset($this->collections[$collectionName]);
+            unset($this->inMemoryConnection['documents'][$collectionName]);
         }
     }
 
@@ -83,7 +89,7 @@ final class InMemoryDocumentStore implements DocumentStore
             throw new \RuntimeException("Cannot add doc with id $docId. The doc already exists in collection $collectionName");
         }
 
-        $this->collections[$collectionName][$docId] = $doc;
+        $this->inMemoryConnection['documents'][$collectionName][$docId] = $doc;
     }
 
     /**
@@ -96,8 +102,8 @@ final class InMemoryDocumentStore implements DocumentStore
     {
         $this->assertDocExists($collectionName, $docId);
 
-        $this->collections[$collectionName][$docId] = array_merge(
-            $this->collections[$collectionName][$docId],
+        $this->inMemoryConnection['documents'][$collectionName][$docId] = array_merge(
+            $this->inMemoryConnection['documents'][$collectionName][$docId],
             $docOrSubset
         );
     }
@@ -142,7 +148,7 @@ final class InMemoryDocumentStore implements DocumentStore
     public function deleteDoc(string $collectionName, string $docId): void
     {
         if ($this->hasDoc($collectionName, $docId)) {
-            unset($this->collections[$collectionName][$docId]);
+            unset($this->inMemoryConnection['documents'][$collectionName][$docId]);
         }
     }
 
@@ -167,7 +173,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function getDoc(string $collectionName, string $docId): ?array
     {
-        return $this->collections[$collectionName][$docId] ?? null;
+        return $this->inMemoryConnection['documents'][$collectionName][$docId] ?? null;
     }
 
     /**
@@ -189,7 +195,7 @@ final class InMemoryDocumentStore implements DocumentStore
 
         $filteredDocs = [];
 
-        foreach ($this->collections[$collectionName] as $docId => $doc) {
+        foreach ($this->inMemoryConnection['documents'][$collectionName] as $docId => $doc) {
             if ($filter->match($doc)) {
                 $filteredDocs[$docId] = $doc;
             }
@@ -214,7 +220,7 @@ final class InMemoryDocumentStore implements DocumentStore
             return false;
         }
 
-        return array_key_exists($docId, $this->collections[$collectionName]);
+        return array_key_exists($docId, $this->inMemoryConnection['documents'][$collectionName]);
     }
 
     private function assertHasCollection(string $collectionName): void

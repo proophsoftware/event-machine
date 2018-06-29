@@ -13,23 +13,28 @@ namespace Prooph\EventMachineTest;
 
 use Prooph\Common\Event\ProophActionEventEmitter;
 use Prooph\Common\Messaging\Message;
+use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
 use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Exception\TransactionCommitFailed;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\Type\EmailType;
 use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\StringType;
 use Prooph\EventMachine\JsonSchema\Type\UuidType;
+use Prooph\EventMachine\Persistence\DocumentStore;
 use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
+use Prooph\EventMachine\Persistence\InMemoryConnection;
+use Prooph\EventMachine\Persistence\InMemoryEventStore;
 use Prooph\EventMachine\Persistence\Stream;
+use Prooph\EventMachine\Persistence\TransactionManager;
 use Prooph\EventMachine\Projecting\AggregateProjector;
+use Prooph\EventMachine\Projecting\InMemory\InMemoryProjectionManager;
 use Prooph\EventMachineTest\Data\Stubs\TestIdentityVO;
 use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\EventStore;
-use Prooph\EventStore\InMemoryEventStore;
-use Prooph\EventStore\Projection\InMemoryProjectionManager;
 use Prooph\EventStore\StreamName;
 use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
 use Prooph\EventStore\TransactionalEventStore;
@@ -93,6 +98,18 @@ class EventMachineTest extends BasicTestCase
      */
     private $containerChain;
 
+    /**
+     * @var TransactionManager
+     */
+    private $transactionManager;
+
+    /**
+     * InMemoryConnection
+     *
+     * @var InMemoryConnection
+     */
+    private $inMemoryConnection;
+
     protected function setUp()
     {
         $this->eventMachine = new EventMachine();
@@ -109,6 +126,7 @@ class EventMachineTest extends BasicTestCase
         $this->commandBus = new CommandBus();
         $this->eventBus = new EventBus();
         $this->queryBus = new QueryBus();
+        $this->inMemoryConnection = new InMemoryConnection();
 
         $this->appContainer = $this->prophesize(ContainerInterface::class);
 
@@ -133,6 +151,11 @@ class EventMachineTest extends BasicTestCase
             return $self->queryBus;
         });
 
+        $this->appContainer->has(EventMachine::SERVICE_ID_TRANSACTION_MANAGER)->willReturn(true);
+        $this->appContainer->get(EventMachine::SERVICE_ID_TRANSACTION_MANAGER)->will(function ($args) use ($self) {
+            return $self->transactionManager;
+        });
+
         $this->appContainer->has(EventMachine::SERVICE_ID_MESSAGE_FACTORY)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_JSON_SCHEMA_ASSERTION)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_SNAPSHOT_STORE)->willReturn(false);
@@ -154,6 +177,36 @@ class EventMachineTest extends BasicTestCase
         $this->eventBus = null;
         $this->queryBus = null;
         $this->appContainer = null;
+        $this->transactionManager = null;
+        $this->inMemoryConnection = null;
+    }
+
+    protected function setUpAggregateProjector(
+        DocumentStore $documentStore,
+        EventStore $eventStore,
+        StreamName $streamName
+    ): void {
+        $aggregateProjector = new AggregateProjector($documentStore, $this->eventMachine);
+
+        $eventStore->create(new \Prooph\EventStore\Stream($streamName, new \ArrayIterator([])));
+
+        $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(true);
+        $this->appContainer->get(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(new InMemoryProjectionManager(
+            $eventStore,
+            $this->inMemoryConnection
+        ));
+        $this->appContainer->get(EventMachine::SERVICE_ID_EVENT_STORE)->will(function ($args) use ($eventStore) {
+            return $eventStore;
+        });
+
+        $this->appContainer->has(AggregateProjector::class)->willReturn(true);
+        $this->appContainer->get(AggregateProjector::class)->will(function ($args) use ($aggregateProjector) {
+            return $aggregateProjector;
+        });
+
+        $this->eventMachine->watch(Stream::ofWriteModel())
+            ->with(AggregateProjector::generateProjectionName(Aggregate::USER), AggregateProjector::class)
+            ->filterAggregateType(Aggregate::USER);
     }
 
     /**
@@ -192,14 +245,8 @@ class EventMachineTest extends BasicTestCase
         self::assertCount(1, $publishedEvents);
         /** @var GenericJsonSchemaEvent $event */
         $event = $recordedEvents[0];
-        self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
-        self::assertEquals([
-            '_causation_id' => $registerUser->uuid()->toString(),
-            '_causation_name' => $registerUser->messageName(),
-            '_aggregate_version' => 1,
-            '_aggregate_id' => $userId,
-            '_aggregate_type' => 'User',
-        ], $event->metadata());
+
+        $this->assertUserWasRegistered($event, $registerUser, $userId);
 
         self::assertSame($event, $publishedEvents[0]);
     }
@@ -382,14 +429,8 @@ class EventMachineTest extends BasicTestCase
         self::assertCount(1, $producedEvents);
         /** @var GenericJsonSchemaEvent $event */
         $event = $recordedEvents[0];
-        self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
-        self::assertEquals([
-            '_causation_id' => $registerUser->uuid()->toString(),
-            '_causation_name' => $registerUser->messageName(),
-            '_aggregate_version' => 1,
-            '_aggregate_id' => $userId,
-            '_aggregate_type' => 'User',
-        ], $event->metadata());
+
+        $this->assertUserWasRegistered($event, $registerUser, $userId);
 
         //Event should have modified metadata (async switch) and therefor be another instance (as it is immutable)
         self::assertNotSame($event, $publishedEvents[0]);
@@ -639,33 +680,14 @@ class EventMachineTest extends BasicTestCase
      */
     public function it_watches_write_model_stream()
     {
-        $documentStore = new InMemoryDocumentStore();
-
-        $aggregateProjector = new AggregateProjector($documentStore, $this->eventMachine);
+        $documentStore = new InMemoryDocumentStore(new InMemoryConnection());
 
         $eventStore = new ActionEventEmitterEventStore(
-            new InMemoryEventStore(),
+            new InMemoryEventStore($this->inMemoryConnection),
             new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS)
         );
 
-        $eventStore->create(new \Prooph\EventStore\Stream(new StreamName('event_stream'), new \ArrayIterator([])));
-
-        $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(true);
-        $this->appContainer->get(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(new InMemoryProjectionManager(
-            $eventStore
-        ));
-        $this->appContainer->get(EventMachine::SERVICE_ID_EVENT_STORE)->will(function ($args) use ($eventStore) {
-            return $eventStore;
-        });
-
-        $this->appContainer->has(AggregateProjector::class)->willReturn(true);
-        $this->appContainer->get(AggregateProjector::class)->will(function ($args) use ($aggregateProjector) {
-            return $aggregateProjector;
-        });
-
-        $this->eventMachine->watch(Stream::ofWriteModel())
-            ->with(AggregateProjector::generateProjectionName(Aggregate::USER), AggregateProjector::class)
-            ->filterAggregateType(Aggregate::USER);
+        $this->setUpAggregateProjector($documentStore, $eventStore, new StreamName('event_stream'));
 
         $this->eventMachine->initialize($this->containerChain);
 
@@ -684,12 +706,10 @@ class EventMachineTest extends BasicTestCase
 
         $this->eventMachine->runProjections(false);
 
-        $collection = AggregateProjector::generateCollectionName(
-            $this->eventMachine->appVersion(),
-            AggregateProjector::generateProjectionName(Aggregate::USER)
+        $userState = $documentStore->getDoc(
+            $this->getAggregateCollectionName(Aggregate::USER),
+            $userId
         );
-
-        $userState = $documentStore->getDoc($collection, $userId);
 
         $this->assertNotNull($userState);
 
@@ -787,5 +807,150 @@ class EventMachineTest extends BasicTestCase
         $this->eventMachine->bootstrap();
 
         $this->assertEquals('0.2.0', $this->eventMachine->appVersion());
+    }
+
+    /**
+     * @test
+     */
+    public function it_dispatches_a_known_command_with_immediate_consistency(): void
+    {
+        $documentStore = new InMemoryDocumentStore($this->inMemoryConnection);
+
+        $inMemoryEventStore = new InMemoryEventStore($this->inMemoryConnection);
+
+        $eventStore = new ActionEventEmitterEventStore(
+            $inMemoryEventStore,
+            new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $streamName = new StreamName('event_stream');
+
+        $this->setUpAggregateProjector($documentStore, $eventStore, $streamName);
+
+        $this->transactionManager = new TransactionManager($this->inMemoryConnection);
+        $publishedEvents = [];
+
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function (Message $event) use (&$publishedEvents) {
+            $publishedEvents[] = $event;
+        });
+
+        $this->eventMachine->setImmediateConsistency(true);
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Command::REGISTER_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ]]
+        );
+
+        $this->eventMachine->bootstrap()->dispatch($registerUser);
+
+        $recordedEvents = $inMemoryEventStore->load($streamName);
+
+        self::assertCount(1, $recordedEvents);
+        self::assertCount(1, $publishedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        $this->assertUserWasRegistered($event, $registerUser, $userId);
+
+        self::assertSame($event, $publishedEvents[0]);
+
+        $userState = $documentStore->getDoc(
+            $this->getAggregateCollectionName(Aggregate::USER),
+            $userId
+        );
+
+        $this->assertNotNull($userState);
+
+        $this->assertEquals([
+            'id' => $userId,
+            'username' => 'Alex',
+            'email' => 'contact@prooph.de',
+            'failed' => null,
+        ], $userState);
+    }
+
+    /**
+     * @test
+     */
+    public function it_rolls_back_events_and_projection_with_immediate_consistency(): void
+    {
+        $documentStore = $this->prophesize(DocumentStore::class);
+        $documentStore->hasCollection(Argument::type('string'))->willReturn(false);
+        $documentStore->addCollection(Argument::type('string'))->shouldBeCalled();
+        $documentStore
+            ->upsertDoc(Argument::type('string'), Argument::type('string'), Argument::type('array'))
+            ->willThrow(new \RuntimeException('projection error'));
+
+        $inMemoryEventStore = new InMemoryEventStore($this->inMemoryConnection);
+
+        $eventStore = new ActionEventEmitterEventStore(
+            $inMemoryEventStore,
+            new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $streamName = new StreamName('event_stream');
+
+        $this->setUpAggregateProjector($documentStore->reveal(), $eventStore, $streamName);
+
+        $this->transactionManager = new TransactionManager($this->inMemoryConnection);
+        $publishedEvents = [];
+
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function (Message $event) use (&$publishedEvents) {
+            $publishedEvents[] = $event;
+        });
+
+        $this->eventMachine->setImmediateConsistency(true);
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Command::REGISTER_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ]]
+        );
+
+        $exceptionThrown = false;
+
+        // more tests after exception needed
+        try {
+            $this->eventMachine->bootstrap()->dispatch($registerUser);
+        } catch (TransactionCommitFailed $e) {
+            $exceptionThrown = true;
+        }
+        $this->assertTrue($exceptionThrown);
+        $this->assertEmpty(iterator_to_array($eventStore->load($streamName)));
+    }
+
+    private function assertUserWasRegistered(
+        GenericJsonSchemaEvent $event,
+        GenericJsonSchemaCommand $registerUser,
+        string $userId
+    ): void {
+        self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
+        self::assertEquals([
+            '_causation_id' => $registerUser->uuid()->toString(),
+            '_causation_name' => $registerUser->messageName(),
+            '_aggregate_version' => 1,
+            '_aggregate_id' => $userId,
+            '_aggregate_type' => 'User',
+        ], $event->metadata());
+    }
+
+    private function getAggregateCollectionName(string $aggregate): string
+    {
+        return AggregateProjector::generateCollectionName(
+            $this->eventMachine->appVersion(),
+            AggregateProjector::generateProjectionName($aggregate)
+        );
     }
 }

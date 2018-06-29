@@ -12,6 +12,7 @@ declare(strict_types=1);
 namespace Prooph\EventMachineTest\Persistence\DocumentStore\Filter;
 
 use Prooph\EventMachine\Persistence\DocumentStore\InMemoryDocumentStore;
+use Prooph\EventMachine\Persistence\InMemoryConnection;
 
 trait FilterTestHelperTrait
 {
@@ -27,7 +28,7 @@ trait FilterTestHelperTrait
 
     protected function setUp()
     {
-        $this->store = new InMemoryDocumentStore();
+        $this->store = new InMemoryDocumentStore(new InMemoryConnection());
         $this->collection = 'test';
     }
 
