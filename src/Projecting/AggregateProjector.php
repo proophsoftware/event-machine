@@ -16,6 +16,7 @@ use Prooph\EventMachine\Data\DataConverter;
 use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Persistence\DeletableState;
 use Prooph\EventMachine\Persistence\DocumentStore;
 
 /**
@@ -101,6 +102,14 @@ final class AggregateProjector implements Projector
         try {
             $aggregateState = $this->eventMachine->loadAggregateState((string) $aggregateType, (string) $aggregateId);
         } catch (AggregateNotFound $e) {
+            return;
+        }
+
+        if($aggregateState instanceof DeletableState && $aggregateState->deleted()) {
+            $this->documentStore->deleteDoc(
+                $this->generateCollectionName($appVersion, $projectionName),
+                (string) $aggregateId
+            );
             return;
         }
 
