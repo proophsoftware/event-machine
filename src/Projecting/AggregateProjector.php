@@ -105,11 +105,12 @@ final class AggregateProjector implements Projector
             return;
         }
 
-        if($aggregateState instanceof DeletableState && $aggregateState->deleted()) {
+        if ($aggregateState instanceof DeletableState && $aggregateState->deleted()) {
             $this->documentStore->deleteDoc(
                 $this->generateCollectionName($appVersion, $projectionName),
                 (string) $aggregateId
             );
+
             return;
         }
 
