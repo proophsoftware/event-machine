@@ -31,4 +31,18 @@ class EqFilterTest extends BasicTestCase
 
         $this->assertEquals('Quak', implode(', ', $names));
     }
+
+    /**
+     * @test
+     */
+    public function it_filters_docs_with_eq_null_filter()
+    {
+        $this->loadFixtures();
+
+        $animals = $this->store->filterDocs($this->collection, new EqFilter('race', null));
+
+        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+
+        $this->assertEquals('Quak', implode(', ', $names));
+    }
 }

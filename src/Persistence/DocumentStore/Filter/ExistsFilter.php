@@ -39,8 +39,6 @@ final class ExistsFilter implements Filter
     {
         $reader = new ArrayReader($doc);
 
-        $prop = $reader->mixedValue($this->prop, self::NOT_SET_PROPERTY);
-
-        return $prop !== self::NOT_SET_PROPERTY;
+        return $reader->pathExists($this->prop);
     }
 }
