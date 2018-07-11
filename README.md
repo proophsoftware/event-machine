@@ -30,6 +30,17 @@ $ docker run --rm -it -v $(pwd):/app prooph/composer:7.1
 $ docker run -it --rm -e CSS_BOOTSWATCH=lumen -e CSS_PRISM=ghcolors -v $(pwd):/app sandrokeil/bookdown:develop docs/bookdown.json
 $ docker run -it --rm -p 8080:8080 -v $(pwd):/app php:7.1-cli php -S 0.0.0.0:8080 -t /app/docs/html
 ```
+## Run Tests
+
+Some tests require existence of prooph/event-store tests which are usually not installed due to `.gitattributes` excluding them.
+Unfortunately, composer does not offer a reinstall command so we have to remove `prooph/event-store` package from the vendor folder
+manually and install it again using `--prefer-source` flag.
+
+```bash
+$ rm -rf vendor/prooph/event-store
+$ docker run --rm -it -v $(pwd):/app --user="$(id -u):$(id -g)" prooph/composer:7.1 install --prefer-source
+```
+
 
 ## Powered by prooph software
 

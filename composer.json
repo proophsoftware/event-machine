@@ -29,7 +29,7 @@
     "fig/http-message-util": "^1.1",
     "zendframework/zend-diactoros": "^1.3",
     "justinrainbow/json-schema": "^5.2",
-    "codeliner/array-reader": "^1.2",
+    "codeliner/array-reader": "^2.0",
     "react/promise": "^2.5",
     "psr/http-server-middleware": "^1.0"
   },
