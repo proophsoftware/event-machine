@@ -55,8 +55,8 @@ final class EqFilter implements Filter
 
         $prop = $reader->mixedValue($this->prop, self::NOT_SET_PROPERTY);
 
-        if ($prop === self::NOT_SET_PROPERTY) {
-            return false;
+        if ($prop === self::NOT_SET_PROPERTY && $this->val === null) {
+            return $reader->pathExists($this->prop);
         }
 
         return $prop === $this->val;

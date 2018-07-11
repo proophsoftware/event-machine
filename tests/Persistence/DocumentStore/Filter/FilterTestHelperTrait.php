@@ -78,6 +78,7 @@ trait FilterTestHelperTrait
             'name' => 'Quak',
             'animal' => 'duck',
             'age' => 1,
+            'race' => null,
         ]);
     }
 }

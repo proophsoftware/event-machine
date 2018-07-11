@@ -29,6 +29,6 @@ class ExistsFilterTest extends BasicTestCase
 
         $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Hasso', implode(', ', $names));
+        $this->assertEquals('Hasso, Quak', implode(', ', $names));
     }
 }
