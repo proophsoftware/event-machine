@@ -198,7 +198,7 @@ final class ImmutableRecordTest extends TestCase
     {
         $productPrice = TestProductPriceVO::fromArray([
             'amount' => 2.0,
-            'currency' => 'EUR'
+            'currency' => 'EUR',
         ]);
 
         $amount = $productPrice->toArray()['amount'];
