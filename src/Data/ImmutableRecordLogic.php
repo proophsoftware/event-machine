@@ -293,7 +293,9 @@ trait ImmutableRecordLogic
             case 'string':
                 return $type::fromString($value);
             case 'integer':
-                return $type::fromInt($value);
+                return \method_exists($type, 'fromInt')
+                    ? $type::fromInt($value)
+                    : $type::fromFloat($value);
             case 'float':
             case 'double':
                 return $type::fromFloat($value);
