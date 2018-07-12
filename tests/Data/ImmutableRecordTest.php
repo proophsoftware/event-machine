@@ -18,6 +18,7 @@ use Prooph\EventMachineTest\Data\Stubs\TestCommentVO;
 use Prooph\EventMachineTest\Data\Stubs\TestDefaultPrice;
 use Prooph\EventMachineTest\Data\Stubs\TestIdentityVO;
 use Prooph\EventMachineTest\Data\Stubs\TestProduct;
+use Prooph\EventMachineTest\Data\Stubs\TestProductPriceVO;
 use Prooph\EventMachineTest\Data\Stubs\TestProductVO;
 use Prooph\EventMachineTest\Data\Stubs\TestUserVO;
 
@@ -188,5 +189,28 @@ final class ImmutableRecordTest extends TestCase
         $defaultPrice = TestDefaultPrice::fromArray([]);
 
         $this->assertEquals(['amount' => 9.99, 'currency' => 'EUR'], $defaultPrice->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function it_calls_from_float_when_from_int_does_not_exist()
+    {
+        $productPrice = TestProductPriceVO::fromArray([
+            'amount' => 2.0,
+            'currency' => 'EUR',
+        ]);
+
+        $amount = $productPrice->toArray()['amount'];
+        $this->assertEquals(2.0, $amount);
+        $this->assertInternalType('float', $amount);
+
+        $json = json_encode($productPrice->toArray());
+        $this->assertEquals('{"amount":2,"currency":"EUR"}', $json);
+
+        $productPrice = TestProductPriceVO::fromArray(json_decode($json, true));
+        $amount = $productPrice->toArray()['amount'];
+        $this->assertEquals(2.0, $amount);
+        $this->assertInternalType('float', $amount);
     }
 }
