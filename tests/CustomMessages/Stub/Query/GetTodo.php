@@ -1,0 +1,30 @@
+<?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
+declare(strict_types=1);
+
+namespace Prooph\EventMachineTest\CustomMessages\Stub\Query;
+
+final class GetTodo
+{
+    private $todoId;
+
+    public static function fromArray(array $genericMsgData): GetTodo
+    {
+        $self = new self();
+        $self->todoId = (string) $genericMsgData['payload']['todoId'] ?? '';
+
+        return $self;
+    }
+
+    public function todoId(): string
+    {
+        return $this->todoId;
+    }
+}

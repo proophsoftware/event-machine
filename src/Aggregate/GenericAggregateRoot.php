@@ -11,7 +11,7 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Aggregate;
 
-use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventSourcing\Aggregate\AggregateTypeProvider;
 use Prooph\EventSourcing\Aggregate\Exception\RuntimeException;
@@ -37,6 +37,11 @@ final class GenericAggregateRoot implements AggregateTypeProvider
     private $eventApplyMap;
 
     /**
+     * @var string[]
+     */
+    private $eventClassMap;
+
+    /**
      * @var mixed
      */
     private $aggregateState;
@@ -58,19 +63,20 @@ final class GenericAggregateRoot implements AggregateTypeProvider
     /**
      * @throws RuntimeException
      */
-    protected static function reconstituteFromHistory(string $aggregateId, AggregateType $aggregateType, array $eventApplyMap, \Iterator $historyEvents): self
+    protected static function reconstituteFromHistory(string $aggregateId, AggregateType $aggregateType, array $eventApplyMap, array $eventClassMap, \Iterator $historyEvents): self
     {
-        $instance = new self($aggregateId, $aggregateType, $eventApplyMap);
+        $instance = new self($aggregateId, $aggregateType, $eventApplyMap, $eventClassMap);
         $instance->replay($historyEvents);
 
         return $instance;
     }
 
-    public function __construct(string  $aggregateId, AggregateType $aggregateType, array $eventApplyMap)
+    public function __construct(string  $aggregateId, AggregateType $aggregateType, array $eventApplyMap, array $eventClassMap)
     {
         $this->aggregateId = $aggregateId;
         $this->aggregateType = $aggregateType;
         $this->eventApplyMap = $eventApplyMap;
+        $this->eventClassMap = $eventClassMap;
     }
 
     /**
@@ -133,6 +139,19 @@ final class GenericAggregateRoot implements AggregateTypeProvider
     private function apply(GenericJsonSchemaEvent $event): void
     {
         $apply = $this->eventApplyMap[$event->messageName()];
+
+        if (array_key_exists($event->messageName(), $this->eventClassMap)) {
+            $eventClass = $this->eventClassMap[$event->messageName()];
+
+            if (! is_callable([$eventClass, 'fromArray'])) {
+                throw new \RuntimeException(sprintf(
+                    'Custom event class %s should have a static fromArray method',
+                    $eventClass
+                ));
+            }
+
+            $event = ([$eventClass, 'fromArray'])($event->toArray());
+        }
 
         if ($this->aggregateState === null) {
             $newArState = $apply($event);

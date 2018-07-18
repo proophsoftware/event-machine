@@ -53,6 +53,8 @@ final class CommandToProcessorRouterTest extends BasicTestCase
             ],
         ];
 
+        $eventClassMap = [];
+
         $messageFactory = $this->prophesize(MessageFactory::class);
         $eventStore = $this->prophesize(EventStore::class);
         $snapshotStore = $this->prophesize(SnapshotStore::class);
@@ -63,6 +65,7 @@ final class CommandToProcessorRouterTest extends BasicTestCase
         $router = new CommandToProcessorRouter(
             $commandMap,
             $aggregateDescriptions,
+            $eventClassMap,
             $messageFactory->reveal(),
             $eventStore->reveal(),
             $contextProviderFactory->reveal(),

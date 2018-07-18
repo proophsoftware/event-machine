@@ -16,7 +16,7 @@ use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
-use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\EventStore;
@@ -29,6 +29,11 @@ final class CommandProcessor
      * @var string
      */
     private $commandName;
+
+    /**
+     * @var string|null
+     */
+    private $commandClass;
 
     /**
      * @var string
@@ -59,6 +64,11 @@ final class CommandProcessor
      * @var array
      */
     private $eventApplyMap;
+
+    /**
+     * @var array
+     */
+    private $eventClassMap;
 
     /**
      * @var string
@@ -141,7 +151,9 @@ final class CommandProcessor
             $messageFactory,
             $eventStore,
             $snapshotStore,
-            $contextProvider
+            $contextProvider,
+            $description['commandClass'] ?? null,
+            $description['eventClassMap'] ?? []
         );
     }
 
@@ -157,7 +169,9 @@ final class CommandProcessor
         MessageFactory $messageFactory,
         EventStore $eventStore,
         SnapshotStore $snapshotStore = null,
-        ContextProvider $contextProvider = null
+        ContextProvider $contextProvider = null,
+        string $commandClass = null,
+        array $eventClassMap = []
     ) {
         $this->commandName = $commandName;
         $this->aggregateType = $aggregateType;
@@ -171,6 +185,8 @@ final class CommandProcessor
         $this->eventStore = $eventStore;
         $this->snapshotStore = $snapshotStore;
         $this->contextProvider = $contextProvider;
+        $this->commandClass = $commandClass;
+        $this->eventClassMap = $eventClassMap;
     }
 
     public function __invoke(GenericJsonSchemaCommand $command)
@@ -194,9 +210,18 @@ final class CommandProcessor
         $arId = (string) $payload[$this->aggregateIdentifier];
         $arRepository = $this->getAggregateRepository($arId);
         $arFuncArgs = [];
+        $commandUuid = $command->uuid()->toString();
+
+        if ($this->commandClass) {
+            if (! is_callable([$this->commandClass, 'fromArray'])) {
+                throw new \RuntimeException(sprintf('Custom command class %s should have a static fromArray method', $this->commandClass));
+            }
+
+            $command = ([$this->commandClass, 'fromArray'])($command->toArray());
+        }
 
         if ($this->createAggregate) {
-            $aggregate = new GenericAggregateRoot($arId, AggregateType::fromString($this->aggregateType), $this->eventApplyMap);
+            $aggregate = new GenericAggregateRoot($arId, AggregateType::fromString($this->aggregateType), $this->eventApplyMap, $this->eventClassMap);
             $arFuncArgs[] = $command;
         } else {
             /** @var GenericAggregateRoot $aggregate */
@@ -231,16 +256,38 @@ final class CommandProcessor
             }
 
             if (! is_array($event) || ! array_key_exists(0, $event) || ! array_key_exists(1, $event)
-                || ! is_string($event[0]) || ! is_array($event[1])) {
+                || ! is_string($event[0])
+                || (! is_array($event[1]) && ! is_object($event[1]))) {
                 throw new \RuntimeException(sprintf(
-                    'Event returned by aggregate of type %s while handling command %s does not has the format [string eventName, array payload]!',
+                    'Event returned by aggregate of type %s while handling command %s does not have the format [string eventName, array payload | object event]!',
                     $this->aggregateType,
                     $this->commandName
                 ));
             }
+
+            $customEvent = null;
+
             [$eventName, $payload] = $event;
 
-            $metadata = [];
+            if (is_array($payload)) {
+                $metadata = [];
+            } else {
+                //Custom event class used instead of payload array
+                if (! method_exists($payload, 'toArray')) {
+                    throw new \RuntimeException(sprintf(
+                        'Event %s returned by aggregate of type %s while handling command %s should have a toArray method',
+                        get_class($payload),
+                        $this->aggregateType,
+                        $this->commandName
+                    ));
+                }
+
+                $evtArr = $payload->toArray();
+
+                $payload = $evtArr['payload'] ?? $evtArr;
+
+                $metadata = $evtArr['metadata'] ?? [];
+            }
 
             if (array_key_exists(2, $event)) {
                 $metadata = $event[2];
@@ -258,7 +305,7 @@ final class CommandProcessor
             $event = $this->messageFactory->createMessageFromArray($eventName, [
                 'payload' => $payload,
                 'metadata' => array_merge([
-                    '_causation_id' => $command->uuid()->toString(),
+                    '_causation_id' => $commandUuid,
                     '_causation_name' => $this->commandName,
                 ], $metadata),
             ]);
@@ -275,7 +322,7 @@ final class CommandProcessor
             $this->aggregateRepository = new AggregateRepository(
                 $this->eventStore,
                 AggregateType::fromString($this->aggregateType),
-                new ClosureAggregateTranslator($aggregateId, $this->eventApplyMap),
+                new ClosureAggregateTranslator($aggregateId, $this->eventApplyMap, $this->eventClassMap),
                 $this->snapshotStore,
                 new StreamName($this->streamName)
             );

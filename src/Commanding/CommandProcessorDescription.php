@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Commanding;
 
-use Prooph\EventMachine\Eventing\EventRecorderDescription;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\EventRecorderDescription;
 
 final class CommandProcessorDescription
 {
@@ -25,6 +25,11 @@ final class CommandProcessorDescription
      * @var string
      */
     private $commandName;
+
+    /**
+     * @var string|null
+     */
+    private $commandClass;
 
     /**
      * @var bool
@@ -53,10 +58,11 @@ final class CommandProcessorDescription
      */
     private $contextProvider;
 
-    public function __construct(string $commandName, EventMachine $eventMachine)
+    public function __construct(string $commandName, EventMachine $eventMachine, string $commandClass = null)
     {
         $this->commandName = $commandName;
         $this->eventMachine = $eventMachine;
+        $this->commandClass = $commandClass;
     }
 
     public function withNew(string $aggregateType): self
@@ -147,6 +153,7 @@ final class CommandProcessorDescription
 
         return [
             'commandName' => $this->commandName,
+            'commandClass' => $this->commandClass,
             'createAggregate' => $this->createAggregate,
             'aggregateType' => $this->aggregateType,
             'aggregateIdentifier' => $this->aggregateIdentifier,
