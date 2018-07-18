@@ -328,6 +328,8 @@ final class EventMachine
 
     public function registerQuery(string $queryName, ObjectType $payloadSchema = null, string $queryClass = null): QueryDescription
     {
+        $this->assertNotInitialized(__METHOD__);
+
         if ($payloadSchema) {
             $payloadSchema = $payloadSchema->toArray();
             $this->jsonSchemaAssertion()->assert("Query $queryName payload schema", $payloadSchema, JsonSchema::metaSchema());
@@ -457,6 +459,8 @@ final class EventMachine
 
     public function watch(Stream $stream): ProjectionDescription
     {
+        $this->assertNotInitialized(__METHOD__);
+
         if ($stream->streamName() === Stream::WRITE_MODEL_STREAM) {
             $stream = $stream->withStreamName($this->writeModelStreamName);
         }
