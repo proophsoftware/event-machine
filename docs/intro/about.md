@@ -3,10 +3,17 @@
 prooph software Event Machine takes away all the boring, time consuming parts of event sourcing to speed up
 development of event sourced applications and increase the fun. It can be used for prototypes as well as full featured applications.
 
+## Microservices
+
+Event Machine emphasises a Microservices architecture where individual services are kept relatively small and autonomous.
+When dividing application logic into multiple independent services it is mandatory to have tools in place to orchestrate
+and manage them. On the infrastructure level there are many excellent tools available but this is not enough.
+If you have a business process that involves 3 different services you need a sane way to visualize and control that
+process as a whole. With the built-in message flow analyzer Event Machine is capable of providing such a visualization and monitoring tool.
 
 ## Origin
 
-Event Machine was originally designed as a "workshop framework".
+Event Machine was originally designed as a "workshop framework" for CQRS and Event Sourcing and is inspired by the **Dreyfus model**.
 
 ### Beginner friendly
 
@@ -31,8 +38,7 @@ with Event Machine but it's also cheap to maintain that application in productio
 
 [![prooph software](https://github.com/codeliner/php-ddd-cargo-sample/raw/master/docs/assets/prooph-software-logo.png)](http://prooph.de)
 
-Event Machine is maintained by the [prooph software team](http://prooph-software.de/). The source code of Event Machine
-is open sourced along with the API documentation and a [Getting Started Tutorial](/tutorial). Prooph software offers commercial support and workshops
-for Event Machine as well as for the [prooph components](http://getprooph.org/).
+Event Machine is maintained by the [prooph software team](http://prooph-software.de/).
+Prooph software offers commercial support and workshops for Event Machine as well as for the [prooph components](http://getprooph.org/).
 
 If you are interested please [get in touch](http://getprooph.org/#get-in-touch)

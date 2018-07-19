@@ -4,10 +4,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/proophsoftware/event-machine/badge.svg?branch=master)](https://coveralls.io/github/proophsoftware/event-machine?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/proophsoftware/chat)
 
-## Important!!!
-
-Please check the notes of the [v1.0-alpha.6 Release](https://github.com/proophsoftware/event-machine/releases/tag/v1.0-alpha.6). We're going to change some parts of Event Machine before first stable release.
-
 ## Event Sourced RAD
 
 prooph software Event Machine takes away all the boring, time consuming parts of event sourcing to speed up
