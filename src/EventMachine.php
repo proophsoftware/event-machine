@@ -987,9 +987,13 @@ final class EventMachine
 
         $eventPublisher->attachToEventStore($eventStore);
 
-        if ($eventStore instanceof TransactionalActionEventEmitterEventStore
-            && ! $this->immediateConsistency
-        ) {
+        if ($eventStore instanceof TransactionalActionEventEmitterEventStore) {
+            if ($this->immediateConsistency) {
+                throw new RuntimeException(
+                    'You cannot use a ' . TransactionalActionEventEmitterEventStore::class
+                    . ' together with immediate consistency. Wrap your event store with a ' . ActionEventEmitterEventStore::class . ' instead!');
+            }
+
             $transactionManager = new TransactionManager($eventStore);
             $commandBus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
             $transactionManager->attachToMessageBus($commandBus);

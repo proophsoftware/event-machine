@@ -17,6 +17,7 @@ use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
 use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Exception\RuntimeException;
 use Prooph\EventMachine\Exception\TransactionCommitFailed;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\Type\EmailType;
@@ -929,6 +930,39 @@ class EventMachineTest extends BasicTestCase
         }
         $this->assertTrue($exceptionThrown);
         $this->assertEmpty(iterator_to_array($eventStore->load($streamName)));
+    }
+
+    /**
+     * @test
+     */
+    public function it_switches_action_event_emitter_with_immediate_consistency(): void
+    {
+        $documentStore = new InMemoryDocumentStore($this->inMemoryConnection);
+
+        $inMemoryEventStore = new InMemoryEventStore($this->inMemoryConnection);
+
+        //A TransactionalActionEventEmitterEventStore conflicts with the immediate consistency mode
+        //because the EventPublisher listens on commit event, but it never happens due to transaction managed
+        //outside of the event store
+        //Event Machine needs to take care of it
+        $eventStore = new TransactionalActionEventEmitterEventStore(
+            $inMemoryEventStore,
+            new ProophActionEventEmitter(TransactionalActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $streamName = new StreamName('event_stream');
+
+        $this->setUpAggregateProjector($documentStore, $eventStore, $streamName);
+
+        $this->transactionManager = new TransactionManager($this->inMemoryConnection);
+        $publishedEvents = [];
+
+        $this->eventMachine->setImmediateConsistency(true);
+        $this->eventMachine->initialize($this->containerChain);
+
+        $this->expectException(RuntimeException::class);
+
+        $this->eventMachine->bootstrap();
     }
 
     private function assertUserWasRegistered(
