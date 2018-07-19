@@ -13,8 +13,8 @@ namespace Prooph\EventMachineTest\Commanding;
 
 use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Commanding\CommandProcessor;
+use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
-use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachineTest\Aggregate\Stub\ContextAwareAggregateDescription;
 use Prooph\EventMachineTest\BasicTestCase;

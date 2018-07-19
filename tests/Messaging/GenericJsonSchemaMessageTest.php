@@ -11,8 +11,8 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachineTest\Messaging;
 
+use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
-use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prooph\EventMachineTest\BasicTestCase;
 
 final class GenericJsonSchemaMessageTest extends BasicTestCase

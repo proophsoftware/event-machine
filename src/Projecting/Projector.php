@@ -11,6 +11,8 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Projecting;
 
+use Prooph\EventMachine\Messaging\Message;
+
 /**
  * Projections are rebuilt on each deployment
  *
@@ -29,7 +31,7 @@ interface Projector
 {
     public function prepareForRun(string $appVersion, string $projectionName): void;
 
-    public function handle(string $appVersion, string $projectionName, $event): void;
+    public function handle(string $appVersion, string $projectionName, Message $event): void;
 
     public function deleteReadModel(string $appVersion, string $projectionName): void;
 }

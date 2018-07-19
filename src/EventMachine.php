@@ -35,7 +35,6 @@ use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\ObjectType;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
-use Prooph\EventMachine\Messaging\MessageTranslatorPlugin;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Persistence\TransactionManager as BusTransactionManager;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
@@ -80,16 +79,11 @@ final class EventMachine
     /**
      * Map of command names and corresponding json schema of payload
      *
-     * @var array
-     */
-    private $commandMap = [];
-
-    /**
-     * Map of command names and corresponding command classes (if set during registration)
+     * Json schema can be passed as array or path to schema file
      *
      * @var array
      */
-    private $commandClassMap = [];
+    private $commandMap = [];
 
     /**
      * Map of command names and corresponding list of preprocessors given as either service id string or callable
@@ -123,13 +117,6 @@ final class EventMachine
     private $eventMap = [];
 
     /**
-     * Map of event names and corresponding event classes (if set during registration)
-     *
-     * @var array
-     */
-    private $eventClassMap = [];
-
-    /**
      * Map of event names and corresponding list of listeners given as either service id string or callable
      *
      * @var string|callable[]
@@ -157,13 +144,6 @@ final class EventMachine
      * @var array list of query names and corresponding payload schemas
      */
     private $queryMap = [];
-
-    /**
-     * Map of query names and corresponding query classes (if set during registration)
-     *
-     * @var array
-     */
-    private $queryClasaMap = [];
 
     /**
      * @var array list of type definitions indexed by type name
@@ -241,16 +221,13 @@ final class EventMachine
         }
 
         $self->commandMap = $config['commandMap'];
-        $self->commandClassMap = $config['commandClassMap'] ?? [];
         $self->eventMap = $config['eventMap'];
-        $self->eventClassMap = $config['eventClassMap'] ?? [];
         $self->compiledCommandRouting = $config['compiledCommandRouting'];
         $self->aggregateDescriptions = $config['aggregateDescriptions'];
         $self->eventRouting = $config['eventRouting'];
         $self->compiledProjectionDescriptions = $config['compiledProjectionDescriptions'];
         $self->compiledQueryDescriptions = $config['compiledQueryDescriptions'];
         $self->queryMap = $config['queryMap'];
-        $self->queryClasaMap = $config['queryClassMap'] ?? [];
         $self->schemaTypes = $config['schemaTypes'];
         $self->appVersion = $config['appVersion'];
         $self->writeModelStreamName = $config['writeModelStreamName'];
@@ -293,7 +270,7 @@ final class EventMachine
         return $this->immediateConsistency;
     }
 
-    public function registerCommand(string $commandName, ObjectType $schema, string $commandClass = null): self
+    public function registerCommand(string $commandName, ObjectType $schema): self
     {
         $this->assertNotInitialized(__METHOD__);
         if (array_key_exists($commandName, $this->commandMap)) {
@@ -302,14 +279,10 @@ final class EventMachine
 
         $this->commandMap[$commandName] = $schema->toArray();
 
-        if ($commandClass) {
-            $this->commandClassMap[$commandName] = $commandClass;
-        }
-
         return $this;
     }
 
-    public function registerEvent(string $eventName, ObjectType $schema, string  $eventClass = null): self
+    public function registerEvent(string $eventName, ObjectType $schema): self
     {
         $this->assertNotInitialized(__METHOD__);
 
@@ -319,14 +292,10 @@ final class EventMachine
 
         $this->eventMap[$eventName] = $schema->toArray();
 
-        if ($eventClass) {
-            $this->eventClassMap[$eventName] = $eventClass;
-        }
-
         return $this;
     }
 
-    public function registerQuery(string $queryName, ObjectType $payloadSchema = null, string $queryClass = null): QueryDescription
+    public function registerQuery(string $queryName, ObjectType $payloadSchema = null): QueryDescription
     {
         if ($payloadSchema) {
             $payloadSchema = $payloadSchema->toArray();
@@ -342,10 +311,6 @@ final class EventMachine
         $this->queryMap[$queryName] = $payloadSchema;
         $queryDesc = new QueryDescription($queryName, $this);
         $this->queryDescriptions[$queryName] = $queryDesc;
-
-        if ($queryClass) {
-            $this->queryClasaMap[$queryName] = $queryClass;
-        }
 
         return $queryDesc;
     }
@@ -432,7 +397,7 @@ final class EventMachine
             throw new \BadMethodCallException("Command $commandName is unknown. You should register it first.");
         }
 
-        $this->commandRouting[$commandName] = new CommandProcessorDescription($commandName, $this, $this->commandClassMap[$commandName] ?? null);
+        $this->commandRouting[$commandName] = new CommandProcessorDescription($commandName, $this);
 
         return $this->commandRouting[$commandName];
     }
@@ -622,7 +587,7 @@ final class EventMachine
         $arRepository = new AggregateRepository(
             $this->container->get(self::SERVICE_ID_EVENT_STORE),
             AggregateType::fromString($aggregateType),
-            new ClosureAggregateTranslator($aggregateId, $aggregateDesc['eventApplyMap'], $this->eventClassMap),
+            new ClosureAggregateTranslator($aggregateId, $aggregateDesc['eventApplyMap']),
             $snapshotStore,
             new StreamName($this->writeModelStreamName())
         );
@@ -645,7 +610,6 @@ final class EventMachine
             $this->projectionRunner = new ProjectionRunner(
                 $this->container->get(self::SERVICE_ID_PROJECTION_MANAGER),
                 $this->compiledProjectionDescriptions,
-                $this->eventClassMap,
                 $this
             );
         }
@@ -693,16 +657,13 @@ final class EventMachine
 
         return [
             'commandMap' => $this->commandMap,
-            'commandClassMap' => $this->commandClassMap,
             'eventMap' => $this->eventMap,
-            'eventClassMap' => $this->eventClassMap,
             'compiledCommandRouting' => $this->compiledCommandRouting,
             'aggregateDescriptions' => $this->aggregateDescriptions,
             'eventRouting' => $this->eventRouting,
             'compiledProjectionDescriptions' => $this->compiledProjectionDescriptions,
             'compiledQueryDescriptions' => $this->compiledQueryDescriptions,
             'queryMap' => $this->queryMap,
-            'queryClassMap' => $this->queryClasaMap,
             'schemaTypes' => $this->schemaTypes,
             'appVersion' => $this->appVersion,
             'writeModelStreamName' => $this->writeModelStreamName,
@@ -917,7 +878,6 @@ final class EventMachine
         $router = new CommandToProcessorRouter(
             $this->compiledCommandRouting,
             $this->aggregateDescriptions,
-            $this->eventClassMap,
             $this->container->get(self::SERVICE_ID_MESSAGE_FACTORY),
             $this->container->get(self::SERVICE_ID_EVENT_STORE),
             new ContextProviderFactory($this->container),
@@ -945,11 +905,6 @@ final class EventMachine
         $serviceLocatorPlugin = new ServiceLocatorPlugin($this->container);
 
         $serviceLocatorPlugin->attachToMessageBus($queryBus);
-
-        if (count($this->queryClasaMap)) {
-            $queryTranslator = new MessageTranslatorPlugin($this->queryClasaMap);
-            $queryTranslator->attachToMessageBus($queryBus);
-        }
     }
 
     private function setUpEventBus(): void
@@ -972,12 +927,6 @@ final class EventMachine
         $serviceLocatorPlugin = new ServiceLocatorPlugin($this->container);
 
         $serviceLocatorPlugin->attachToMessageBus($eventBus);
-
-        if (count($this->eventClassMap)) {
-            $eventTranslator = new MessageTranslatorPlugin($this->eventClassMap);
-
-            $eventTranslator->attachToMessageBus($eventBus);
-        }
     }
 
     private function attachEventPublisherToEventStore(): void

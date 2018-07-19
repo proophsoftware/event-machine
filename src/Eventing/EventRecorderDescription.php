@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace Prooph\EventMachine\Messaging;
+namespace Prooph\EventMachine\Eventing;
 
 use Prooph\EventMachine\Commanding\CommandProcessorDescription;
 

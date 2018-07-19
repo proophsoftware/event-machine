@@ -27,11 +27,6 @@ final class ProjectionRunner
     private $projection;
 
     /**
-     * @var array
-     */
-    private $eventClassMap;
-
-    /**
      * @var bool
      */
     private $testMode;
@@ -44,7 +39,6 @@ final class ProjectionRunner
     public function __construct(
         ProjectionManager $projectionManager,
         array $projectionDescriptions,
-        array $eventClassMap,
         EventMachine $eventMachine,
         array $projectionOptions = null)
     {
@@ -78,7 +72,6 @@ final class ProjectionRunner
             self::eventMachineProjectionName($eventMachine->appVersion()),
             new ReadModelProxy(
                 $projectionDescriptions,
-                $eventClassMap,
                 $eventMachine
             ),
             $projectionOptions

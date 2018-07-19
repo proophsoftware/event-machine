@@ -37,13 +37,10 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
 
     private $eventApplyMap;
 
-    private $eventClassMap;
-
-    public function __construct(string $aggregateId, array $eventApplyMap, array $eventClassMap)
+    public function __construct(string $aggregateId, array $eventApplyMap)
     {
         $this->aggregateId = $aggregateId;
         $this->eventApplyMap = $eventApplyMap;
-        $this->eventClassMap = $eventClassMap;
     }
 
     /**
@@ -83,9 +80,8 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
         if (null === $this->aggregateReconstructor) {
             $arId = $this->aggregateId;
             $eventApplyMap = $this->eventApplyMap;
-            $eventClassMap = $this->eventClassMap;
-            $this->aggregateReconstructor = function ($historyEvents) use ($arId, $aggregateType, $eventApplyMap, $eventClassMap) {
-                return static::reconstituteFromHistory($arId, $aggregateType, $eventApplyMap, $eventClassMap, $historyEvents);
+            $this->aggregateReconstructor = function ($historyEvents) use ($arId, $aggregateType, $eventApplyMap) {
+                return static::reconstituteFromHistory($arId, $aggregateType, $eventApplyMap, $historyEvents);
             };
         }
 
