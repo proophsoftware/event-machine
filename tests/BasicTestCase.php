@@ -16,9 +16,9 @@ use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
+use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
-use Prooph\EventMachine\Messaging\GenericJsonSchemaEvent;
 use Prophecy\Argument;
 
 class BasicTestCase extends TestCase
@@ -44,7 +44,7 @@ class BasicTestCase extends TestCase
      */
     protected function extractRecordedEvents(GenericAggregateRoot $aggregateRoot): array
     {
-        $aggregateRootTranslator = new ClosureAggregateTranslator('unknown', [], []);
+        $aggregateRootTranslator = new ClosureAggregateTranslator('unknown', []);
 
         return $aggregateRootTranslator->extractPendingStreamEvents($aggregateRoot);
     }

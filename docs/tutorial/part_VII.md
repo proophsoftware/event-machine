@@ -227,7 +227,7 @@ Try to check *John* in again, while keeping an eye on the monitoring app `http:/
 ## The End
 
 Congratulations! You've mastered the Event Machine tutorial. There are two bonus parts available to learn more
-about **custom projections**, **testing with Event Machine** and how to achieve a "decoupled functional core".
+about **custom projections** and **testing with Event Machine**.
 The current implementation is available as a **demo** branch of `proophsoftware/event-machine-skeleton`.
 There is a second branch called **demo-oop** available that contains a similar
 implementation, but the `Building` aggregate is designed using an object oriented approach rather than
