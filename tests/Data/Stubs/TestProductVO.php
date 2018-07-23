@@ -18,6 +18,11 @@ final class TestProductVO implements ImmutableRecord
 {
     use ImmutableRecordLogic;
 
+    private static function arrayPropItemTypeMap(): array
+    {
+        return ['tags' => ImmutableRecord::PHP_TYPE_STRING];
+    }
+
     /**
      * @var TestProductIdVO
      */

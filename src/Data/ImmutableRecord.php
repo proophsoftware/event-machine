@@ -15,6 +15,12 @@ use Prooph\EventMachine\JsonSchema\Type;
 
 interface ImmutableRecord
 {
+    const PHP_TYPE_STRING = 'string';
+    const PHP_TYPE_INT = 'int';
+    const PHP_TYPE_FLOAT = 'float';
+    const PHP_TYPE_BOOL = 'bool';
+    const PHP_TYPE_ARRAY = 'array';
+
     /**
      * Name of the immutable record type
      *

@@ -13,6 +13,8 @@ namespace Prooph\EventMachineTest\Data;
 
 use PHPUnit\Framework\TestCase;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachineTest\Data\Stubs\TestBlacklistIdentityCollectionVO;
+use Prooph\EventMachineTest\Data\Stubs\TestBlacklistVO;
 use Prooph\EventMachineTest\Data\Stubs\TestBuildingVO;
 use Prooph\EventMachineTest\Data\Stubs\TestCommentVO;
 use Prooph\EventMachineTest\Data\Stubs\TestDefaultPrice;
@@ -22,7 +24,7 @@ use Prooph\EventMachineTest\Data\Stubs\TestProductPriceVO;
 use Prooph\EventMachineTest\Data\Stubs\TestProductVO;
 use Prooph\EventMachineTest\Data\Stubs\TestUserVO;
 
-final class ImmutableRecordTest extends TestCase
+class ImmutableRecordTest extends TestCase
 {
     /**
      * @test
@@ -146,8 +148,10 @@ final class ImmutableRecordTest extends TestCase
             'name' => 'Alex',
             'age' => null,
             'identities' => [
-                'email' => 'contact@prooph.de',
-                'password' => 'dev1234',
+                [
+                    'email' => 'contact@prooph.de',
+                    'password' => 'dev1234',
+                ],
             ],
         ];
 
@@ -212,5 +216,71 @@ final class ImmutableRecordTest extends TestCase
         $amount = $productPrice->toArray()['amount'];
         $this->assertEquals(2.0, $amount);
         $this->assertInternalType('float', $amount);
+    }
+
+    /**
+     * @test
+     */
+    public function it_respects_schema_array_item_type_hint_when_mapping_from_and_to_array()
+    {
+        $data = [
+            'id' => '1',
+            'name' => 'Alex',
+            'age' => null,
+            'identities' => [
+                [
+                    'email' => 'contact@prooph.de',
+                    'password' => 'dev1234',
+                ],
+            ],
+        ];
+
+        $testUser = TestUserVO::fromArray($data);
+
+        $this->assertInstanceOf(TestIdentityVO::class, $testUser->identities()[0]);
+
+        $this->assertEquals($data, $testUser->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function it_respects_array_item_type_hint_method_when_mapping_from_and_to_array()
+    {
+        $data = [
+            'identities' => [
+                [
+                    'email' => 'contact@prooph.de',
+                    'password' => 'dev1234',
+                ],
+            ],
+        ];
+
+        $blacklist = TestBlacklistVO::fromArray($data);
+
+        $this->assertInstanceOf(TestIdentityVO::class, $blacklist->identities()[0]);
+
+        $this->assertEquals($data, $blacklist->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_collection_vo_when_mapping_from_and_to_array()
+    {
+        $data = [
+            'identities' => [
+                [
+                    'email' => 'contact@prooph.de',
+                    'password' => 'dev1234',
+                ],
+            ],
+        ];
+
+        $blacklist = TestBlacklistIdentityCollectionVO::fromArray($data);
+
+        $this->assertInstanceOf(TestIdentityVO::class, $blacklist->identities()->first());
+
+        $this->assertEquals($data, $blacklist->toArray());
     }
 }
