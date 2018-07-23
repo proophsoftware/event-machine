@@ -13,12 +13,17 @@ namespace Prooph\EventMachineTest\Data\Stubs;
 
 use Prooph\EventMachine\Data\ImmutableRecord;
 use Prooph\EventMachine\Data\ImmutableRecordLogic;
-use Prooph\EventMachine\JsonSchema\JsonSchema;
-use Prooph\EventMachine\JsonSchema\Type;
 
 final class TestProduct implements ImmutableRecord
 {
     use ImmutableRecordLogic;
+
+    private static function arrayPropItemTypeMap(): array
+    {
+        return [
+            'tags' => ImmutableRecord::PHP_TYPE_STRING,
+        ];
+    }
 
     /**
      * @var int
@@ -49,11 +54,6 @@ final class TestProduct implements ImmutableRecord
      * @var array
      */
     private $tags;
-
-    public static function __schema(): Type
-    {
-        return self::generateSchemaFromPropTypeMap(['tags' => JsonSchema::TYPE_STRING]);
-    }
 
     /**
      * @return int
