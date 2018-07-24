@@ -84,5 +84,7 @@ final class ReadModelProxy extends AbstractReadModel
         foreach ($this->readModels as $readModel) {
             $readModel->delete();
         }
+
+        $this->readModels = null;
     }
 }
