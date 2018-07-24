@@ -77,6 +77,10 @@ final class ReadModelProxy extends AbstractReadModel
 
     public function delete(): void
     {
+        if($this->isInitialized()) {
+            $this->init();
+        }
+
         foreach ($this->readModels as $readModel) {
             $readModel->delete();
         }
