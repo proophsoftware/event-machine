@@ -130,7 +130,9 @@ final class AggregateProjector implements Projector
 
     public function deleteReadModel(string $appVersion, string $projectionName): void
     {
-        $this->documentStore->dropCollection($this->generateCollectionName($appVersion, $projectionName));
+        if ($this->documentStore->hasCollection(self::generateCollectionName($appVersion, $projectionName))) {
+            $this->documentStore->dropCollection(self::generateCollectionName($appVersion, $projectionName));
+        }
     }
 
     private function assertProjectionNameMatchesWithAggregateType(string $projectionName, string $aggregateType): void
