@@ -11,12 +11,17 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence;
 
+use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
+use Prooph\EventMachine\Exception\InvalidArgumentException;
+
 interface AggregateStateStore
 {
     /**
      * @param string $aggregateType
      * @param string $aggregateId
      * @return mixed State of the aggregate
+     * @throws InvalidArgumentException If $aggregateType is unknown
+     * @throws AggregateNotFound If aggregate state cannot be found
      */
     public function loadAggregateState(string $aggregateType, string $aggregateId);
 }
