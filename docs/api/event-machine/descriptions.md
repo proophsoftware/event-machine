@@ -147,6 +147,20 @@ e.g. `BuildingMgmt.AddBuilding`. Using *dot notation* has the advantage that mes
 
 ### Command Processing
 
+Once Event Machine knows about a command your can register processing logic for it. Commands are processed by **aggregate functions**. Think of an aggregate as a process with
+multiple steps. Each step is triggered by a command and there is only one active step for a specific process aka. aggregate at the same time.
+
+![Order Stream](img/order_stream.png)
+
+In Event Machine aggregate functions are **stateless**. You can use plain PHP functions or classes with static public methods.
+
+*Read more about aggregate functions in the "Aggregates" chapter.*
+
+In this chapter we want to take a look how commands are passed to their responsible aggregate functions.
+
+
+
+
 
 
 
