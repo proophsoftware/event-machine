@@ -35,6 +35,8 @@ use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\ObjectType;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
+use Prooph\EventMachine\Messaging\MessageDispatcher;
+use Prooph\EventMachine\Persistence\AggregateStateStore;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Persistence\TransactionManager as BusTransactionManager;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
@@ -58,7 +60,7 @@ use Psr\Container\ContainerInterface;
 use React\Promise\Promise;
 use ReflectionClass;
 
-final class EventMachine
+final class EventMachine implements MessageDispatcher, AggregateStateStore
 {
     const ENV_PROD = 'prod';
     const ENV_DEV = 'dev';
@@ -498,9 +500,7 @@ final class EventMachine
     }
 
     /**
-     * @param string|Message $messageOrName
-     * @param array $payload
-     * @return null|Promise Promise is returned in case of a Query otherwise return type is null
+     * {@inheritdoc}
      */
     public function dispatch($messageOrName, array $payload = []): ?Promise
     {
