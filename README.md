@@ -4,10 +4,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/proophsoftware/event-machine/badge.svg?branch=master)](https://coveralls.io/github/proophsoftware/event-machine?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/proophsoftware/chat)
 
-## Important!!!
-
-Please check the notes of the [v1.0-alpha.6 Release](https://github.com/proophsoftware/event-machine/releases/tag/v1.0-alpha.6). We're going to change some parts of Event Machine before first stable release.
-
 ## Event Sourced RAD
 
 prooph software Event Machine takes away all the boring, time consuming parts of event sourcing to speed up
@@ -23,13 +19,8 @@ Head over to the [skeleton](https://github.com/proophsoftware/event-machine-skel
 
 ## Documentation
 
-Documentation is [in the docs tree](docs/), and can be compiled using [bookdown](http://bookdown.io) and [Docker](https://www.docker.com/).
+Source of the docs is managed in a separate [repo](https://github.com/proophsoftware/event-machine-docs)
 
-```bash
-$ docker run --rm -it -v $(pwd):/app prooph/composer:7.1
-$ docker run -it --rm -e CSS_BOOTSWATCH=lumen -e CSS_PRISM=ghcolors -v $(pwd):/app sandrokeil/bookdown:develop docs/bookdown.json
-$ docker run -it --rm -p 8080:8080 -v $(pwd):/app php:7.1-cli php -S 0.0.0.0:8080 -t /app/docs/html
-```
 ## Run Tests
 
 Some tests require existence of prooph/event-store tests which are usually not installed due to `.gitattributes` excluding them.

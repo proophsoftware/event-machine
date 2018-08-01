@@ -1,8 +1,0 @@
-{
-  "title": "Introduction",
-  "content": [
-    {"about": "about.md"},
-    {"pros_and_cons": "pros_and_cons.md"}
-  ],
-  "tocDepth": 1
-}
