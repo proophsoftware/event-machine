@@ -1,8 +1,0 @@
-{
-  "title": "Event Machine",
-  "content": [
-    {"set_up": "set_up.md"},
-    {"production_optimization": "production_optimization.md"}
-  ],
-  "tocDepth": 1
-}

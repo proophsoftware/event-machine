@@ -19,13 +19,8 @@ Head over to the [skeleton](https://github.com/proophsoftware/event-machine-skel
 
 ## Documentation
 
-Documentation is [in the docs tree](docs/), and can be compiled using [bookdown](http://bookdown.io) and [Docker](https://www.docker.com/).
+Source of the docs is managed in a separate [repo](https://github.com/proophsoftware/event-machine-docs)
 
-```bash
-$ docker run --rm -it -v $(pwd):/app prooph/composer:7.1
-$ docker run -it --rm -e CSS_BOOTSWATCH=lumen -e CSS_PRISM=ghcolors -v $(pwd):/app sandrokeil/bookdown:develop docs/bookdown.json
-$ docker run -it --rm -p 8080:8080 -v $(pwd):/app php:7.1-cli php -S 0.0.0.0:8080 -t /app/docs/html
-```
 ## Run Tests
 
 Some tests require existence of prooph/event-store tests which are usually not installed due to `.gitattributes` excluding them.
