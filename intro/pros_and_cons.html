@@ -370,10 +370,28 @@
     }
 </style>
     <style>
+    body {
+        font-size: 16px;
+    }
     /* Header Section */
     header {
-        font-size: 14px;
+        font-size: 17px;
         font-weight: 400;
+    }
+
+    .dropdown-menu {
+        font-size: 17px;
+    }
+
+    .alert-light {
+        color: #818182;
+        background-color: #fefefe;
+    }
+
+    .alert-dark {
+        color: #1b1e21;
+        background-color: #d6d8d9;
+        border-color: #c6c8ca;
     }
 
     .prooph-logo {
@@ -519,6 +537,44 @@
     <a href="https://proophsoftware.github.io/event-machine/api/event_machine/set_up.html">Set Up</a>
 
     </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/event_machine/descriptions.html">Event Machine Descriptions</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/event_machine/aggregates.html">Aggregates</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/event_machine/immutable_state.html">Immutable State</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/event_machine/production_optimization.html">Optimize For Production</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/document_store/">Document Store</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/document_store/set_up.html">Document Store</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/projections/">Projections</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/projections/set_up.html">Custom Projections</a>
+
+    </li>
             </ul>
 
     </li>
@@ -564,8 +620,8 @@
 <li>Default set up based on the rich features provided by prooph components</li>
 <li>Ready-to-use <a href="https://github.com/proophsoftware/event-machine-skeleton">skeleton</a>
 </li>
-<li>Less code needed</li>
-<li>Programmatic message routing</li>
+<li>Less code to write</li>
+<li>Guided event sourcing</li>
 <li>extension points to inject custom logic</li>
 <li>Audit log from day one (no data loss)</li>
 <li>Replay functionality</li>
@@ -577,27 +633,23 @@
 </ul>
 <h2 id="1-2-2">Cons</h2>
 <ul>
-<li>Opinionated framework</li>
+<li>Opinionated approach</li>
+<li>Not based on common OOP patterns</li>
+<li>Not suitable for monolithic architectures</li>
 </ul>
 <h2 id="1-2-3">Conclusion</h2>
-<p>Reading through the pros and cons you may ask yourself when and why you should use Event Machine instead of working only with <em>prooph components</em>.
-Here is a list of hints that may help you make a decision but please note that the right choice is highly dependent on the project, requirements
-and the team. You should definitely try the tutorial and build a prototype with Event Machine!
+<p>Reading through the pros and cons you may ask yourself when and why you should use Event Machine.
+Here is a list of hints that may help you make a decision. Also try the tutorial and build a prototype with Event Machine!
 (If you are interested, you can <a href="http://getprooph.org/#get-in-touch">contact us</a> for a guided workshop):</p>
 <h3 id="1-2-3-1">You may want to use Event Machine if:</h3>
 <ul>
-<li>You're <strong>new to the concepts</strong> of CQRS and Event Sourcing and want to learn them</li>
-<li>You want to try CQRS and Event Sourcing in a side project <strong>without spending too much time</strong> with the theory</li>
-<li>You <strong>hate boilerplate</strong> but have no time to develop your own Event Machine</li>
-<li>You want to make use of <strong>advanced tooling</strong> provided by prooph software that requires Event Machine</li>
 <li>You want to establish a <strong>service-oriented architecture</strong> rather than building a monolithic system</li>
 <li>Your project is in an early stage and you need to try out different ideas or <strong>deliver features very fast</strong>
 </li>
-<li>You're <strong>practicing Domain-Driven Design</strong> and the service you're building belongs to a supporting sub domain</li>
-<li>You don't want to fight your framework but <strong>get the most out of it</strong>
-</li>
-<li>You're using a modern JavaScript framework in the frontend and need an <strong>API-only backend</strong>
-</li>
+<li>You want to automate business processes</li>
+<li>You have to develop a workflow-oriented service</li>
+<li>You're <strong>new to the concepts</strong> of CQRS and Event Sourcing and want to learn them</li>
+<li>You want to try CQRS and Event Sourcing in a side project <strong>without spending too much time</strong> with the theory</li>
 </ul>
 <p><em>Note: Even if Event Machine is opinionated it is designed to support loose coupling between different parts of an application.
 This means that if you start a project using Event Machine but it gets in your way later you can get rid of it step by step
