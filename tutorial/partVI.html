@@ -912,8 +912,8 @@ final class State implements ImmutableRecord
 </code></pre>
 <p>We can make a copy of the record and modify that. The original record is not modified,
 and we return the copy to satisfy the immutable record contract.</p>
-<p>Besides <code>withCheckedInUser</code> we've added a new property, <code>users</code>, and a getter for it. We also overrode the <code>__schema</code>
-method of <code>ImmutableRecordLogic</code> to pass a type hint to <code>ImmutableRecordLogic::generateSchemaFromPropTypeMap()</code>.
+<p>Besides <code>withCheckedInUser</code> we've added a new property, <code>users</code>, and a getter for it. We also overrode the private static method <code>arrayPropItemTypeMap</code>
+of <code>ImmutableRecordLogic</code> to define a type hint for the items in the <code>users</code> array property.
 Unfortunately, we can only type hint for <code>array</code> in PHP, and it is not possible to use return type hints like <code>string[]</code>.
 Hopefully this will change in a future version of PHP, but, for now, we have to live with the workaround and give
 <code>ImmutableRecordLogic</code> a hint that array items of the <code>users</code> property are of type <code>string</code>.</p>
