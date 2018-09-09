@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
 <meta name="HandheldFriendly" content="True"/>
-<title>Dependency Injection</title>
+<title>Future of Event Machine</title>
 <link rel="shortcut icon" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/prooph-logo@0.5x.png">
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-144-precomposed.png">
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-114-precomposed.png">
@@ -666,9 +666,8 @@
 <div class="container">
     <ol class="breadcrumb">
                         <li><a href="https://proophsoftware.github.io/event-machine/">Event Machine Docs</a></li>
-                                <li><a href="https://proophsoftware.github.io/event-machine/api/">API</a></li>
-                                <li><a href="https://proophsoftware.github.io/event-machine/api/set_up/">Set Up</a></li>
-                                <li class="active">Dependency Injection</li>
+                                <li><a href="https://proophsoftware.github.io/event-machine/news/">News</a></li>
+                                <li class="active">Future of Event Machine</li>
             </ol>
     <div class="row">
 
@@ -676,282 +675,110 @@
             <nav class="nav-left hidden-xs hidden-sm" id="sideNav">
     <ul class="nav nav-stacked" data-spy="affix" data-offset-top="59" role="tablist">
                                 <li>
-                <a href="#3-1-2" title="Dependency&#x20;Injection">Dependency Injection</a>
+                <a href="#4-1" title="Future&#x20;of&#x20;Event&#x20;Machine">Future of Event Machine</a>
             </li>
                                 <li>
-                <a href="#3-1-2-1" title="Required&#x20;Services">Required Services</a>
+                <a href="#4-1-1" title="Dropping&#x20;Event&#x20;Sourcing">Dropping Event Sourcing</a>
             </li>
                                 <li>
-                <a href="#3-1-2-2" title="Default&#x20;Services">Default Services</a>
+                <a href="#4-1-2" title="Dropping&#x20;Service&#x20;Bus">Dropping Service Bus</a>
             </li>
                                 <li>
-                <a href="#3-1-2-3" title="Working&#x20;With&#x20;Disco&#x20;Light">Working With Disco Light</a>
+                <a href="#4-1-3" title="Components&#x20;vs&#x20;Event&#x20;Machine">Components vs Event Mach...</a>
             </li>
-                                                                                            <li>
-                <a href="#3-1-2-4" title="Put&#x20;it&#x20;all&#x20;together">Put it all together</a>
+                                                                                <li>
+                <a href="#4-1-4" title="Event&#x20;Machine&#x20;Roadmap">Event Machine Roadmap</a>
             </li>
-            </ul>
+                        </ul>
 </nav>
         </div>
                 <div class="col-md-9">
-<div id="section-main"><h1 id="3-1-2">Dependency Injection</h1>
-<p>As stated in the <em>Initialize &amp; Bootstrap</em> section, Event Machine pulls third-party dependencies from a <a href="https://www.php-fig.org/psr/psr-11/">PSR-11 container</a>.
-It ships with its own 100 LoC container with the code name <em>Disco Light</em> (real class name is <code>ReflectionBasedContainer</code>).
-The implementation of <em>Disco Light</em> is inspired by the design of <a href="https://github.com/bitExpert/disco">bitexpert/disco</a>
-but functionality is reduced to a bare minimum needed in a PHP 7.1+ environment. Hence, the code name ;)</p>
-<h2 id="3-1-2-1">Required Services</h2>
-<p>The container needs to provide a list of services required by Event Machine. For each of them a constant is defined. See the table below:</p>
-<table>
-<thead>
-<tr>
-<th>Constant</th>
-<th>Value</th>
-<th>Service Description</th>
-<th>Mandatory</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>EventMachine::SERVICE_ID_EVENT_STORE</td>
-<td>EventMachine.EventStore</td>
-<td>prooph/event-store v7 event store</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_SNAPSHOT_STORE</td>
-<td>EventMachine.SnapshotStore</td>
-<td>prooph/event-store v7 snapshot store</td>
-<td>No</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_COMMAND_BUS</td>
-<td>EventMachine.CommandBus</td>
-<td>prooph/service-bus v6 command bus</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_EVENT_BUS</td>
-<td>EventMachine.EventBus</td>
-<td>prooph/service-bus v6 event bus</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_QUERY_BUS</td>
-<td>EventMachine.QueryBus</td>
-<td>prooph/service-bus v6 query bus</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_PROJECTION_MANAGER</td>
-<td>EventMachine.ProjectionManager</td>
-<td>prooph/event-store v7 projection manager</td>
-<td>Yes</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_DOCUMENT_STORE</td>
-<td>EventMachine.DocumentStore</td>
-<td>Store implementing DocumentStore interface</td>
-<td>No</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_ASYNC_EVENT_PRODUCER</td>
-<td>EventMachine.AsyncEventProducer</td>
-<td>prooph/service-bus v6 message producer</td>
-<td>No</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_MESSAGE_FACTORY</td>
-<td>EventMachine.MessageFactory</td>
-<td>prooph/common v4 message factory (default provided)</td>
-<td>No</td>
-</tr>
-<tr>
-<td>EventMachine::SERVICE_ID_JSON_SCHEMA_ASSERTION</td>
-<td>EventMachine.JsonSchemaAssertion</td>
-<td>Class implementing JsonSchemaAssertion interface (default provided)</td>
-<td>No</td>
-</tr>
-</tbody>
-</table>
-<h2 id="3-1-2-2">Default Services</h2>
-<p>Event Machine ships with a default implementation for the last two services, a dedicated <code>EventMachineContainer</code> that provides the services and a <code>ContainerChain</code>
-to merge your container with the defaults:</p>
-<pre><code class="language-php">$myCustomContainer = include 'config/container.php';
-
-$defaultsContainer = new \Prooph\EventMachine\Container\EventMachineContainer($eventMachine);
-
-$psr11ContainerChain = new \Prooph\EventMachine\Container\ContainerChain($myCustomContainer, $defaultsContainer);
-
-$eventMachine-&gt;initalize($psr11ContainerChain);
-</code></pre>
-<h2 id="3-1-2-3">Working With Disco Light</h2>
-<p>Remember the origin of Event Machine. It was designed as a workshop framework first. So one of the nice things about <em>Disco Light</em> is that dependencies are not wired together
-by a magical component but instead by the developer. This way they can learn the different parts of the system and what configuration is needed to get everything
-to work together. In the Event Machine Skeleton we've done that for you. A single class called the <code>ServiceFactory</code> is responsible for providing all services.</p>
-<p>You can find the <code>ServiceFactory</code> of the skeleton <a href="https://github.com/proophsoftware/event-machine-skeleton/blob/master/src/Service/ServiceFactory.php">here</a></p>
-<h3 id="3-1-2-3-1">Service Ids</h3>
-<p>Let's look at the method which provides the service <code>EventMachine.EventStore</code>:</p>
-<pre><code class="language-php">public function eventStore(): EventStore
-{
-    return $this-&gt;makeSingleton(EventStore::class, function () {
-        $eventStore = new PostgresEventStore(
-            $this-&gt;eventMachine()-&gt;messageFactory(),
-            $this-&gt;pdoConnection(),
-            $this-&gt;eventStorePersistenceStrategy()
-        );
-        return new TransactionalActionEventEmitterEventStore(
-            $eventStore,
-            new ProophActionEventEmitter(TransactionalActionEventEmitterEventStore::ALL_EVENTS)
-        );
-    });
-}
-</code></pre>
-<p>A lot of stuff going on here, so we'll look at it step by step.</p>
-<pre><code class="language-php">public function eventStore(): EventStore
-</code></pre>
-<p>All <code>public</code> methods of the <code>ServiceFactory</code> are scanned by <em>Disco Light</em> (\Prooph\EventMachine\Container\ReflectionBasedContainer).
-The <strong>return type of the method</strong> is used as as <strong>service id</strong>. This means that you can do the following to get the event store from the container:</p>
-<pre><code class="language-php">$eventStore = $container-&gt;get(EventStore::class);
-</code></pre>
-<h3 id="3-1-2-3-2">Singleton Service</h3>
-<p>In most cases we want to get the same instance of a service from the container no matter how often we request it. This is called a <code>Singleton</code>.
-<em>Disco Light</em> is dead simple. It does not know anything about singletons. Instead we use a pattern called <a href="https://en.wikipedia.org/wiki/Memoization">memoization</a>
-to cache the instance of a service in memory and return it from cache on subsequent calls.</p>
-<p>The <code>ServiceFactory</code> is a complete userland implementation. No interface needs to be implemented. To add memoization to your service factory you can use the provided
-trait <code>\Prooph\EventMachine\Container\ServiceRegistry</code> like it is done in the skeleton service factory.</p>
-<pre><code class="language-php">final class ServiceFactory
-{
-    use ServiceRegistry;
-</code></pre>
-<p>Now you can store service instances in memory:</p>
-<pre><code class="language-php">public function eventStore(): EventStore
-{
-    return $this-&gt;makeSingleton(EventStore::class, function () {
-        //...
-    });
-}
-</code></pre>
-<p>You might recognize that we use <code>EventStore::class</code> again as service id for the registry. The second argument of <code>makeSingleton</code> is a closure which acts
-as a <strong>factory function</strong> for the service. When <code>EventStore::class</code> is not in the cache, the factory function is called otherwise the service is returned from the registry.</p>
-<h3 id="3-1-2-3-3">Injecting Dependencies in a Service</h3>
-<p>Often one service depends on other services. The Postgres event store used in the skeleton for example requires a <code>MessageFactory</code> a <code>\PDO</code> connection and a <code>PersistenceStrategy</code>
-and because all services are provided by the same <code>ServiceFactory</code> we can simply get those services by calling the appropriate methods.</p>
-<p class="alert alert-light">By default a closure is bound to its parent scope (the service factory instance in this case). Hence, insight the closure we have
-access to all methods of the service factory no matter if they are declared public, protected or private.</p>
-<pre><code class="language-php">public function eventStore(): EventStore
-{
-    return $this-&gt;makeSingleton(EventStore::class, function () {
-        $eventStore = new PostgresEventStore(
-            $this-&gt;eventMachine()-&gt;messageFactory(),
-            $this-&gt;pdoConnection(),
-            $this-&gt;eventStorePersistenceStrategy()
-        );
-        return new TransactionalActionEventEmitterEventStore(
-            $eventStore,
-            new ProophActionEventEmitter(TransactionalActionEventEmitterEventStore::ALL_EVENTS)
-        );
-    });
-}
-</code></pre>
-<p>The event store interface is service id and return type at the same time. Therefor, PHP's type system ensures at runtime that a valid event store is returned.
-Internally, we built a Postgres event store and add prooph's plugin system (the TransactionalActionEventEmitterEventStore). If we want to switch the event store
-we can return another implementation.</p>
-<h3 id="3-1-2-3-4">Configuration</h3>
-<p>Another thing that is out of scope for <em>Disco Light</em> is application configuration. Remember, providing a working <code>ServiceFactory</code> is your task and if services
-need configuration then pass it to the class. In the skeleton environmental variables are mapped to config params in
-<a href="https://github.com/proophsoftware/event-machine-skeleton/blob/master/config/autoload/global.php#L16">config/autoload/global.php</a>.</p>
-<p>The configuration array is then passed to the <code>ServiceFactory</code> in the constructor and wrapped with an <code>ArrayReader</code>:</p>
-<pre><code class="language-php">final class ServiceFactory
-{
-    use ServiceRegistry;
-
-    //...
-
-    public function __construct(array $appConfig)
-    {
-        $this-&gt;config = new ArrayReader($appConfig);
-    }
-</code></pre>
-<p>This way we have access to the configuration when building our services. We can see this in action in the factory method of the <code>\PDO</code> connection:</p>
-<pre><code class="language-php">public function pdoConnection(): \PDO
-{
-    return $this-&gt;makeSingleton(\PDO::class, function () {
-        $this-&gt;assertMandatoryConfigExists('pdo.dsn');
-        $this-&gt;assertMandatoryConfigExists('pdo.user');
-        $this-&gt;assertMandatoryConfigExists('pdo.pwd');
-        return new \PDO(
-            $this-&gt;config-&gt;stringValue('pdo.dsn'),
-            $this-&gt;config-&gt;stringValue('pdo.user'),
-            $this-&gt;config-&gt;stringValue('pdo.pwd')
-        );
-    });
-}
-</code></pre>
-<p><code>$this-&gt;assertMandatoryConfigExists(/*...*/)</code> is a helper function of the <code>ServiceFactory</code> marked as private. It is ignored by <em>Disco Light</em> but we can use
-it within factory functions.</p>
-<pre><code class="language-php">private function assertMandatoryConfigExists(string $path): void
-{
-    if(null === $this-&gt;config-&gt;mixedValue($path)) {
-        throw  new \RuntimeException("Missing application config for $path");
-    }
-}
-</code></pre>
-<p class="alert alert-info">Again, this is all userland implementation. <em>Disco Light</em> does not care about it. If you don't like it to put all services
-in a single class then use traits and only merge them in the <code>ServiceFactory</code>.
-And if you don't like the approach at all, use another PSR-11 container! In any case you can learn from the skeleton service
-factory how the mandatory services need to be wired together. Porting this knowledge to a container of your choice shouldn't be a problem.</p>
-<h3 id="3-1-2-3-5">Service Alias</h3>
-<p>If you've read the explanations above carefully, you might have noticed a mismatch between the service id required by Event Machine and the
-service id used in <em>Disco Light</em>. Event Machine requires the service id <code>EventMachine.EventStore</code>.
-But we've learned that we get the event store by using the interface or class name as service id <code>$eventStore = $container-&gt;get(EventStore::class);</code>.</p>
-<p>To solve the conflict we need a <strong>service alias</strong>. That said, the same service needs to be available in the container with two different ids.
-We can do this by passing a service alias map to <em>Disco Light</em> aka <code>ReflectionBasedContainer</code>:</p>
-<pre><code class="language-php">$container = new \Prooph\EventMachine\Container\ReflectionBasedContainer(
-    $serviceFactory,
-    [
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_EVENT_STORE =&gt; \Prooph\EventStore\EventStore::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_PROJECTION_MANAGER =&gt; \Prooph\EventStore\Projection\ProjectionManager::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_COMMAND_BUS =&gt; \App\Infrastructure\ServiceBus\CommandBus::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_EVENT_BUS =&gt; \App\Infrastructure\ServiceBus\EventBus::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_QUERY_BUS =&gt; \App\Infrastructure\ServiceBus\QueryBus::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_DOCUMENT_STORE =&gt; \Prooph\EventMachine\Persistence\DocumentStore::class,
-    ]
-);
-</code></pre>
-<h2 id="3-1-2-4">Put it all together</h2>
-<p>Again, we can look at the skeleton for a working example. [config/container.php]:</p>
+<div id="section-main"><h1 id="4-1">Future of Event Machine</h1>
+<p><em>Written by Alexander Miertsch (<a href="https://github.com/codeliner">@codeliner</a>) - CEO prooph software GmbH - prooph core team - 2018-09-08</em></p>
+<p>You may have read the official announcement by Sascha (<a href="https://github.com/prolic">@prolic</a>) about the <a href="https://www.sasaprolic.com/2018/08/the-future-of-prooph-components.html">future of prooph components</a>.
+Together with Sascha we decided to stop working on prooph/common, prooph/event-sourcing, prooph/service-bus and all related packages like the various message queue adapters.</p>
+<p>Event Machine makes use of the packages so one may ask if Event Machine is effected by this announcement as well?
+The short answer is:</p>
+<p><strong>Yes it is effected but we continue to work on Event Machine.</strong></p>
+<p>If you want to know the reasoning behind these decisions and what we plan to do (prooph software GmbH team),
+this post provides you with answers.</p>
+<h2 id="4-1-1">Dropping Event Sourcing</h2>
+<p>I'd like to go into details about the prooph components decision first. I think it is important to understand the reasoning
+and it will give you a better idea of what you can expect from Event Machine in the future.</p>
+<p>As the author of the very first prooph components back in 2014 I'm involved in core development since the first commit.
+<em>prooph/common</em> and <em>prooph/event-sourcing</em> always had the problem that one needs to extend message classes and aggregate roots from prooph. You can use custom messages and aggregate root implementations but this is not an easy task within the current design of the components.
+It's a big issue because prooph never wanted to be a framework. Independent components have a very high priority for the core team.
+Prooph is meant to be used in enterprise applications which should not be coupled to a framework.</p>
+<p>With a completely new event store implementation in the pipeline we revisited the problem. And because more teams use prooph in production, we receive requests from the community to provide better ways for custom messages as well as project specific needs for message serialization and such things.</p>
+<p>Now we could try to support all those concerns by adding more and more possibilities to tweak prooph, but this has a high price: <strong>complexity</strong>
+Even with the current design of prooph components one has a hard time to get started. <em>A reason why Event Machine exists.</em>
+If we would add more configuration options and whatnot, it would get worse.</p>
+<p>Back in the days, I started working on prooph because CQRS and Event Sourcing is a fascinating approach
+and can inspire you to solve problems in a completely different way. It needs some time and practice to get it right. Hence, battle-tested open source
+components might help developers to learn it without making the same mistakes. This still holds true,
+but can be limited to a proper event store implementation (including at-least-once message delivery for projections).
+We believe that a good event sourcing tutorial together with blueprints for event sourced aggregates and their repositories
+and a rock-solid prooph/event-store available as open source is the better approach for the prooph community.
+New developers get a recipe to get started and can rely on a high quality event store implementation.
+If the provided event sourcing blueprint doesn't fit a use case it can easily be adopted because the team owns the event sourcing code
+as well as the repository implementation that talks to prooph/event-store.</p>
+<h2 id="4-1-2">Dropping Service Bus</h2>
+<p>Dropping development of prooph/service-bus has other reasons. The component is designed to run in a modular application - think of ZF2 MVC or Symfony bundles. Since 2014 things have changed. The Zend Framework team promotes usage of zend expressive. Symfony made it easier to develop bundle-less applications. That said, nowadays both major frameworks advocate smaller application size with less layers and less complexity.</p>
+<p>Prooph components do the same with <a href="https://github.com/prooph/micro">prooph/micro</a>, which doesn't use prooph/service-bus. A software service bus introduces an additional layer. This is especially useful in a modularized monolithic application. If you don't use modules, you don't need a software bus or at least nothing with the complexity of prooph/service-bus. For our daily work we no longer need prooph/service-bus and that's true for Sascha (he is not working for prooph software), too.</p>
+<p>Hence, we decided together that if one needs a software message bus they have a lot of similar choices today. We don't need to spend our time on maintaining yet another solution.</p>
+<p>If I could buy time with money, I'd do it and all prooph components would have a "buy me a minute" donation button. But you cannot buy time (yet?),
+therefor we need to be very careful with it. Working on open source is a great experience especially within the prooph community.
+On the other hand it reduces available time a lot and always competes with family and friends time as well as payed work.
+Many big open source projects are baked by companies with even bigger budgets, but that's a different league.
+The prooph community is awesome. Join the <a href="https://gitter.im/prooph/improoph">improoph chat</a> and you'll know what I mean.
+But we don't have core developers who get payed to maintain prooph. It's more or less all based on community work.</p>
+<p>Not enough time, new software architecture approaches and the availability of other software message bus solutions are the reasons for dropping prooph/service-bus support.
+It's still a great package, so this decision is not an easy one.</p>
+<h2 id="4-1-3">Components vs Event Machine</h2>
+<p>Now let's look at Event Machine. prooph/event-sourcing and prooph/service-bus are both used under the hood.
+The good news is, that you don't interact with them directly so we can easily replace the packages.
+But what about the reasons? Don't they apply for Event Machine as well?</p>
+<p>I'm going to answer for each:</p>
+<h3 id="4-1-3-1">Framework Dependency</h3>
+<p>Event Machine is a rapid application development framework. You either use it as-is or don't use it at all.
+That's a big difference compared to prooph components and also the reason why Event Machine is not part of the prooph components family
+but only maintained by the prooph software team (different vendor, different copyright).
+My company is interested in future development because we need it for our daily work.</p>
+<p>Event Machine is a great way to explore the world of CQRS and Event Sourcing without learning all theory upfront and spending days on putting all the pieces together.
+It is also a great way to develop prototypes and smaller applications.
+If you practice Domain-Driven Design, you probably know the difference between core domain and supporting domain.
+You should also know that it is not a good idea to solve all software problems with high quality implementations but rather focus on the core domain and design the rest of the system in a way that it works and is maintainable without too much effort. Event Machine is best used in supporting domains. It can be used for prototypes of core domains but only if you design the core domain in a way that you can easily delete and replace parts of it.</p>
+<p class="alert alert-info">Having said this, Event Machine doesn't have the same problem like prooph/event-sourcing.
+A service developed with Event Machine is coupled by design.
+You need to be aware of the coupling and decide upfront (or after prototype phase) if that is ok for the service or not.</p>
+<h3 id="4-1-3-2">Modules</h3>
+<p>It is not recommended to develop a monolith with Event Machine.
+The concept works really nice within clear service boundaries. Therefor, Event Machine doesn't need a complex message bus.
+prooph/service-bus was integrated because early versions of Event Machine were used as a workshop framework - a prooph components glue layer.
+Replacing the service-bus package with a simple message dispatcher implementation isn't problematic.</p>
+<h3 id="4-1-3-3">Available Time</h3>
+<p>As I already said, we need Event Machine for our daily work so prooph software GmbH is interested in ongoing development.
+This is also true for the new prooph/event-store implementation which will become the heart of Event Machine 2.0.</p>
+<h3 id="4-1-3-4">Competing Solutions</h3>
+<p>I'm not aware of any PHP open source library/framework that provides similar mechanisms like Event Machine does.
+prooph/micro is based on the same idea of functional event sourced domain behaviour, but does not provide the same RAD mechanisms.
+In fact, prooph/micro is suitable for core domains (once stable), but requires more design decisions and work. I'll discuss this in detail in a future post.</p>
+<h2 id="4-1-4">Event Machine Roadmap</h2>
+<p>Our plan was to finish documentation first and add some more tests before releasing Event Machine v1.0. Due to the prooph components announcement the plan changed.
+v1.0 will be released soon. Several projects already use Event Machine and a stable release will ensure that those projects don't run into trouble
+when we start refactoring of Event Machine. Work on documentation will be paused. In fact, the Event Machine tutorial is all you need to get started.
+API documentation will cover more details, but this has to wait.</p>
+<h3 id="4-1-4-1">Next Steps</h3>
 <ul>
-<li>includes the application config</li>
-<li>passes it to a new instance of the <code>ServiceFactory</code>
-</li>
-<li>passes the <code>ServiceFactory</code> and service alias map to a new <code>ReflectionBasedContainer</code>
-</li>
-<li>hands over the container to the <code>ServiceFactory</code> (setter injection due to circular dependency)</li>
-<li>and finally returns the container</li>
+<li>Remove prooph/common</li>
+<li>Replace prooph/event-sourcing</li>
+<li>Replace prooph/service-bus</li>
+<li>Move Disco Light to separate package</li>
+<li>Move document store to separate package</li>
+<li>Move immutable record logic to separate package</li>
+<li>Use new prooph/event-store-client and support async mode</li>
+<li>Implement non-blocking root projection as a persistent subscription</li>
 </ul>
-<pre><code class="language-php">&lt;?php
-declare(strict_types = 1);
-
-$config = include 'config.php';
-
-$serviceFactory = new \App\Service\ServiceFactory($config);
-
-$container = new \Prooph\EventMachine\Container\ReflectionBasedContainer(
-    $serviceFactory,
-    [
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_EVENT_STORE =&gt; \Prooph\EventStore\EventStore::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_PROJECTION_MANAGER =&gt; \Prooph\EventStore\Projection\ProjectionManager::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_COMMAND_BUS =&gt; \App\Infrastructure\ServiceBus\CommandBus::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_EVENT_BUS =&gt; \App\Infrastructure\ServiceBus\EventBus::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_QUERY_BUS =&gt; \App\Infrastructure\ServiceBus\QueryBus::class,
-        \Prooph\EventMachine\EventMachine::SERVICE_ID_DOCUMENT_STORE =&gt; \Prooph\EventMachine\Persistence\DocumentStore::class,
-    ]
-);
-$serviceFactory-&gt;setContainer($container);
-
-return $container;
-</code></pre>
-<p><em>Note: The container is passed to the service factory because the factory needs to pass it to Event Machine as soon as Event Machine is requested for the first time.</em></p>
 </div>        </div>
     </div>
 </div>
@@ -961,9 +788,9 @@ return $container;
         <div class="container">
             <div class="row">
                 <div class="prev col-xs-6">
-                                            <a href="https://proophsoftware.github.io/event-machine/api/set_up/installation.html">Previous</a>                                    </div>
+                                            <a href="https://proophsoftware.github.io/event-machine/news/">Previous</a>                                    </div>
                 <div class="next col-xs-6">
-                                            <a href="https://proophsoftware.github.io/event-machine/api/set_up/production_optimization.html">Next</a>                                    </div>
+                                    </div>
             </div>
         </div>
     </div>
