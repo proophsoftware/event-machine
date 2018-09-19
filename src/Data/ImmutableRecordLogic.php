@@ -245,7 +245,7 @@ trait ImmutableRecordLogic
             case ImmutableRecord::PHP_TYPE_INT:
                 return is_int($value);
             case ImmutableRecord::PHP_TYPE_FLOAT:
-                return is_float($value);
+                return is_float($value) || is_int($value);
             case ImmutableRecord::PHP_TYPE_BOOL:
                 return is_bool($value);
             case ImmutableRecord::PHP_TYPE_ARRAY:
