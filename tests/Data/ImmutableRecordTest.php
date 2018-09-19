@@ -20,6 +20,7 @@ use Prooph\EventMachineTest\Data\Stubs\TestCommentVO;
 use Prooph\EventMachineTest\Data\Stubs\TestDefaultPrice;
 use Prooph\EventMachineTest\Data\Stubs\TestIdentityVO;
 use Prooph\EventMachineTest\Data\Stubs\TestProduct;
+use Prooph\EventMachineTest\Data\Stubs\TestProductPrice;
 use Prooph\EventMachineTest\Data\Stubs\TestProductPriceVO;
 use Prooph\EventMachineTest\Data\Stubs\TestProductVO;
 use Prooph\EventMachineTest\Data\Stubs\TestUserVO;
@@ -197,11 +198,12 @@ class ImmutableRecordTest extends TestCase
 
     /**
      * @test
+     * @dataProvider provideTwoAsFloatAndInt
      */
-    public function it_calls_from_float_when_from_int_does_not_exist()
+    public function it_calls_from_float_when_from_int_does_not_exist($two)
     {
         $productPrice = TestProductPriceVO::fromArray([
-            'amount' => 2.0,
+            'amount' => $two,
             'currency' => 'EUR',
         ]);
 
@@ -217,6 +219,25 @@ class ImmutableRecordTest extends TestCase
         $this->assertEquals(2.0, $amount);
         $this->assertInternalType('float', $amount);
     }
+
+    /**
+     * @test
+     * @dataProvider provideTwoAsFloatAndInt
+     */
+    public function it_validates_float_type_when_input_is_integer($two)
+    {
+        $data = [
+            'amount' => $two,
+            'currency' => 'EUR',
+        ];
+
+        $productPrice = TestProductPrice::fromArray($data);
+
+        $amount = $productPrice->toArray()['amount'];
+        $this->assertEquals(2.0, $amount);
+        $this->assertInternalType('float', $amount);
+    }
+
 
     /**
      * @test
@@ -282,5 +303,11 @@ class ImmutableRecordTest extends TestCase
         $this->assertInstanceOf(TestIdentityVO::class, $blacklist->identities()->first());
 
         $this->assertEquals($data, $blacklist->toArray());
+    }
+
+    public function provideTwoAsFloatAndInt(): \Generator
+    {
+        yield [(float) 2.0];
+        yield [(int) 2];
     }
 }
