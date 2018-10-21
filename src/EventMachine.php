@@ -766,7 +766,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
         return $this->writeModelStreamName;
     }
 
-    public function bootstrapInTestMode(array $history, array $serviceMap = []): self
+    public function bootstrapInTestMode(array $history, array $serviceMap = []): ContainerInterface
     {
         $this->assertInitialized(__METHOD__);
         $this->assertNotBootstrapped(__METHOD__);
@@ -801,7 +801,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
 
         $this->bootstrap(self::ENV_TEST, true);
 
-        return $this;
+        return $this->container;
     }
 
     public function popRecordedEventsOfTestSession(): array
