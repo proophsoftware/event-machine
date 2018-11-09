@@ -9,13 +9,17 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Aggregate;
+namespace ProophExample\CustomMessages\Aggregate;
 
 use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\EventMachineDescription;
-use ProophExample\Messaging\Command;
-use ProophExample\Messaging\Event;
+use ProophExample\CustomMessages\Api\Command;
+use ProophExample\CustomMessages\Api\Event;
+use ProophExample\CustomMessages\Command\ChangeUsername;
+use ProophExample\CustomMessages\Command\RegisterUser;
+use ProophExample\CustomMessages\Event\UsernameChanged;
+use ProophExample\CustomMessages\Event\UserRegistered;
 
 /**
  * Class UserDescription
@@ -36,9 +40,9 @@ use ProophExample\Messaging\Event;
  */
 final class UserDescription implements EventMachineDescription
 {
-    const IDENTIFIER = 'userId';
-    const USERNAME = 'username';
-    const EMAIL = 'email';
+    public const IDENTIFIER = 'userId';
+    public const USERNAME = 'username';
+    public const EMAIL = 'email';
 
     const STATE_CLASS = UserState::class;
 
@@ -52,25 +56,16 @@ final class UserDescription implements EventMachineDescription
     {
         $eventMachine->process(Command::REGISTER_USER)
             ->withNew(Aggregate::USER)
-            // Every command for that aggregate SHOULD include the identifier property specified here
-            // If not called, identifier defaults to "id"
             ->identifiedBy(self::IDENTIFIER)
-            // If command is handled with a new aggregate no state is passed only the command
-            ->handle(function (Message $registerUser) {
-                //We just turn the command payload into event payload by yielding an event tuple
-                yield [Event::USER_WAS_REGISTERED, $registerUser->payload()];
+            // Note: Our custom command is passed to the function
+            ->handle(function (RegisterUser $registerUser) {
+                //We can return a custom event
+                yield new UserRegistered((array)$registerUser);
             })
             ->recordThat(Event::USER_WAS_REGISTERED)
-            // Apply callback of the first recorded event don't get aggregate state injected
-            // what you return in an apply method will be passed to the next pair of handle & apply methods as aggregate state
-            // you can use anything for aggregate state - we use a simple class with public properties
-            ->apply(function (Message $userWasRegistered) {
-                $user = new UserState();
-                $user->id = $userWasRegistered->payload()[self::IDENTIFIER];
-                $user->username = $userWasRegistered->payload()['username'];
-                $user->email = $userWasRegistered->payload()['email'];
-
-                return $user;
+            // The custom event is passed to the apply function
+            ->apply(function (UserRegistered $event) {
+                return new UserState((array)$event);
             });
     }
 
@@ -79,18 +74,17 @@ final class UserDescription implements EventMachineDescription
         $eventMachine->process(Command::CHANGE_USERNAME)
             ->withExisting(Aggregate::USER)
             // This time we handle command with existing aggregate, hence we get current user state injected
-            ->handle(function (UserState $user, Message $changeUsername) {
-                yield [Event::USERNAME_WAS_CHANGED, [
-                    self::IDENTIFIER => $user->id,
+            ->handle(function (UserState $user, ChangeUsername $changeUsername) {
+                yield new UsernameChanged([
+                    self::IDENTIFIER => $user->userId,
                     'oldName' => $user->username,
-                    'newName' => $changeUsername->payload()['username'],
-                ]];
+                    'newName' => $changeUsername->username,
+                ]);
             })
             ->recordThat(Event::USERNAME_WAS_CHANGED)
-            // Same here, UsernameWasChanged is NOT the first event, so current user state is injected
-            ->apply(function (UserState $user, Message $usernameWasChanged) {
-                $user->username = $usernameWasChanged->payload()['newName'];
-
+            // Same here, UsernameChanged is NOT the first event, so current user state is passed
+            ->apply(function (UserState $user, UsernameChanged $event) {
+                $user->username = $event->newName;
                 return $user;
             });
     }

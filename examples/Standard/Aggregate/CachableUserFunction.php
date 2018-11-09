@@ -9,10 +9,10 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Aggregate;
+namespace ProophExample\Standard\Aggregate;
 
 use Prooph\Common\Messaging\Message;
-use ProophExample\Messaging\Event;
+use ProophExample\Standard\Messaging\Event;
 
 final class CachableUserFunction
 {

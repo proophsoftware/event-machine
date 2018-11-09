@@ -68,4 +68,12 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
             throw new \InvalidArgumentException('Invalid message name.');
         }
     }
+
+    public function withPayload(array $payload, JsonSchemaAssertion $assertion, array $payloadSchema): Message
+    {
+        $assertion->assert($this->messageName, $payload, $payloadSchema);
+        $copy = clone $this;
+        $copy->payload = $payload;
+        return $copy;
+    }
 }

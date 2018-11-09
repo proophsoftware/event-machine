@@ -43,22 +43,22 @@ use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
-use ProophExample\Aggregate\Aggregate;
-use ProophExample\Aggregate\CacheableUserDescription;
-use ProophExample\Aggregate\UserDescription;
-use ProophExample\Aggregate\UserState;
-use ProophExample\Messaging\Command;
-use ProophExample\Messaging\Event;
-use ProophExample\Messaging\MessageDescription;
-use ProophExample\Messaging\Query;
-use ProophExample\Resolver\GetUserResolver;
-use ProophExample\Resolver\GetUsersResolver;
+use ProophExample\Standard\Aggregate\Aggregate;
+use ProophExample\Standard\Aggregate\CacheableUserDescription;
+use ProophExample\Standard\Aggregate\UserDescription;
+use ProophExample\Standard\Aggregate\UserState;
+use ProophExample\Standard\Messaging\Command;
+use ProophExample\Standard\Messaging\Event;
+use ProophExample\Standard\Messaging\MessageDescription;
+use ProophExample\Standard\Messaging\Query;
+use ProophExample\Standard\Resolver\GetUserResolver;
+use ProophExample\Standard\Resolver\GetUsersResolver;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
 use React\Promise\Deferred;
 
-class EventMachineTest extends BasicTestCase
+class EventMachineStandardTest extends BasicTestCase
 {
     /**
      * @var EventStore
@@ -163,6 +163,7 @@ class EventMachineTest extends BasicTestCase
         $this->appContainer->has(EventMachine::SERVICE_ID_ASYNC_EVENT_PRODUCER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_DOCUMENT_STORE)->willReturn(false);
+        $this->appContainer->has(EventMachine::SERVICE_ID_CALL_INTERCEPTOR)->willReturn(false);
 
         $this->containerChain = new ContainerChain(
             $this->appContainer->reveal(),
@@ -387,7 +388,7 @@ class EventMachineTest extends BasicTestCase
         $eventMachine = $this->eventMachine;
 
         $messageProducer = $this->prophesize(MessageProducer::class);
-        $messageProducer->__invoke(Argument::type(Message::class))
+        $messageProducer->__invoke(Argument::type(Message::class), Argument::exact(null))
             ->will(function ($args) use (&$producedEvents, $eventMachine) {
                 $producedEvents[] = $args[0];
                 $eventMachine->dispatch($args[0]);

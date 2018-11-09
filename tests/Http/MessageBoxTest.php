@@ -22,8 +22,8 @@ use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
-use ProophExample\Aggregate\CacheableUserDescription;
-use ProophExample\Messaging\MessageDescription;
+use ProophExample\Standard\Aggregate\CacheableUserDescription;
+use ProophExample\Standard\Messaging\MessageDescription;
 use Psr\Container\ContainerInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Ramsey\Uuid\Uuid;
@@ -118,6 +118,7 @@ final class MessageBoxTest extends BasicTestCase
         $this->appContainer->has(EventMachine::SERVICE_ID_ASYNC_EVENT_PRODUCER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_DOCUMENT_STORE)->willReturn(false);
+        $this->appContainer->has(EventMachine::SERVICE_ID_CALL_INTERCEPTOR)->willReturn(false);
 
         $this->containerChain = new ContainerChain(
             $this->appContainer->reveal(),

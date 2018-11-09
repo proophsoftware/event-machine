@@ -16,23 +16,37 @@ use Prooph\EventMachine\Commanding\CommandProcessor;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Runtime\CallInterceptor;
+use Prooph\EventMachine\Runtime\StandardCallInterceptor;
 use Prooph\EventMachineTest\Aggregate\Stub\ContextAwareAggregateDescription;
 use Prooph\EventMachineTest\BasicTestCase;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Metadata\MetadataMatcher;
 use Prooph\EventStore\StreamName;
-use ProophExample\Aggregate\Aggregate;
-use ProophExample\Aggregate\CacheableUserDescription;
-use ProophExample\Aggregate\UserDescription;
-use ProophExample\Messaging\Command;
-use ProophExample\Messaging\Event;
-use ProophExample\Messaging\MessageDescription;
+use ProophExample\Standard\Aggregate\Aggregate;
+use ProophExample\Standard\Aggregate\CacheableUserDescription;
+use ProophExample\Standard\Aggregate\UserDescription;
+use ProophExample\Standard\Messaging\Command;
+use ProophExample\Standard\Messaging\Event;
+use ProophExample\Standard\Messaging\MessageDescription;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
 
 final class CommandProcessorTest extends BasicTestCase
 {
+    /**
+     * @var CallInterceptor
+     */
+    private $callInterceptor;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->callInterceptor = new StandardCallInterceptor();
+        $this->callInterceptor->setMessageFactory($this->getMockedEventMessageFactory());
+    }
+
     /**
      * @test
      */
@@ -65,6 +79,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
+            $this->callInterceptor,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );
@@ -148,6 +163,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
+            $this->callInterceptor,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );
@@ -204,6 +220,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
+            $this->callInterceptor,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );
@@ -289,6 +306,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
+            $this->callInterceptor,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );
@@ -341,6 +359,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
+            $this->callInterceptor,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal(),
             null,
@@ -402,6 +421,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
+            $this->callInterceptor,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );

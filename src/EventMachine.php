@@ -36,6 +36,8 @@ use Prooph\EventMachine\JsonSchema\Type\EnumType;
 use Prooph\EventMachine\JsonSchema\Type\ObjectType;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventMachine\Messaging\MessageDispatcher;
+use Prooph\EventMachine\Messaging\MessageFactoryAware;
+use Prooph\EventMachine\Messaging\MessageProducer;
 use Prooph\EventMachine\Persistence\AggregateStateStore;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Persistence\TransactionManager as BusTransactionManager;
@@ -43,6 +45,8 @@ use Prooph\EventMachine\Projecting\ProjectionDescription;
 use Prooph\EventMachine\Projecting\ProjectionRunner;
 use Prooph\EventMachine\Projecting\Projector;
 use Prooph\EventMachine\Querying\QueryDescription;
+use Prooph\EventMachine\Runtime\CallInterceptor;
+use Prooph\EventMachine\Runtime\StandardCallInterceptor;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\ActionEventEmitterEventStore;
@@ -77,6 +81,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
     const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
     const SERVICE_ID_MESSAGE_FACTORY = 'EventMachine.MessageFactory';
     const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
+    const SERVICE_ID_CALL_INTERCEPTOR = 'EventMachine.CallInterceptor';
 
     /**
      * Map of command names and corresponding json schema of payload
@@ -197,6 +202,11 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
     private $testSessionEvents = [];
 
     private $projectionRunner;
+
+    /**
+     * @var CallInterceptor
+     */
+    private $callInterceptor;
 
     private $writeModelStreamName = 'event_stream';
 
@@ -524,11 +534,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
                         $preProcessorOrStr = $this->container->get($preProcessorOrStr);
                     }
 
-                    if (! $preProcessorOrStr instanceof CommandPreProcessor) {
-                        throw new RuntimeException('PreProcessor should be an instance of ' . CommandPreProcessor::class . '. Got ' . get_class($preProcessorOrStr));
-                    }
-
-                    $messageOrName = $preProcessorOrStr->preProcess($messageOrName);
+                    $messageOrName = $this->callInterceptor->callCommandPreProcessor($preProcessorOrStr, $messageOrName);
                 }
 
                 $bus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
@@ -587,7 +593,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
         $arRepository = new AggregateRepository(
             $this->container->get(self::SERVICE_ID_EVENT_STORE),
             AggregateType::fromString($aggregateType),
-            new ClosureAggregateTranslator($aggregateId, $aggregateDesc['eventApplyMap']),
+            new ClosureAggregateTranslator($aggregateId, $aggregateDesc['eventApplyMap'], $this->callInterceptor()),
             $snapshotStore,
             new StreamName($this->writeModelStreamName())
         );
@@ -682,6 +688,14 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
                 $this->schemaTypes,
                 $this->container->get(self::SERVICE_ID_JSON_SCHEMA_ASSERTION)
             );
+
+            $callInterceptor = $this->callInterceptor();
+
+            //Setter injection due to circular dependency to self::callInterceptor()
+            $this->messageFactory->setCallInterceptor($callInterceptor);
+            if($callInterceptor instanceof MessageFactoryAware) {
+                $callInterceptor->setMessageFactory($this->messageFactory);
+            }
         }
 
         return $this->messageFactory;
@@ -881,6 +895,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
             $this->container->get(self::SERVICE_ID_MESSAGE_FACTORY),
             $this->container->get(self::SERVICE_ID_EVENT_STORE),
             new ContextProviderFactory($this->container),
+            $this->callInterceptor(),
             $snapshotStore
         );
 
@@ -916,7 +931,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
 
             $eventRouter = new AsyncSwitchMessageRouter(
                 $eventRouter,
-                $eventProducer
+                new MessageProducer($this->callInterceptor(), $eventProducer)
             );
         }
 
@@ -947,6 +962,17 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
             $commandBus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
             $transactionManager->attachToMessageBus($commandBus);
         }
+    }
+
+    private function callInterceptor(): CallInterceptor
+    {
+        if(null === $this->callInterceptor) {
+            $this->callInterceptor = $this->container->has(self::SERVICE_ID_CALL_INTERCEPTOR)
+                ? $this->container->get(self::SERVICE_ID_CALL_INTERCEPTOR)
+                : new StandardCallInterceptor();
+        }
+
+        return $this->callInterceptor;
     }
 
     private function assertNotInitialized(string $method)

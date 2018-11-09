@@ -16,12 +16,26 @@ use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\Runtime\CallInterceptor;
+use Prooph\EventMachine\Runtime\StandardCallInterceptor;
 use Prooph\EventMachineTest\BasicTestCase;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Ramsey\Uuid\Uuid;
 
 class GenericAggregateRootTest extends BasicTestCase
 {
+    /**
+     * @var CallInterceptor
+     */
+    private $callInterceptor;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->callInterceptor = new StandardCallInterceptor();
+        $this->callInterceptor->setMessageFactory($this->getMockedEventMessageFactory());
+    }
+
     /**
      * @test
      */
@@ -42,7 +56,7 @@ class GenericAggregateRootTest extends BasicTestCase
 
         $arId = Uuid::uuid4()->toString();
 
-        $user = new GenericAggregateRoot($arId, AggregateType::fromString('User'), $eventApplyMap);
+        $user = new GenericAggregateRoot($arId, AggregateType::fromString('User'), $eventApplyMap, $this->callInterceptor);
 
         $userWasRegistered = new GenericJsonSchemaEvent(
             'UserWasRegistered',
@@ -68,7 +82,7 @@ class GenericAggregateRootTest extends BasicTestCase
 
         self::assertCount(2, $recordedEvents);
 
-        $translator = new ClosureAggregateTranslator($arId, $eventApplyMap);
+        $translator = new ClosureAggregateTranslator($arId, $eventApplyMap, $this->callInterceptor);
 
         $sameUser = $translator->reconstituteAggregateFromHistory(AggregateType::fromString('User'), new \ArrayIterator([$recordedEvents[0]]));
 

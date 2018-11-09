@@ -9,13 +9,13 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Messaging;
+namespace ProophExample\CustomMessages\Api;
 
-final class Command
+final class Query
 {
-    const REGISTER_USER = 'RegisterUser';
-    const CHANGE_USERNAME = 'ChangeUsername';
-    const DO_NOTHING = 'DoNothing';
+    const GET_USER = 'GetUser';
+    const GET_USERS = 'GetUsers';
+    const GET_FILTERED_USERS = 'GetFilteredUsers';
 
     private function __construct()
     {

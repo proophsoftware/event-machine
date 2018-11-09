@@ -9,11 +9,11 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Aggregate;
+namespace ProophExample\Standard\Aggregate;
 
 use Prooph\EventMachine\EventMachine;
-use ProophExample\Messaging\Command;
-use ProophExample\Messaging\Event;
+use ProophExample\Standard\Messaging\Command;
+use ProophExample\Standard\Messaging\Event;
 
 /**
  * Class CacheableUserDescription

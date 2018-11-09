@@ -13,9 +13,8 @@ namespace Prooph\EventMachine\Eventing;
 
 use Prooph\Common\Messaging\DomainMessage;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessage;
-use Prooph\ServiceBus\Async\AsyncMessage;
 
-final class GenericJsonSchemaEvent extends GenericJsonSchemaMessage implements AsyncMessage
+final class GenericJsonSchemaEvent extends GenericJsonSchemaMessage
 {
     /**
      * Should be one of Message::TYPE_COMMAND, Message::TYPE_EVENT or Message::TYPE_QUERY

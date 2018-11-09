@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Messaging;
+namespace ProophExample\CustomMessages\Api;
 
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\EventMachineDescription;
@@ -17,9 +17,9 @@ use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\Type\EmailType;
 use Prooph\EventMachine\JsonSchema\Type\StringType;
 use Prooph\EventMachine\JsonSchema\Type\UuidType;
-use ProophExample\Aggregate\UserDescription;
-use ProophExample\Resolver\GetUserResolver;
-use ProophExample\Resolver\GetUsersResolver;
+use ProophExample\Standard\Aggregate\UserDescription;
+use ProophExample\Standard\Resolver\GetUserResolver;
+use ProophExample\Standard\Resolver\GetUsersResolver;
 
 /**
  * You're free to organize EventMachineDescriptions in the way that best fits your personal preferences
@@ -46,10 +46,6 @@ final class MessageDescription implements EventMachineDescription
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username,
             UserDescription::EMAIL => new EmailType(),
-        ], [
-            //If it is set to true user registration handler will record a UserRegistrationFailed event
-            //when using CachableUserFunction
-            'shouldFail' => JsonSchema::boolean(),
         ]);
 
         /* Message Registration */
@@ -57,9 +53,6 @@ final class MessageDescription implements EventMachineDescription
         $eventMachine->registerCommand(Command::CHANGE_USERNAME, JsonSchema::object([
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username,
-        ]));
-        $eventMachine->registerCommand(Command::DO_NOTHING, JsonSchema::object([
-            UserDescription::IDENTIFIER => $userId,
         ]));
 
         $eventMachine->registerEvent(Event::USER_WAS_REGISTERED, $userDataSchema);
@@ -69,10 +62,7 @@ final class MessageDescription implements EventMachineDescription
             'newName' => $username,
         ]));
 
-        $eventMachine->registerEvent(Event::USER_REGISTRATION_FAILED, JsonSchema::object([
-            UserDescription::IDENTIFIER => $userId,
-        ]));
-
+        /*
         //Register user state as a Type so that we can reference it as query return type
         $eventMachine->registerType('User', $userDataSchema);
         $eventMachine->registerQuery(Query::GET_USER, JsonSchema::object([
@@ -94,5 +84,6 @@ final class MessageDescription implements EventMachineDescription
         ]))
             ->resolveWith(GetUsersResolver::class)
             ->setReturnType(JsonSchema::array(JsonSchema::typeRef('User')));
+        */
     }
 }

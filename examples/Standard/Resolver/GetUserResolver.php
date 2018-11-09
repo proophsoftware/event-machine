@@ -9,11 +9,11 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Resolver;
+namespace ProophExample\Standard\Resolver;
 
 use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\EventMachine;
-use ProophExample\Aggregate\Aggregate;
+use ProophExample\Standard\Aggregate\Aggregate;
 use React\Promise\Deferred;
 
 final class GetUserResolver

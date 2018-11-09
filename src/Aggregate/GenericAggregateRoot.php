@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Aggregate;
 
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Runtime\CallInterceptor;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventSourcing\Aggregate\AggregateTypeProvider;
 use Prooph\EventSourcing\Aggregate\Exception\RuntimeException;
@@ -56,27 +58,39 @@ final class GenericAggregateRoot implements AggregateTypeProvider
     private $recordedEvents = [];
 
     /**
+     * @var CallInterceptor
+     */
+    private $callInterceptor;
+
+    /**
      * @throws RuntimeException
      */
-    protected static function reconstituteFromHistory(string $aggregateId, AggregateType $aggregateType, array $eventApplyMap, \Iterator $historyEvents): self
+    protected static function reconstituteFromHistory(
+        string $aggregateId,
+        AggregateType $aggregateType,
+        array $eventApplyMap,
+        CallInterceptor $callInterceptor,
+        \Iterator $historyEvents
+    ): self
     {
-        $instance = new self($aggregateId, $aggregateType, $eventApplyMap);
+        $instance = new self($aggregateId, $aggregateType, $eventApplyMap, $callInterceptor);
         $instance->replay($historyEvents);
 
         return $instance;
     }
 
-    public function __construct(string  $aggregateId, AggregateType $aggregateType, array $eventApplyMap)
+    public function __construct(string  $aggregateId, AggregateType $aggregateType, array $eventApplyMap, CallInterceptor $callInterceptor)
     {
         $this->aggregateId = $aggregateId;
         $this->aggregateType = $aggregateType;
         $this->eventApplyMap = $eventApplyMap;
+        $this->callInterceptor = $callInterceptor;
     }
 
     /**
      * Record an aggregate changed event
      */
-    public function recordThat(GenericJsonSchemaEvent $event): void
+    public function recordThat(Message $event): void
     {
         if (! array_key_exists($event->messageName(), $this->eventApplyMap)) {
             throw new \RuntimeException('Wrong event recording detected. Unknown event passed to GenericAggregateRoot: ' . $event->messageName());
@@ -126,18 +140,20 @@ final class GenericAggregateRoot implements AggregateTypeProvider
             /** @var GenericJsonSchemaEvent $pastEvent */
             $this->version = $pastEvent->version();
 
+            $pastEvent = $this->callInterceptor->convertMessageReceivedFromNetwork($pastEvent, true);
+
             $this->apply($pastEvent);
         }
     }
 
-    private function apply(GenericJsonSchemaEvent $event): void
+    private function apply(Message $event): void
     {
         $apply = $this->eventApplyMap[$event->messageName()];
 
         if ($this->aggregateState === null) {
-            $newArState = $apply($event);
+            $newArState = $this->callInterceptor->callApplyFirstEvent($apply, $event);
         } else {
-            $newArState = $apply($this->aggregateState, $event);
+            $newArState = $this->callInterceptor->callApplySubsequentEvent($apply, $this->aggregateState, $event);
         }
 
         if (null === $newArState) {

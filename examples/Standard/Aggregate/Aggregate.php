@@ -9,13 +9,11 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Messaging;
+namespace ProophExample\Standard\Aggregate;
 
-final class Event
+final class Aggregate
 {
-    const USER_WAS_REGISTERED = 'UserWasRegistered';
-    const USER_REGISTRATION_FAILED = 'UserRegistrationFailed';
-    const USERNAME_WAS_CHANGED = 'UsernameWasChanged';
+    const USER = 'User';
 
     private function __construct()
     {

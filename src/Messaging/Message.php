@@ -12,8 +12,10 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Messaging;
 
 use Prooph\Common\Messaging\Message as ProophMessage;
+use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
+use Prooph\ServiceBus\Async\AsyncMessage;
 
-interface Message extends ProophMessage
+interface Message extends ProophMessage, AsyncMessage
 {
     /**
      * Get $key from message payload
@@ -32,4 +34,6 @@ interface Message extends ProophMessage
      * @return mixed
      */
     public function getOrDefault(string $key, $default);
+
+    public function withPayload(array $payload, JsonSchemaAssertion $assertion, array $payloadSchema): self;
 }

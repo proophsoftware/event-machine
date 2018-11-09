@@ -9,7 +9,7 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Aggregate;
+namespace ProophExample\CustomMessages\Aggregate;
 
 final class Aggregate
 {

@@ -9,12 +9,16 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Resolver;
+namespace ProophExample\CustomMessages\Aggregate;
 
-use Prooph\Common\Messaging\Message;
-use React\Promise\Deferred;
+use ProophExample\CustomMessages\Util\ApplyPayload;
 
-interface GetUsersResolver
+class UserState
 {
-    public function __invoke(Message $getUsers, Deferred $deferred): void;
+    use ApplyPayload;
+
+    public $userId;
+    public $username;
+    public $email;
+    public $failed;
 }

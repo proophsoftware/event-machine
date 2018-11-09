@@ -9,12 +9,26 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\Aggregate;
+namespace ProophExample\CustomMessages\Command;
 
-class UserState
+use ProophExample\CustomMessages\Util\ApplyPayload;
+
+final class RegisterUser
 {
-    public $id;
+    use ApplyPayload;
+
+    /**
+     * @var string
+     */
+    public $userId;
+
+    /**
+     * @var string
+     */
     public $username;
+
+    /**
+     * @var string
+     */
     public $email;
-    public $failed;
 }
