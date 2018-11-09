@@ -41,7 +41,7 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
 
     public function get(string $key)
     {
-        if (! array_key_exists($key, $this->payload)) {
+        if (! \array_key_exists($key, $this->payload)) {
             throw new \BadMethodCallException("Message payload of {$this->messageName()} does not contain a key $key.");
         }
 
@@ -50,7 +50,7 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
 
     public function getOrDefault(string $key, $default)
     {
-        if (! array_key_exists($key, $this->payload)) {
+        if (! \array_key_exists($key, $this->payload)) {
             return $default;
         }
 
@@ -64,7 +64,7 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
 
     public static function assertMessageName(string $messageName)
     {
-        if (! preg_match('/^[A-Za-z0-9_.-\/]+$/', $messageName)) {
+        if (! \preg_match('/^[A-Za-z0-9_.-\/]+$/', $messageName)) {
             throw new \InvalidArgumentException('Invalid message name.');
         }
     }
@@ -74,6 +74,7 @@ abstract class GenericJsonSchemaMessage extends DomainMessage implements Message
         $assertion->assert($this->messageName, $payload, $payloadSchema);
         $copy = clone $this;
         $copy->payload = $payload;
+
         return $copy;
     }
 }

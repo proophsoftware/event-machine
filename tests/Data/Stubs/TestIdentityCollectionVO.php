@@ -25,7 +25,7 @@ final class TestIdentityCollectionVO
 
     public static function fromArray(array $data): self
     {
-        $identities = array_map(function ($item) {
+        $identities = \array_map(function ($item) {
             return TestIdentityVO::fromArray($item);
         }, $data);
 
@@ -44,7 +44,7 @@ final class TestIdentityCollectionVO
 
     public function toArray(): array
     {
-        return array_map(function (TestIdentityVO $item) {
+        return \array_map(function (TestIdentityVO $item) {
             return $item->toArray();
         }, $this->identities);
     }
@@ -60,6 +60,6 @@ final class TestIdentityCollectionVO
 
     public function __toString(): string
     {
-        return json_encode($this->toArray());
+        return \json_encode($this->toArray());
     }
 }

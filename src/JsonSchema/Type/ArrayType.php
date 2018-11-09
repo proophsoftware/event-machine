@@ -43,7 +43,7 @@ final class ArrayType implements AnnotatedType
 
     public function toArray(): array
     {
-        return array_merge([
+        return \array_merge([
             'type' => $this->type,
             'items' => $this->itemSchema->toArray(),
         ], (array) $this->validation, $this->annotations());

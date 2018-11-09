@@ -211,10 +211,10 @@ class ImmutableRecordTest extends TestCase
         $this->assertEquals(2.0, $amount);
         $this->assertInternalType('float', $amount);
 
-        $json = json_encode($productPrice->toArray());
+        $json = \json_encode($productPrice->toArray());
         $this->assertEquals('{"amount":2,"currency":"EUR"}', $json);
 
-        $productPrice = TestProductPriceVO::fromArray(json_decode($json, true));
+        $productPrice = TestProductPriceVO::fromArray(\json_decode($json, true));
         $amount = $productPrice->toArray()['amount'];
         $this->assertEquals(2.0, $amount);
         $this->assertInternalType('float', $amount);
@@ -237,7 +237,6 @@ class ImmutableRecordTest extends TestCase
         $this->assertEquals(2.0, $amount);
         $this->assertInternalType('float', $amount);
     }
-
 
     /**
      * @test

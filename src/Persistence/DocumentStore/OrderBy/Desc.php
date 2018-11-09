@@ -37,7 +37,7 @@ final class Desc implements OrderBy
 
     private function __construct(string $prop)
     {
-        if (strlen($prop) === 0) {
+        if (\strlen($prop) === 0) {
             throw new \InvalidArgumentException('Prop must not be an empty string');
         }
         $this->prop = $prop;

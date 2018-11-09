@@ -43,48 +43,48 @@ final class CustomMessageCallInterceptor implements CallInterceptor, MessageFact
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callCommandPreProcessor($preProcessor, Message $command): Message
     {
-        if(!$command instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $command instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         return $command->withMessage($this->port->callCustomCommandPreProcessor($command->get(MessageBag::MESSAGE), $preProcessor));
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAggregateIdFromCommand(string $aggregateIdPayloadKey, Message $command): string
     {
-        if(!$command instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $command instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         return $this->port->getAggregateIdFromCustomCommand($aggregateIdPayloadKey, $command->get(MessageBag::MESSAGE));
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callContextProvider($contextProvider, Message $command)
     {
-        if(!$command instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $command instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         return $this->port->callCustomContextProvider($command->get(MessageBag::MESSAGE), $contextProvider);
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callFirstAggregateFunction(string $aggregateType, callable $aggregateFunction, Message $command, $context = null): \Generator
     {
-        if(!$command instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $command instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         $events = $aggregateFunction($command->get(MessageBag::MESSAGE), $context);
@@ -94,7 +94,10 @@ final class CustomMessageCallInterceptor implements CallInterceptor, MessageFact
         }
 
         yield from new MapIterator($events, function ($event) use ($command) {
-            if(null === $event) return null;
+            if (null === $event) {
+                return null;
+            }
+
             return $this->port->decorateEvent($event)
                 ->withAddedMetadata('_causation_id', $command->uuid()->toString())
                 ->withAddedMetadata('_causation_name', $command->messageName());
@@ -102,12 +105,12 @@ final class CustomMessageCallInterceptor implements CallInterceptor, MessageFact
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callSubsequentAggregateFunction(string $aggregateType, callable $aggregateFunction, $aggregateState, Message $command, $context = null): \Generator
     {
-        if(!$command instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $command instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         $events = $aggregateFunction($aggregateState, $command->get(MessageBag::MESSAGE), $context);
@@ -117,7 +120,10 @@ final class CustomMessageCallInterceptor implements CallInterceptor, MessageFact
         }
 
         yield from new MapIterator($events, function ($event) use ($command) {
-            if(null === $event) return null;
+            if (null === $event) {
+                return null;
+            }
+
             return $this->port->decorateEvent($event)
                 ->withAddedMetadata('_causation_id', $command->uuid()->toString())
                 ->withAddedMetadata('_causation_name', $command->messageName());
@@ -125,35 +131,35 @@ final class CustomMessageCallInterceptor implements CallInterceptor, MessageFact
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callApplyFirstEvent(callable $applyFunction, Message $event)
     {
-        if(!$event instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $event instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         return $applyFunction($event->get(MessageBag::MESSAGE));
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callApplySubsequentEvent(callable $applyFunction, $aggregateState, Message $event)
     {
-        if(!$event instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $event instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         return $applyFunction($aggregateState, $event->get(MessageBag::MESSAGE));
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function prepareNetworkTransmission(Message $message): Message
     {
-        if($message instanceof MessageBag && $message->hasMessage()) {
+        if ($message instanceof MessageBag && $message->hasMessage()) {
             $payload = $this->port->serializePayload($message->get(MessageBag::MESSAGE));
 
             return $this->messageFactory->setPayloadFor($message, $payload);
@@ -163,7 +169,7 @@ final class CustomMessageCallInterceptor implements CallInterceptor, MessageFact
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message
     {

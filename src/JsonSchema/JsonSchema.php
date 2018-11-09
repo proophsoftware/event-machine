@@ -138,12 +138,12 @@ final class JsonSchema
 
     public static function isStringEnum(array $typeSchema): bool
     {
-        if (! array_key_exists(self::KEYWORD_ENUM, $typeSchema)) {
+        if (! \array_key_exists(self::KEYWORD_ENUM, $typeSchema)) {
             return false;
         }
 
         foreach ($typeSchema[self::KEYWORD_ENUM] as $val) {
-            if (! is_string($val)) {
+            if (! \is_string($val)) {
                 return false;
             }
         }
@@ -153,14 +153,14 @@ final class JsonSchema
 
     public static function isType(string $type, array $typeSchema): bool
     {
-        if (array_key_exists('type', $typeSchema)) {
-            if (is_array($typeSchema['type'])) {
+        if (\array_key_exists('type', $typeSchema)) {
+            if (\is_array($typeSchema['type'])) {
                 foreach ($typeSchema['type'] as $possibleType) {
                     if ($possibleType === $type) {
                         return true;
                     }
                 }
-            } elseif (is_string($typeSchema['type'])) {
+            } elseif (\is_string($typeSchema['type'])) {
                 return $typeSchema['type'] === $type;
             }
         }
@@ -170,7 +170,7 @@ final class JsonSchema
 
     public static function extractTypeFromRef(string $ref): string
     {
-        return str_replace('#/' . JsonSchema::DEFINITIONS . '/', '', $ref);
+        return \str_replace('#/' . JsonSchema::DEFINITIONS . '/', '', $ref);
     }
 
     public static function assertAllInstanceOfType(array $types): void
@@ -179,7 +179,7 @@ final class JsonSchema
             if (! $type instanceof Type) {
                 throw new \InvalidArgumentException(
                     "Invalid type at key $key. Type must implement Prooph\EventMachine\JsonSchema\Type. Got "
-                    . ((is_object($type) ? get_class($type) : gettype($type))));
+                    . ((\is_object($type) ? \get_class($type) : \gettype($type))));
             }
         }
     }

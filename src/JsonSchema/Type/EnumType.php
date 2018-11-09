@@ -36,7 +36,7 @@ class EnumType implements AnnotatedType
 
     public function toArray(): array
     {
-        return array_merge([
+        return \array_merge([
             'type' => $this->type,
             'enum' => $this->entries,
         ], $this->annotations());

@@ -49,6 +49,6 @@ class StringType implements AnnotatedType
 
     public function toArray(): array
     {
-        return array_merge(['type' => $this->type], $this->validation, $this->annotations());
+        return \array_merge(['type' => $this->type], $this->validation, $this->annotations());
     }
 }

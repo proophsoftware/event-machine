@@ -119,7 +119,7 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
                 break;
         }
 
-        if($this->callInterceptor) {
+        if ($this->callInterceptor) {
             return $this->callInterceptor->convertMessageReceivedFromNetwork($message);
         }
 
@@ -143,17 +143,17 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
         $payloadSchema = null;
         $messageType = null;
 
-        if (array_key_exists($messageName, $this->commandMap)) {
+        if (\array_key_exists($messageName, $this->commandMap)) {
             $messageType = DomainMessage::TYPE_COMMAND;
             $payloadSchema = $this->commandMap[$messageName];
         }
 
-        if ($messageType === null && array_key_exists($messageName, $this->eventMap)) {
+        if ($messageType === null && \array_key_exists($messageName, $this->eventMap)) {
             $messageType = DomainMessage::TYPE_EVENT;
             $payloadSchema = $this->eventMap[$messageName];
         }
 
-        if ($messageType === null && array_key_exists($messageName, $this->queryMap)) {
+        if ($messageType === null && \array_key_exists($messageName, $this->queryMap)) {
             $messageType = DomainMessage::TYPE_QUERY;
             $payloadSchema = $this->queryMap[$messageName];
         }

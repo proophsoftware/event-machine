@@ -39,7 +39,7 @@ final class LikeFilter implements Filter
 
     public function __construct(string $prop, string $val)
     {
-        if (strlen($val) === 0) {
+        if (\strlen($val) === 0) {
             throw new \InvalidArgumentException('Like filter must not be empty');
         }
 
@@ -69,7 +69,7 @@ final class LikeFilter implements Filter
 
         $prop = $reader->mixedValue($this->prop, self::NOT_SET_PROPERTY);
 
-        if ($prop === self::NOT_SET_PROPERTY || ! is_string($prop)) {
+        if ($prop === self::NOT_SET_PROPERTY || ! \is_string($prop)) {
             return false;
         }
 
@@ -78,20 +78,20 @@ final class LikeFilter implements Filter
         }
 
         $likeStart = $this->val[0] === '%';
-        $likeEnd = $this->val[mb_strlen($this->val) - 1] === '%';
+        $likeEnd = $this->val[\mb_strlen($this->val) - 1] === '%';
 
-        $prop = mb_strtolower($prop);
-        $val = mb_strtolower($this->val);
+        $prop = \mb_strtolower($prop);
+        $val = \mb_strtolower($this->val);
 
         if ($likeStart) {
-            $val = mb_substr($val, 1);
+            $val = \mb_substr($val, 1);
         }
 
         if ($likeEnd) {
-            $val = mb_substr($val, 0, mb_strlen($val) - 2);
+            $val = \mb_substr($val, 0, \mb_strlen($val) - 2);
         }
 
-        $pos = mb_strpos($prop, $val);
+        $pos = \mb_strpos($prop, $val);
 
         if ($pos === false) {
             return false;
@@ -102,7 +102,7 @@ final class LikeFilter implements Filter
         }
 
         if (! $likeEnd) {
-            $posRev = mb_strpos(strrev($prop), strrev($val));
+            $posRev = \mb_strpos(\strrev($prop), \strrev($val));
 
             if ($posRev !== 0) {
                 return false;

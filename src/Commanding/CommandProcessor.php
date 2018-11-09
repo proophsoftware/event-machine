@@ -16,7 +16,6 @@ use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
-use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Runtime\CallInterceptor;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
@@ -105,35 +104,35 @@ final class CommandProcessor
         SnapshotStore $snapshotStore = null,
         ContextProvider $contextProvider = null
     ): self {
-        if (! array_key_exists('commandName', $description)) {
+        if (! \array_key_exists('commandName', $description)) {
             throw new \InvalidArgumentException('Missing key commandName in commandProcessorDescription');
         }
 
-        if (! array_key_exists('createAggregate', $description)) {
+        if (! \array_key_exists('createAggregate', $description)) {
             throw new \InvalidArgumentException('Missing key createAggregate in commandProcessorDescription');
         }
 
-        if (! array_key_exists('aggregateType', $description)) {
+        if (! \array_key_exists('aggregateType', $description)) {
             throw new \InvalidArgumentException('Missing key aggregateType in commandProcessorDescription');
         }
 
-        if (! array_key_exists('aggregateIdentifier', $description)) {
+        if (! \array_key_exists('aggregateIdentifier', $description)) {
             throw new \InvalidArgumentException('Missing key aggregateIdentifier in commandProcessorDescription');
         }
 
-        if (! array_key_exists('aggregateFunction', $description)) {
+        if (! \array_key_exists('aggregateFunction', $description)) {
             throw new \InvalidArgumentException('Missing key aggregateFunction in commandProcessorDescription');
         }
 
-        if (! array_key_exists('eventRecorderMap', $description)) {
+        if (! \array_key_exists('eventRecorderMap', $description)) {
             throw new \InvalidArgumentException('Missing key eventRecorderMap in commandProcessorDescription');
         }
 
-        if (! array_key_exists('eventApplyMap', $description)) {
+        if (! \array_key_exists('eventApplyMap', $description)) {
             throw new \InvalidArgumentException('Missing key eventApplyMap in commandProcessorDescription');
         }
 
-        if (! array_key_exists('streamName', $description)) {
+        if (! \array_key_exists('streamName', $description)) {
             throw new \InvalidArgumentException('Missing key streamName in commandProcessorDescription');
         }
 
@@ -218,7 +217,7 @@ final class CommandProcessor
 
         $arFunc = $this->aggregateFunction;
 
-        if($this->createAggregate) {
+        if ($this->createAggregate) {
             $events = $this->callInterceptor->callFirstAggregateFunction($this->aggregateType, $arFunc, $command, $context);
         } else {
             $events = $this->callInterceptor->callSubsequentAggregateFunction($this->aggregateType, $arFunc, $aggregateState, $command, $context);

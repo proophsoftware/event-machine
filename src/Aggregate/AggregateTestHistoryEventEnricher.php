@@ -32,7 +32,7 @@ final class AggregateTestHistoryEventEnricher
             $arId = $event->payload()[$aggregateDefinition['aggregateIdentifier']] ?? null;
 
             if (! $arId) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new \InvalidArgumentException(\sprintf(
                     'Event with name %s does not contain an aggregate identifier. Expected key was %s',
                     $event->messageName(),
                     $aggregateDefinition['aggregateIdentifier']
@@ -44,7 +44,7 @@ final class AggregateTestHistoryEventEnricher
 
             $aggregateMap[$aggregateDefinition['aggregateType']][$arId][] = $event;
 
-            $event = $event->withAddedMetadata('_aggregate_version', count($aggregateMap[$aggregateDefinition['aggregateType']][$arId]));
+            $event = $event->withAddedMetadata('_aggregate_version', \count($aggregateMap[$aggregateDefinition['aggregateType']][$arId]));
 
             $enrichedHistory[] = $event;
         }
@@ -55,7 +55,7 @@ final class AggregateTestHistoryEventEnricher
     private static function getAggregateDescriptionByEvent(string $eventName, array $aggregateDescriptions): ?array
     {
         foreach ($aggregateDescriptions as $description) {
-            if (array_key_exists($eventName, $description['eventApplyMap'])) {
+            if (\array_key_exists($eventName, $description['eventApplyMap'])) {
                 return $description;
             }
         }

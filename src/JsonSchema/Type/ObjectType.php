@@ -44,12 +44,12 @@ class ObjectType implements AnnotatedType
 
     public function __construct(array $requiredProps = [], array $optionalProps = [], bool $allowAdditionalProperties = false)
     {
-        $props = array_merge($requiredProps, $optionalProps);
+        $props = \array_merge($requiredProps, $optionalProps);
 
         JsonSchema::assertAllInstanceOfType($props);
 
         $this->properties = $props;
-        $this->requiredProps = array_keys($requiredProps);
+        $this->requiredProps = \array_keys($requiredProps);
         $this->allowAdditionalProps = $allowAdditionalProperties;
     }
 
@@ -58,7 +58,7 @@ class ObjectType implements AnnotatedType
         JsonSchema::assertAllInstanceOfType($props);
 
         $cp = clone $this;
-        $cp->properties = array_merge($cp->properties, $props);
+        $cp->properties = \array_merge($cp->properties, $props);
 
         return $cp;
     }
@@ -68,8 +68,8 @@ class ObjectType implements AnnotatedType
         JsonSchema::assertAllInstanceOfType($props);
 
         $cp = clone $this;
-        $cp->properties = array_merge($cp->properties, $props);
-        $cp->requiredProps = array_unique(array_merge($cp->requiredProps, array_keys($props)));
+        $cp->properties = \array_merge($cp->properties, $props);
+        $cp->requiredProps = \array_unique(\array_merge($cp->requiredProps, \array_keys($props)));
 
         return $cp;
     }
@@ -92,7 +92,7 @@ class ObjectType implements AnnotatedType
 
     public function toArray(): array
     {
-        $allOf = array_map(function (TypeRef $typeRef) {
+        $allOf = \array_map(function (TypeRef $typeRef) {
             return $typeRef->toArray();
         }, $this->implementedTypes);
 
@@ -100,15 +100,15 @@ class ObjectType implements AnnotatedType
             'type' => $this->type,
             'required' => $this->requiredProps,
             'additionalProperties' => $this->allowAdditionalProps,
-            'properties' => array_map(function (Type $type) {
+            'properties' => \array_map(function (Type $type) {
                 return $type->toArray();
             }, $this->properties),
         ];
 
-        if (count($allOf)) {
+        if (\count($allOf)) {
             $schema['allOf'] = $allOf;
         }
 
-        return array_merge($schema, $this->annotations());
+        return \array_merge($schema, $this->annotations());
     }
 }

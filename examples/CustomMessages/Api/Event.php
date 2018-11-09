@@ -34,8 +34,9 @@ final class Event
 
     public static function nameOf($event): string
     {
-        $map = array_flip(self::CLASS_MAP);
-        return $map[get_class($event)];
+        $map = \array_flip(self::CLASS_MAP);
+
+        return $map[\get_class($event)];
     }
 
     private function __construct()

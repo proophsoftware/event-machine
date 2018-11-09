@@ -22,7 +22,7 @@ final class ExampleOOPPort implements Port
     use DetermineVariableType;
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callAggregateFactory(string $aggregateType, callable $aggregateFactory, $customCommand, $context = null)
     {
@@ -30,22 +30,22 @@ final class ExampleOOPPort implements Port
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callAggregateWithCommand($aggregate, $customCommand, $context = null): void
     {
-        switch (get_class($customCommand)) {
+        switch (\get_class($customCommand)) {
             case ChangeUsername::class:
                 /** @var User $aggregate */
                 $aggregate->changeName($customCommand);
                 break;
             default:
-                throw new InvalidArgumentException("Unknown command: " . self::getType($customCommand));
+                throw new InvalidArgumentException('Unknown command: ' . self::getType($customCommand));
         }
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function popRecordedEvents($aggregate): array
     {
@@ -54,7 +54,7 @@ final class ExampleOOPPort implements Port
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function applyEvent($aggregate, $customEvent): void
     {
@@ -63,7 +63,7 @@ final class ExampleOOPPort implements Port
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function serializeAggregate($aggregate): array
     {
@@ -72,7 +72,7 @@ final class ExampleOOPPort implements Port
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function reconstituteAggregate(string $aggregateType, iterable $events)
     {

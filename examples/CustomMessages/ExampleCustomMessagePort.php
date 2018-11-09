@@ -20,7 +20,7 @@ use ProophExample\CustomMessages\Api\Event;
 final class ExampleCustomMessagePort implements Port
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function deserialize(Message $message)
     {
@@ -35,17 +35,17 @@ final class ExampleCustomMessagePort implements Port
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function serializePayload($customMessage): array
     {
         //Since, we use objects with public properties as custom messages, casting to array is enough
         //In a production setting, you should use your own immutable messages and a serializer
-        return (array)$customMessage;
+        return (array) $customMessage;
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function decorateEvent($customEvent): MessageBag
     {
@@ -57,7 +57,7 @@ final class ExampleCustomMessagePort implements Port
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAggregateIdFromCustomCommand(string $aggregateIdPayloadKey, $customCommand): string
     {
@@ -66,7 +66,7 @@ final class ExampleCustomMessagePort implements Port
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callCustomCommandPreProcessor($customCommand, $preProcessor)
     {
@@ -75,7 +75,7 @@ final class ExampleCustomMessagePort implements Port
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callCustomContextProvider($customCommand, $contextProvider)
     {

@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace ProophExample\CustomMessages\Aggregate;
 
-use Prooph\Common\Messaging\Message;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\EventMachineDescription;
 use ProophExample\CustomMessages\Api\Command;
@@ -60,12 +59,12 @@ final class UserDescription implements EventMachineDescription
             // Note: Our custom command is passed to the function
             ->handle(function (RegisterUser $registerUser) {
                 //We can return a custom event
-                yield new UserRegistered((array)$registerUser);
+                yield new UserRegistered((array) $registerUser);
             })
             ->recordThat(Event::USER_WAS_REGISTERED)
             // The custom event is passed to the apply function
             ->apply(function (UserRegistered $event) {
-                return new UserState((array)$event);
+                return new UserState((array) $event);
             });
     }
 
@@ -85,6 +84,7 @@ final class UserDescription implements EventMachineDescription
             // Same here, UsernameChanged is NOT the first event, so current user state is passed
             ->apply(function (UserState $user, UsernameChanged $event) {
                 $user->username = $event->newName;
+
                 return $user;
             });
     }

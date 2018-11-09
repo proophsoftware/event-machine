@@ -32,7 +32,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function listCollections(): array
     {
-        return array_keys($this->inMemoryConnection['documents']);
+        return \array_keys($this->inMemoryConnection['documents']);
     }
 
     /**
@@ -41,8 +41,8 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function filterCollectionsByPrefix(string $prefix): array
     {
-        return array_filter(array_keys($this->inMemoryConnection['documents']), function (string $colName) use ($prefix): bool {
-            return mb_strpos($colName, $prefix) === 0;
+        return \array_filter(\array_keys($this->inMemoryConnection['documents']), function (string $colName) use ($prefix): bool {
+            return \mb_strpos($colName, $prefix) === 0;
         });
     }
 
@@ -52,7 +52,7 @@ final class InMemoryDocumentStore implements DocumentStore
      */
     public function hasCollection(string $collectionName): bool
     {
-        return array_key_exists($collectionName, $this->inMemoryConnection['documents']);
+        return \array_key_exists($collectionName, $this->inMemoryConnection['documents']);
     }
 
     /**
@@ -102,7 +102,7 @@ final class InMemoryDocumentStore implements DocumentStore
     {
         $this->assertDocExists($collectionName, $docId);
 
-        $this->inMemoryConnection['documents'][$collectionName][$docId] = array_merge(
+        $this->inMemoryConnection['documents'][$collectionName][$docId] = \array_merge(
             $this->inMemoryConnection['documents'][$collectionName][$docId],
             $docOrSubset
         );
@@ -206,9 +206,9 @@ final class InMemoryDocumentStore implements DocumentStore
         }
 
         if ($skip !== null) {
-            $filteredDocs = array_slice($filteredDocs, $skip, $limit);
+            $filteredDocs = \array_slice($filteredDocs, $skip, $limit);
         } elseif ($limit !== null) {
-            $filteredDocs = array_slice($filteredDocs, 0, $limit);
+            $filteredDocs = \array_slice($filteredDocs, 0, $limit);
         }
 
         return new \ArrayIterator($filteredDocs);
@@ -220,7 +220,7 @@ final class InMemoryDocumentStore implements DocumentStore
             return false;
         }
 
-        return array_key_exists($docId, $this->inMemoryConnection['documents'][$collectionName]);
+        return \array_key_exists($docId, $this->inMemoryConnection['documents'][$collectionName]);
     }
 
     private function assertHasCollection(string $collectionName): void
@@ -252,9 +252,9 @@ final class InMemoryDocumentStore implements DocumentStore
                 return (new ArrayReader($doc))->mixedValue($field);
             }
 
-            throw new \RuntimeException(sprintf(
+            throw new \RuntimeException(\sprintf(
                 'Unable to get field from doc: %s. Given OrderBy is neither an instance of %s nor %s',
-                json_encode($doc),
+                \json_encode($doc),
                 DocumentStore\OrderBy\Asc::class,
                 DocumentStore\OrderBy\Desc::class
             ));
@@ -272,8 +272,8 @@ final class InMemoryDocumentStore implements DocumentStore
             $valA = $getField($docA, $orderBy);
             $valB = $getField($docB, $orderBy);
 
-            if (is_string($valA) && is_string($valB)) {
-                $orderResult = strcasecmp($valA, $valB);
+            if (\is_string($valA) && \is_string($valB)) {
+                $orderResult = \strcasecmp($valA, $valB);
             } else {
                 $orderResult = $defaultCmp($valA, $valB);
             }
@@ -293,7 +293,7 @@ final class InMemoryDocumentStore implements DocumentStore
             return $orderResult;
         };
 
-        usort($docs, function (array $docA, array $docB) use ($orderBy, $docCmp) {
+        \usort($docs, function (array $docA, array $docB) use ($orderBy, $docCmp) {
             return $docCmp($docA, $docB, $orderBy);
         });
     }

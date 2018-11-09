@@ -59,7 +59,7 @@ final class ReflectionBasedContainer implements ContainerInterface
     {
         $id = $this->aliasMap[$id] ?? $id;
 
-        return array_key_exists($id, $this->serviceFactoryMap);
+        return \array_key_exists($id, $this->serviceFactoryMap);
     }
 
     /**
@@ -83,8 +83,8 @@ final class ReflectionBasedContainer implements ContainerInterface
                 if (! $returnType->isBuiltin()) {
                     $returnTypeName = $method->getReturnType()->getName();
 
-                    if (array_key_exists($returnTypeName, $serviceFactoryMap)) {
-                        throw new \RuntimeException(sprintf(
+                    if (\array_key_exists($returnTypeName, $serviceFactoryMap)) {
+                        throw new \RuntimeException(\sprintf(
                             'Duplicate return type in service factory detected. Method %s has the same return type like method %s. Type is %s',
                             $method->getName(),
                             $serviceFactoryMap[$returnTypeName],

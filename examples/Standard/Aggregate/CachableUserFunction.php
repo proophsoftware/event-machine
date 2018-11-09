@@ -18,7 +18,7 @@ final class CachableUserFunction
 {
     public static function registerUser(Message $registerUser)
     {
-        if (! array_key_exists('shouldFail', $registerUser->payload()) || ! $registerUser->payload()['shouldFail']) {
+        if (! \array_key_exists('shouldFail', $registerUser->payload()) || ! $registerUser->payload()['shouldFail']) {
             //We just turn the command payload into event payload by yielding it
             yield [Event::USER_WAS_REGISTERED, $registerUser->payload()];
         } else {

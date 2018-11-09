@@ -1,13 +1,21 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Messaging;
 
 use DateTimeImmutable;
+use Prooph\Common\Messaging\Message as ProophMessage;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Ramsey\Uuid\Uuid;
 use Ramsey\Uuid\UuidInterface;
-use Prooph\Common\Messaging\Message as ProophMessage;
 
 /**
  * The MessageBag can be used to pass an arbitrary message through the Event Machine layer
@@ -54,13 +62,13 @@ final class MessageBag implements Message
     private $payload;
 
     private const MSG_TYPES = [
-        Message::TYPE_COMMAND, Message::TYPE_EVENT, Message::TYPE_QUERY
+        Message::TYPE_COMMAND, Message::TYPE_EVENT, Message::TYPE_QUERY,
     ];
 
     public function __construct(string $messageName, string $messageType, $message, $metadata = [], UuidInterface $messageId = null, DateTimeImmutable $createdAt = null)
     {
-        if(!in_array($messageType, self::MSG_TYPES)) {
-            throw new \InvalidArgumentException("Message type should be one of " . implode(', ', self::MSG_TYPES) . ". Got $messageType");
+        if (! \in_array($messageType, self::MSG_TYPES)) {
+            throw new \InvalidArgumentException('Message type should be one of ' . \implode(', ', self::MSG_TYPES) . ". Got $messageType");
         }
 
         $this->messageName = $messageName;
@@ -100,15 +108,15 @@ final class MessageBag implements Message
      */
     public function getOrDefault(string $key, $default)
     {
-        if($this->replacedPayload) {
-            if (! array_key_exists($key, $this->payload)) {
+        if ($this->replacedPayload) {
+            if (! \array_key_exists($key, $this->payload)) {
                 return $default;
             }
 
             return $this->payload[$key];
         }
 
-        if($key === self::MESSAGE) {
+        if ($key === self::MESSAGE) {
             return $this->message;
         }
 
@@ -125,11 +133,11 @@ final class MessageBag implements Message
 
     public function payload(): array
     {
-        if($this->replacedPayload) {
+        if ($this->replacedPayload) {
             return $this->payload;
         }
 
-        return [self::MESSAGE => json_decode(json_encode($this->message), true)];
+        return [self::MESSAGE => \json_decode(\json_encode($this->message), true)];
     }
 
     /**
@@ -141,6 +149,7 @@ final class MessageBag implements Message
     {
         $copy = clone $this;
         $copy->metadata[$key] = $value;
+
         return $copy;
     }
 
@@ -153,16 +162,16 @@ final class MessageBag implements Message
      */
     public function get(string $key)
     {
-        if($this->replacedPayload) {
-            if (! array_key_exists($key, $this->payload)) {
+        if ($this->replacedPayload) {
+            if (! \array_key_exists($key, $this->payload)) {
                 throw new \BadMethodCallException("Message payload of {$this->messageName()} does not contain a key $key.");
             }
 
             return $this->payload[$key];
         }
 
-        if($key !== self::MESSAGE) {
-            throw new \BadMethodCallException(__CLASS__ . " payload only contains a " . self::MESSAGE . " key.");
+        if ($key !== self::MESSAGE) {
+            throw new \BadMethodCallException(__CLASS__ . ' payload only contains a ' . self::MESSAGE . ' key.');
         }
 
         return $this->message;
@@ -170,7 +179,7 @@ final class MessageBag implements Message
 
     public function hasMessage(): bool
     {
-        return !$this->replacedPayload;
+        return ! $this->replacedPayload;
     }
 
     public function uuid(): UuidInterface
@@ -182,6 +191,7 @@ final class MessageBag implements Message
     {
         $copy = clone $this;
         $copy->metadata = $metadata;
+
         return $copy;
     }
 
@@ -191,6 +201,7 @@ final class MessageBag implements Message
         $copy->message = $message;
         $copy->replacedPayload = false;
         $copy->payload = null;
+
         return $copy;
     }
 

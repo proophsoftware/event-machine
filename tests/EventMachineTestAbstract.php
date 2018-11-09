@@ -183,7 +183,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $recordedEvents = [];
 
         $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $publishedEvents = [];
@@ -225,7 +225,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $recordedEvents = [];
 
         $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $publishedEvents = [];
@@ -260,10 +260,10 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $recordedEvents = [];
 
         $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = array_merge($recordedEvents, iterator_to_array($args[1]));
+            $recordedEvents = \array_merge($recordedEvents, \iterator_to_array($args[1]));
         });
 
-        $this->eventStore->load(new StreamName('event_stream'), 1, null, Argument::type(MetadataMatcher::class))->will(function ($args)  use (&$recordedEvents) {
+        $this->eventStore->load(new StreamName('event_stream'), 1, null, Argument::type(MetadataMatcher::class))->will(function ($args) use (&$recordedEvents) {
             return new \ArrayIterator([$recordedEvents[0]]);
         });
 
@@ -324,7 +324,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $recordedEvents = [];
 
         $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $publishedEvents = [];

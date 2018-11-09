@@ -33,7 +33,7 @@ final class MultiFieldIndex implements Index
 
     public static function fromArray(array $data): self
     {
-        $fields = array_map(function (string $field): FieldIndex {
+        $fields = \array_map(function (string $field): FieldIndex {
             return FieldIndex::forFieldInMultiFieldIndex($field);
         }, $data['fields'] ?? []);
 
@@ -45,7 +45,7 @@ final class MultiFieldIndex implements Index
 
     private function __construct(bool $unique, FieldIndex ...$fields)
     {
-        if (count($fields) <= 1) {
+        if (\count($fields) <= 1) {
             throw new \InvalidArgumentException('MultiFieldIndex should contain at least two fields');
         }
 
@@ -72,7 +72,7 @@ final class MultiFieldIndex implements Index
     public function toArray(): array
     {
         return [
-            'fields' => array_map(function (FieldIndex $field): string {
+            'fields' => \array_map(function (FieldIndex $field): string {
                 return $field->field();
             }, $this->fields),
             'unique' => $this->unique,
@@ -90,6 +90,6 @@ final class MultiFieldIndex implements Index
 
     public function __toString(): string
     {
-        return json_encode($this->toArray());
+        return \json_encode($this->toArray());
     }
 }

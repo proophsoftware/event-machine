@@ -32,8 +32,8 @@ class AndFilterTest extends BasicTestCase
             new AndFilter(new LtFilter('age', 5), new GtFilter('age', 1))
         );
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Tiger', implode(', ', $names));
+        $this->assertEquals('Tiger', \implode(', ', $names));
     }
 }

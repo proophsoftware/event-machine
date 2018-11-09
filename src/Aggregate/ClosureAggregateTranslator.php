@@ -107,7 +107,7 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
             $callInterceptor = $this->callInterceptor;
 
             $this->pendingEventsExtractor = function () use ($callInterceptor): array {
-                return array_map(function (Message $event) use ($callInterceptor) {
+                return \array_map(function (Message $event) use ($callInterceptor) {
                     return $callInterceptor->prepareNetworkTransmission($event);
                 }, $this->popRecordedEvents());
             };

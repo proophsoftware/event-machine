@@ -71,8 +71,7 @@ final class GenericAggregateRoot implements AggregateTypeProvider
         array $eventApplyMap,
         CallInterceptor $callInterceptor,
         \Iterator $historyEvents
-    ): self
-    {
+    ): self {
         $instance = new self($aggregateId, $aggregateType, $eventApplyMap, $callInterceptor);
         $instance->replay($historyEvents);
 
@@ -92,7 +91,7 @@ final class GenericAggregateRoot implements AggregateTypeProvider
      */
     public function recordThat(Message $event): void
     {
-        if (! array_key_exists($event->messageName(), $this->eventApplyMap)) {
+        if (! \array_key_exists($event->messageName(), $this->eventApplyMap)) {
             throw new \RuntimeException('Wrong event recording detected. Unknown event passed to GenericAggregateRoot: ' . $event->messageName());
         }
 

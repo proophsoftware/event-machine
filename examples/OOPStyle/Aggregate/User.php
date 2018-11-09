@@ -46,7 +46,7 @@ final class User
         $self->recordThat(new UserRegistered([
             'userId' => $command->userId,
             'username' => $command->username,
-            'email' => $command->email
+            'email' => $command->email,
         ]));
 
         return $self;
@@ -57,7 +57,7 @@ final class User
         $this->recordThat(new UsernameChanged([
             'userId' => $this->userId,
             'oldName' => $this->username,
-            'newName' => $command->username
+            'newName' => $command->username,
         ]));
     }
 
@@ -65,12 +65,13 @@ final class User
     {
         $events = $this->recordedEvents;
         $this->recordedEvents = [];
+
         return $events;
     }
 
     public function apply($event): void
     {
-        switch (get_class($event)) {
+        switch (\get_class($event)) {
             case UserRegistered::class:
                 /** @var UserRegistered $event */
                 $this->userId = $event->userId;
@@ -82,13 +83,13 @@ final class User
                 $this->username = $event->newName;
                 break;
             default:
-                throw new RuntimeException("Unknown event: " . get_class($event));
+                throw new RuntimeException('Unknown event: ' . \get_class($event));
         }
     }
 
     public function toArray(): array
     {
-        return (array)$this;
+        return (array) $this;
     }
 
     private function recordThat($event): void

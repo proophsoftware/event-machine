@@ -55,7 +55,7 @@ trait ImmutableRecordLogic
 
     public static function __type(): string
     {
-        return self::convertClassToTypeName(get_called_class());
+        return self::convertClassToTypeName(\get_called_class());
     }
 
     public static function __schema(): Type
@@ -107,13 +107,13 @@ trait ImmutableRecordLogic
                 case ImmutableRecord::PHP_TYPE_FLOAT:
                 case ImmutableRecord::PHP_TYPE_BOOL:
                 case ImmutableRecord::PHP_TYPE_ARRAY:
-                    if (array_key_exists($key, $arrayPropItemTypeMap) && ! self::isScalarType($arrayPropItemTypeMap[$key])) {
+                    if (\array_key_exists($key, $arrayPropItemTypeMap) && ! self::isScalarType($arrayPropItemTypeMap[$key])) {
                         if ($isNullable && $this->{$key}() === null) {
                             $nativeData[$key] = null;
                             continue;
                         }
 
-                        $nativeData[$key] = array_map(function ($item) use ($key, &$arrayPropItemTypeMap) {
+                        $nativeData[$key] = \array_map(function ($item) use ($key, &$arrayPropItemTypeMap) {
                             return $this->voTypeToNative($item, $key, $arrayPropItemTypeMap[$key]);
                         }, $this->{$key}());
                     } else {
@@ -147,16 +147,16 @@ trait ImmutableRecordLogic
 
         foreach ($nativeData as $key => $val) {
             if (! isset(self::$__propTypeMap[$key])) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new \InvalidArgumentException(\sprintf(
                     'Invalid property passed to Record %s. Got property with key ' . $key,
-                    get_called_class()
+                    \get_called_class()
                 ));
             }
             [$type, $isNative, $isNullable] = self::$__propTypeMap[$key];
 
             if ($val === null) {
                 if (! $isNullable) {
-                    throw new \RuntimeException("Got null for non nullable property $key of Record " . get_called_class());
+                    throw new \RuntimeException("Got null for non nullable property $key of Record " . \get_called_class());
                 }
 
                 $recordData[$key] = null;
@@ -171,8 +171,8 @@ trait ImmutableRecordLogic
                     $recordData[$key] = $val;
                     break;
                 case ImmutableRecord::PHP_TYPE_ARRAY:
-                    if (array_key_exists($key, $arrayPropItemTypeMap) && ! self::isScalarType($arrayPropItemTypeMap[$key])) {
-                        $recordData[$key] = array_map(function ($item) use ($key, &$arrayPropItemTypeMap) {
+                    if (\array_key_exists($key, $arrayPropItemTypeMap) && ! self::isScalarType($arrayPropItemTypeMap[$key])) {
+                        $recordData[$key] = \array_map(function ($item) use ($key, &$arrayPropItemTypeMap) {
                             return $this->fromType($item, $arrayPropItemTypeMap[$key]);
                         }, $val);
                     } else {
@@ -191,7 +191,7 @@ trait ImmutableRecordLogic
     {
         foreach (self::$__propTypeMap as $key => [$type, $isNative, $isNullable]) {
             if (null === $this->{$key} && ! $isNullable) {
-                throw new \InvalidArgumentException(sprintf(
+                throw new \InvalidArgumentException(\sprintf(
                     'Missing record data for key %s of record %s.',
                     $key,
                     __CLASS__
@@ -203,7 +203,7 @@ trait ImmutableRecordLogic
     private function assertType(string $key, $value)
     {
         if (! isset(self::$__propTypeMap[$key])) {
-            throw new \InvalidArgumentException(sprintf(
+            throw new \InvalidArgumentException(\sprintf(
                 'Invalid property passed to Record %s. Got property with key ' . $key,
                 __CLASS__
             ));
@@ -215,24 +215,24 @@ trait ImmutableRecordLogic
         }
 
         if (! $this->isType($type, $key, $value)) {
-            if ($type === ImmutableRecord::PHP_TYPE_ARRAY && gettype($value) === ImmutableRecord::PHP_TYPE_ARRAY) {
+            if ($type === ImmutableRecord::PHP_TYPE_ARRAY && \gettype($value) === ImmutableRecord::PHP_TYPE_ARRAY) {
                 $arrayPropItemTypeMap = self::getArrayPropItemTypeMapFromMethodOrCache();
-                throw new \InvalidArgumentException(sprintf(
+                throw new \InvalidArgumentException(\sprintf(
                     'Record %s data contains invalid value for property %s. Value should be an array of %s, but at least one item of the array has the wrong type.',
-                    get_called_class(),
+                    \get_called_class(),
                     $key,
                     $arrayPropItemTypeMap[$key]
                 ));
             }
 
-            throw new \InvalidArgumentException(sprintf(
+            throw new \InvalidArgumentException(\sprintf(
                 'Record %s data contains invalid value for property %s. Expected type is %s. Got type %s.',
-                get_called_class(),
+                \get_called_class(),
                 $key,
                 $type,
-                (is_object($value)
-                    ? get_class($value)
-                    : gettype($value))
+                (\is_object($value)
+                    ? \get_class($value)
+                    : \gettype($value))
             ));
         }
     }
@@ -241,20 +241,20 @@ trait ImmutableRecordLogic
     {
         switch ($type) {
             case ImmutableRecord::PHP_TYPE_STRING:
-                return is_string($value);
+                return \is_string($value);
             case ImmutableRecord::PHP_TYPE_INT:
-                return is_int($value);
+                return \is_int($value);
             case ImmutableRecord::PHP_TYPE_FLOAT:
-                return is_float($value) || is_int($value);
+                return \is_float($value) || \is_int($value);
             case ImmutableRecord::PHP_TYPE_BOOL:
-                return is_bool($value);
+                return \is_bool($value);
             case ImmutableRecord::PHP_TYPE_ARRAY:
-                $isType = is_array($value);
+                $isType = \is_array($value);
 
                 if ($isType) {
                     $arrayPropItemTypeMap = self::getArrayPropItemTypeMapFromMethodOrCache();
 
-                    if (array_key_exists($key, $arrayPropItemTypeMap)) {
+                    if (\array_key_exists($key, $arrayPropItemTypeMap)) {
                         foreach ($value as $item) {
                             if (! $this->isType($arrayPropItemTypeMap[$key], $key, $item)) {
                                 return false;
@@ -284,7 +284,7 @@ trait ImmutableRecordLogic
 
             if (! $refObj->hasMethod($prop->getName())) {
                 throw new \RuntimeException(
-                    sprintf(
+                    \sprintf(
                         'No method found for Record property %s of %s that has the same name.',
                         $prop->getName(),
                         __CLASS__
@@ -296,7 +296,7 @@ trait ImmutableRecordLogic
 
             if (! $method->hasReturnType()) {
                 throw new \RuntimeException(
-                    sprintf(
+                    \sprintf(
                         'Method %s of Record %s does not have a return type',
                         $method->getName(),
                         __CLASS__
@@ -327,12 +327,12 @@ trait ImmutableRecordLogic
 
     private function fromType($value, string $type)
     {
-        if (! class_exists($type)) {
+        if (! \class_exists($type)) {
             throw new \RuntimeException("Type class $type not found");
         }
 
         //Note: gettype() returns "integer" and "boolean" which does not match the type hints "int", "bool"
-        switch (gettype($value)) {
+        switch (\gettype($value)) {
             case 'array':
                 return $type::fromArray($value);
             case 'string':
@@ -347,29 +347,29 @@ trait ImmutableRecordLogic
             case 'boolean':
                 return $type::fromBool($value);
             default:
-                throw new \RuntimeException("Cannot convert value to $type, because native type of value is not supported. Got " . gettype($value));
+                throw new \RuntimeException("Cannot convert value to $type, because native type of value is not supported. Got " . \gettype($value));
         }
     }
 
     private function voTypeToNative($value, string $key, string $type)
     {
-        if (method_exists($value, 'toArray')) {
+        if (\method_exists($value, 'toArray')) {
             return $value->toArray();
         }
 
-        if (method_exists($value, 'toString')) {
+        if (\method_exists($value, 'toString')) {
             return $value->toString();
         }
 
-        if (method_exists($value, 'toInt')) {
+        if (\method_exists($value, 'toInt')) {
             return $value->toInt();
         }
 
-        if (method_exists($value, 'toFloat')) {
+        if (\method_exists($value, 'toFloat')) {
             return $value->toFloat();
         }
 
-        if (method_exists($value, 'toBool')) {
+        if (\method_exists($value, 'toBool')) {
             return $value->toBool();
         }
 
@@ -389,7 +389,7 @@ trait ImmutableRecordLogic
         //To keep BC, we cache arrayPropTypeMap internally.
         //New recommended way to provide the map is that one should override the static method  self::arrayPropItemTypeMap()
         //Hence, we check if this method returns a non empty array and only in this case cache the map
-        if (count($arrayPropTypeMap) && ! count(self::arrayPropItemTypeMap())) {
+        if (\count($arrayPropTypeMap) && ! \count(self::arrayPropItemTypeMap())) {
             self::$__arrayPropItemTypeMap = $arrayPropTypeMap;
         }
 
@@ -405,7 +405,7 @@ trait ImmutableRecordLogic
                 }
 
                 if ($type === ImmutableRecord::PHP_TYPE_ARRAY) {
-                    if (! array_key_exists($prop, $arrayPropTypeMap)) {
+                    if (! \array_key_exists($prop, $arrayPropTypeMap)) {
                         throw new \RuntimeException("Missing array item type in array property map. Please provide an array item type for property $prop.");
                     }
 
@@ -437,19 +437,19 @@ trait ImmutableRecordLogic
 
     private static function convertClassToTypeName(string $class): string
     {
-        return substr(strrchr($class, '\\'), 1);
+        return \substr(\strrchr($class, '\\'), 1);
     }
 
     private static function getTypeFromClass(string $classOrType): string
     {
-        if (! class_exists($classOrType)) {
+        if (! \class_exists($classOrType)) {
             return $classOrType;
         }
 
         $refObj = new \ReflectionClass($classOrType);
 
         if ($refObj->implementsInterface(ImmutableRecord::class)) {
-            return call_user_func([$classOrType, '__type']);
+            return \call_user_func([$classOrType, '__type']);
         }
 
         return self::convertClassToTypeName($classOrType);

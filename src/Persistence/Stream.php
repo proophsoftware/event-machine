@@ -46,11 +46,11 @@ final class Stream
 
     private function __construct(string $serviceName, string $streamName)
     {
-        if (mb_strlen($serviceName) === 0) {
+        if (\mb_strlen($serviceName) === 0) {
             throw new \InvalidArgumentException('Service name must not be empty');
         }
 
-        if (mb_strlen($streamName) === 0) {
+        if (\mb_strlen($streamName) === 0) {
             throw new \InvalidArgumentException('Stream name must not be empty');
         }
 
@@ -106,6 +106,6 @@ final class Stream
 
     public function __toString(): string
     {
-        return json_encode($this->toArray());
+        return \json_encode($this->toArray());
     }
 }

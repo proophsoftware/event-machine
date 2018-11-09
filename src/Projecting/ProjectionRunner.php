@@ -33,7 +33,7 @@ final class ProjectionRunner
 
     public static function eventMachineProjectionName(string $appVersion): string
     {
-        return self::EVENT_MACHINE_PROJECTION . '_' . str_replace('.', '_', $appVersion);
+        return self::EVENT_MACHINE_PROJECTION . '_' . \str_replace('.', '_', $appVersion);
     }
 
     public function __construct(
@@ -60,9 +60,9 @@ final class ProjectionRunner
             }
         }
 
-        $sourceStreams = array_keys($sourceStreams);
+        $sourceStreams = \array_keys($sourceStreams);
 
-        $totalSourceStreams = count($sourceStreams);
+        $totalSourceStreams = \count($sourceStreams);
 
         if ($totalSourceStreams === 0) {
             return;

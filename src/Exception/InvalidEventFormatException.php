@@ -21,7 +21,7 @@ final class InvalidEventFormatException extends InvalidArgumentException
     public static function invalidEvent(string $aggregateType, Message $command): self
     {
         return new self(
-            sprintf(
+            \sprintf(
                 'Event returned by aggregate of type %s while handling command %s does not have the format [string eventName, array payload]!',
                 $aggregateType,
                 $command->messageName()
@@ -32,7 +32,7 @@ final class InvalidEventFormatException extends InvalidArgumentException
     public static function invalidMetadata($metadata, string $aggregateType, Message $command): self
     {
         return new self(
-            sprintf(
+            \sprintf(
                 'Event returned by aggregate of type %s while handling command %s contains additional metadata but metadata type is not array. Detected type is: %s',
                 $aggregateType,
                 $command->messageName(),

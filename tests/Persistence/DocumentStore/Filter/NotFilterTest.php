@@ -28,8 +28,8 @@ class NotFilterTest extends BasicTestCase
 
         $animals = $this->store->filterDocs($this->collection, new NotFilter(new LtFilter('age', 5)));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Jack, Hasso, Gini', implode(', ', $names));
+        $this->assertEquals('Jack, Hasso, Gini', \implode(', ', $names));
     }
 }

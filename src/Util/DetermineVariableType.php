@@ -15,6 +15,6 @@ trait DetermineVariableType
 {
     private static function getType($var): string
     {
-        return is_object($var) ? get_class($var) : gettype($var);
+        return \is_object($var) ? \get_class($var) : \gettype($var);
     }
 }

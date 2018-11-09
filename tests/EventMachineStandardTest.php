@@ -219,7 +219,7 @@ class EventMachineStandardTest extends BasicTestCase
         $recordedEvents = [];
 
         $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $publishedEvents = [];
@@ -351,7 +351,7 @@ class EventMachineStandardTest extends BasicTestCase
         $recordedEvents = [];
 
         $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $publishedEvents = [];
@@ -402,7 +402,7 @@ class EventMachineStandardTest extends BasicTestCase
         $recordedEvents = [];
 
         $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $publishedEvents = [];
@@ -513,7 +513,7 @@ class EventMachineStandardTest extends BasicTestCase
         $this->eventStore->inTransaction()->willReturn(true);
 
         $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $this->eventStore->commit()->shouldBeCalled();
@@ -930,7 +930,7 @@ class EventMachineStandardTest extends BasicTestCase
             $exceptionThrown = true;
         }
         $this->assertTrue($exceptionThrown);
-        $this->assertEmpty(iterator_to_array($eventStore->load($streamName)));
+        $this->assertEmpty(\iterator_to_array($eventStore->load($streamName)));
     }
 
     /**

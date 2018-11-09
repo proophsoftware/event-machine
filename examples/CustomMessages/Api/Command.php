@@ -33,8 +33,9 @@ final class Command
 
     public static function nameOf($command): string
     {
-        $map = array_flip(self::CLASS_MAP);
-        return $map[get_class($command)];
+        $map = \array_flip(self::CLASS_MAP);
+
+        return $map[\get_class($command)];
     }
 
     private function __construct()

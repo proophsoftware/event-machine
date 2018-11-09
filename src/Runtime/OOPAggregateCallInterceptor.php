@@ -1,4 +1,12 @@
 <?php
+/**
+ * This file is part of the proophsoftware/event-machine.
+ * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 declare(strict_types=1);
 
 namespace Prooph\EventMachine\Runtime;
@@ -36,12 +44,12 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callFirstAggregateFunction(string $aggregateType, callable $aggregateFunction, Message $command, $context = null): \Generator
     {
-        if(!$command instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $command instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         $aggregate = $this->port->callAggregateFactory($aggregateType, $aggregateFunction, $command->get(MessageBag::MESSAGE), $context);
@@ -49,22 +57,24 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
         $events = $this->port->popRecordedEvents($aggregate);
 
         yield from new MapIterator(new \ArrayIterator($events), function ($event) use ($command, $aggregate, $aggregateType) {
-            if(null === $event) return null;
+            if (null === $event) {
+                return null;
+            }
+
             return $this->customMessageInterceptor->decorateEvent($event)
                 ->withMessage(new AggregateAndEventBag($aggregate, $event))
                 ->withAddedMetadata('_causation_id', $command->uuid()->toString())
                 ->withAddedMetadata('_causation_name', $command->messageName());
-
         });
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callSubsequentAggregateFunction(string $aggregateType, callable $aggregateFunction, $aggregateState, Message $command, $context = null): \Generator
     {
-        if(!$command instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $command instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         $this->port->callAggregateWithCommand($aggregateState, $command->get(MessageBag::MESSAGE), $context);
@@ -72,7 +82,10 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
         $events = $this->port->popRecordedEvents($aggregateState);
 
         yield from new MapIterator(new \ArrayIterator($events), function ($event) use ($command) {
-            if(null === $event) return null;
+            if (null === $event) {
+                return null;
+            }
+
             return $this->customMessageInterceptor->decorateEvent($event)
                 ->withAddedMetadata('_causation_id', $command->uuid()->toString())
                 ->withAddedMetadata('_causation_name', $command->messageName());
@@ -80,18 +93,18 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callApplyFirstEvent(callable $applyFunction, Message $event)
     {
-        if(!$event instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $event instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         $aggregateAndEventBag = $event->get(MessageBag::MESSAGE);
 
-        if(!$aggregateAndEventBag instanceof AggregateAndEventBag) {
-            throw new RuntimeException("MessageBag passed to " . __METHOD__ . " should contain a " . AggregateAndEventBag::class . " message.");
+        if (! $aggregateAndEventBag instanceof AggregateAndEventBag) {
+            throw new RuntimeException('MessageBag passed to ' . __METHOD__ . ' should contain a ' . AggregateAndEventBag::class . ' message.');
         }
 
         $aggregate = $aggregateAndEventBag->aggregate();
@@ -102,11 +115,10 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
         return $aggregate;
     }
 
-
     public function callApplySubsequentEvent(callable $applyFunction, $aggregateState, Message $event)
     {
-        if(!$event instanceof MessageBag) {
-            throw new RuntimeException("Message passed to " . __METHOD__ . " should be of type " . MessageBag::class);
+        if (! $event instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
         $this->port->applyEvent($aggregateState, $event->get(MessageBag::MESSAGE));
@@ -115,7 +127,7 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callCommandPreProcessor($preProcessor, Message $command): Message
     {
@@ -123,7 +135,7 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAggregateIdFromCommand(string $aggregateIdPayloadKey, Message $command): string
     {
@@ -131,7 +143,7 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callContextProvider($contextProvider, Message $command)
     {
@@ -139,14 +151,14 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function prepareNetworkTransmission(Message $message): Message
     {
-        if($message instanceof MessageBag) {
+        if ($message instanceof MessageBag) {
             $innerEvent = $message->getOrDefault(MessageBag::MESSAGE, new \stdClass());
 
-            if($innerEvent instanceof AggregateAndEventBag) {
+            if ($innerEvent instanceof AggregateAndEventBag) {
                 $message = $message->withMessage($innerEvent->event());
             }
         }
@@ -155,24 +167,24 @@ final class OOPAggregateCallInterceptor implements CallInterceptor, MessageFacto
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message
     {
         $customMessageInBag = $this->customMessageInterceptor->convertMessageReceivedFromNetwork($message);
 
-        if($receivedFromEventStore && $message->messageType() === Message::TYPE_EVENT) {
+        if ($receivedFromEventStore && $message->messageType() === Message::TYPE_EVENT) {
             $aggregateType = $message->metadata()[self::META_AGGREGATE_TYPE] ?? null;
 
-            if(null === $aggregateType) {
-                throw new RuntimeException("Event passed to " . __METHOD__ . " should have a metadata key: " . self::META_AGGREGATE_TYPE);
+            if (null === $aggregateType) {
+                throw new RuntimeException('Event passed to ' . __METHOD__ . ' should have a metadata key: ' . self::META_AGGREGATE_TYPE);
             }
 
-            if(!$customMessageInBag instanceof MessageBag) {
-                throw new RuntimeException("CustomMessageInterceptor is expected to return a " . MessageBag::class);
+            if (! $customMessageInBag instanceof MessageBag) {
+                throw new RuntimeException('CustomMessageInterceptor is expected to return a ' . MessageBag::class);
             }
 
-            $aggregate = $this->port->reconstituteAggregate((string)$aggregateType, [$customMessageInBag->get(MessageBag::MESSAGE)]);
+            $aggregate = $this->port->reconstituteAggregate((string) $aggregateType, [$customMessageInBag->get(MessageBag::MESSAGE)]);
 
             $customMessageInBag = $customMessageInBag->withMessage(new AggregateAndEventBag($aggregate, $customMessageInBag->get(MessageBag::MESSAGE)));
         }

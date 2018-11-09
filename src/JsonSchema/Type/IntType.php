@@ -36,7 +36,7 @@ class IntType implements AnnotatedType
 
     public function toArray(): array
     {
-        return array_merge(['type' => $this->type], (array) $this->validation, $this->annotations());
+        return \array_merge(['type' => $this->type], (array) $this->validation, $this->annotations());
     }
 
     public function withMinimum(int $min): self

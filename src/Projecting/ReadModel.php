@@ -71,7 +71,7 @@ final class ReadModel
         }
 
         if ($this->desc[ProjectionDescription::EVENTS_FILTER]) {
-            if (! in_array($event->messageName(), $this->desc[ProjectionDescription::EVENTS_FILTER])) {
+            if (! \in_array($event->messageName(), $this->desc[ProjectionDescription::EVENTS_FILTER])) {
                 return false;
             }
         }

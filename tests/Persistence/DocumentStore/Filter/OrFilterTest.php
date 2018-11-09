@@ -32,8 +32,8 @@ class OrFilterTest extends BasicTestCase
             new OrFilter(new LtFilter('age', 2), new GtFilter('age', 5))
         );
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Jack, Hasso, Quak', implode(', ', $names));
+        $this->assertEquals('Jack, Hasso, Quak', \implode(', ', $names));
     }
 }

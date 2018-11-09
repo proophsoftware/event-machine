@@ -36,21 +36,21 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callCommandPreProcessor($preProcessor, Message $command): Message
     {
-        if(!$preProcessor instanceof CommandPreProcessor) {
+        if (! $preProcessor instanceof CommandPreProcessor) {
             throw new RuntimeException(
-                "By default a CommandPreProcessor should implement the interface: "
-                . CommandPreProcessor::class . ". Got " . ((is_object($preProcessor)? get_class($preProcessor) : gettype($preProcessor)))
+                'By default a CommandPreProcessor should implement the interface: '
+                . CommandPreProcessor::class . '. Got ' . ((\is_object($preProcessor) ? \get_class($preProcessor) : \gettype($preProcessor)))
             );
         }
 
         $command = $preProcessor->preProcess($command);
 
         //@TODO: Remove check after fixing CommandPreProcessor interface in v2.0
-        if(!$command instanceof Message) {
+        if (! $command instanceof Message) {
             //Turn prooph message into Event Machine message (which extends prooph message in v1.0)
             $command = $this->messageFactory->createMessageFromArray(
                 $command->messageName(),
@@ -70,7 +70,7 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
     {
         $payload = $command->payload();
 
-        if (! array_key_exists($aggregateIdPayloadKey, $payload)) {
+        if (! \array_key_exists($aggregateIdPayloadKey, $payload)) {
             throw MissingAggregateIdentifierException::inCommand($command, $aggregateIdPayloadKey);
         }
 
@@ -78,23 +78,22 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callContextProvider($contextProvider, Message $command)
     {
-        if(!$contextProvider instanceof ContextProvider) {
+        if (! $contextProvider instanceof ContextProvider) {
             throw new RuntimeException(
-                "By default a ContextProvider should implement the interface: "
-                . ContextProvider::class . ". Got " . ((is_object($contextProvider)? get_class($contextProvider) : gettype($contextProvider)))
+                'By default a ContextProvider should implement the interface: '
+                . ContextProvider::class . '. Got ' . ((\is_object($contextProvider) ? \get_class($contextProvider) : \gettype($contextProvider)))
             );
         }
 
         return $contextProvider->provide($command);
     }
 
-
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callFirstAggregateFunction(string $aggregateType, callable $aggregateFunction, Message $command, $context = null): \Generator
     {
@@ -105,13 +104,16 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
         }
 
         yield from new MapIterator($events, function ($event) use ($aggregateType, $command) {
-            if(null === $event) return null;
+            if (null === $event) {
+                return null;
+            }
+
             return $this->mapToMessage($event, $aggregateType, $command);
         });
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callSubsequentAggregateFunction(string $aggregateType, callable $aggregateFunction, $aggregateState, Message $command, $context = null): \Generator
     {
@@ -122,13 +124,16 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
         }
 
         yield from new MapIterator($events, function ($event) use ($aggregateType, $command) {
-            if(null === $event) return null;
+            if (null === $event) {
+                return null;
+            }
+
             return $this->mapToMessage($event, $aggregateType, $command);
         });
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callApplyFirstEvent(callable $applyFunction, Message $event)
     {
@@ -136,7 +141,7 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function callApplySubsequentEvent(callable $applyFunction, $aggregateState, Message $event)
     {
@@ -144,7 +149,7 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function prepareNetworkTransmission(Message $message): Message
     {
@@ -152,7 +157,7 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message
     {
@@ -161,17 +166,17 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
 
     private function mapToMessage($event, string $aggregateType, Message $command): Message
     {
-        if (! is_array($event) || ! array_key_exists(0, $event) || ! array_key_exists(1, $event)
-            || ! is_string($event[0]) || ! is_array($event[1])) {
+        if (! \is_array($event) || ! \array_key_exists(0, $event) || ! \array_key_exists(1, $event)
+            || ! \is_string($event[0]) || ! \is_array($event[1])) {
             throw InvalidEventFormatException::invalidEvent($aggregateType, $command);
         }
         [$eventName, $payload] = $event;
 
         $metadata = [];
 
-        if (array_key_exists(2, $event)) {
+        if (\array_key_exists(2, $event)) {
             $metadata = $event[2];
-            if (! is_array($metadata)) {
+            if (! \is_array($metadata)) {
                 throw InvalidEventFormatException::invalidMetadata($metadata, $aggregateType, $command);
             }
         }
@@ -179,7 +184,7 @@ final class StandardCallInterceptor implements CallInterceptor, MessageFactoryAw
         /** @var GenericJsonSchemaEvent $event */
         $event = $this->messageFactory->createMessageFromArray($eventName, [
             'payload' => $payload,
-            'metadata' => array_merge([
+            'metadata' => \array_merge([
                 '_causation_id' => $command->uuid()->toString(),
                 '_causation_name' => $command->messageName(),
             ], $metadata),

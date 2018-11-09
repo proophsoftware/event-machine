@@ -15,7 +15,7 @@ final class ImmutableRecordDataConverter implements DataConverter
 {
     public function convertDataToArray($data): array
     {
-        if (is_array($data)) {
+        if (\is_array($data)) {
             return $data;
         }
 
@@ -23,6 +23,6 @@ final class ImmutableRecordDataConverter implements DataConverter
             return $data->toArray();
         }
 
-        return (array) json_decode(json_encode($data), true);
+        return (array) \json_decode(\json_encode($data), true);
     }
 }

@@ -71,7 +71,7 @@ final class CommandProcessorTest extends BasicTestCase
         $eventStore = $this->prophesize(EventStore::class);
 
         $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $processorDesc = $commandRouting[Command::REGISTER_USER];
@@ -155,7 +155,7 @@ final class CommandProcessorTest extends BasicTestCase
             });
 
         $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $processorDesc = $commandRouting[Command::CHANGE_USERNAME];
@@ -212,7 +212,7 @@ final class CommandProcessorTest extends BasicTestCase
         $eventStore = $this->prophesize(EventStore::class);
 
         $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $processorDesc = $commandRouting[Command::REGISTER_USER];
@@ -298,7 +298,7 @@ final class CommandProcessorTest extends BasicTestCase
             });
 
         $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $processorDesc = $commandRouting[Command::DO_NOTHING];
@@ -343,7 +343,7 @@ final class CommandProcessorTest extends BasicTestCase
         $eventStore = $this->prophesize(EventStore::class);
 
         $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $processorDesc = $commandRouting['AddCAA'];
@@ -404,7 +404,7 @@ final class CommandProcessorTest extends BasicTestCase
         $eventStore = $this->prophesize(EventStore::class);
 
         $eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
-            $recordedEvents = iterator_to_array($args[1]);
+            $recordedEvents = \iterator_to_array($args[1]);
         });
 
         $processorDesc = $commandRouting[Command::REGISTER_USER];
@@ -414,7 +414,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         //Wrap ar function to add additional metadata for this test
         $processorDesc['aggregateFunction'] = function (Message $registerUser) use ($arFunc): \Generator {
-            [$event] = iterator_to_array($arFunc($registerUser));
+            [$event] = \iterator_to_array($arFunc($registerUser));
             [$eventName, $payload] = $event;
             yield [$eventName, $payload, ['additional' => 'metadata']];
         };

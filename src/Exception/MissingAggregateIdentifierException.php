@@ -17,7 +17,7 @@ final class MissingAggregateIdentifierException extends InvalidArgumentException
 {
     public static function inCommand(Message $command, string $aggregateIdPayloadKey): self
     {
-        return new self(sprintf(
+        return new self(\sprintf(
             'Missing aggregate identifier %s in payload of command %s',
             $aggregateIdPayloadKey,
             $command->messageName()

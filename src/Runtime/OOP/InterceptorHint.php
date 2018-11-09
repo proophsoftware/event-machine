@@ -17,6 +17,6 @@ final class InterceptorHint
 {
     public static function useAggregate()
     {
-        throw new \BadMethodCallException(__METHOD__  . " should never be called. Check that EventMachine uses " . OOPAggregateCallInterceptor::class);
+        throw new \BadMethodCallException(__METHOD__  . ' should never be called. Check that EventMachine uses ' . OOPAggregateCallInterceptor::class);
     }
 }

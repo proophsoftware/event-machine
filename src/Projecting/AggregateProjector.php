@@ -64,7 +64,7 @@ final class AggregateProjector implements Projector
 
     public static function generateCollectionName(string $appVersion, string $projectionName): string
     {
-        return str_replace('.', '_', $projectionName.'_'.$appVersion);
+        return \str_replace('.', '_', $projectionName.'_'.$appVersion);
     }
 
     public function __construct(DocumentStore $documentStore, EventMachine $eventMachine, DocumentStore\Index ...$indices)
@@ -138,7 +138,7 @@ final class AggregateProjector implements Projector
     private function assertProjectionNameMatchesWithAggregateType(string $projectionName, string $aggregateType): void
     {
         if ($projectionName !== self::generateProjectionName($aggregateType)) {
-            throw new \RuntimeException(sprintf(
+            throw new \RuntimeException(\sprintf(
                 'Wrong projection name configured for %s. Should be %s but got %s',
                 __CLASS__,
                 self::generateProjectionName($aggregateType),
