@@ -68,7 +68,7 @@ final class ExampleOOPPort implements Port
     public function serializeAggregate($aggregate): array
     {
         //Duck typing, do not do this in production but rather use your own interfaces
-        $aggregate->toArray();
+        return $aggregate->toArray();
     }
 
     /**
