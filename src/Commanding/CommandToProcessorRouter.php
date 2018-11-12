@@ -14,7 +14,7 @@ namespace Prooph\EventMachine\Commanding;
 use Prooph\Common\Event\ActionEvent;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Container\ContextProviderFactory;
-use Prooph\EventMachine\Runtime\CallInterceptor;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\MessageBus;
 use Prooph\ServiceBus\Plugin\AbstractPlugin;
@@ -50,9 +50,9 @@ final class CommandToProcessorRouter extends AbstractPlugin
     private $contextProviderFactory;
 
     /**
-     * @var CallInterceptor
+     * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
     /**
      * @var SnapshotStore|null
@@ -65,7 +65,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
         MessageFactory $messageFactory,
         EventStore $eventStore,
         ContextProviderFactory $providerFactory,
-        CallInterceptor $callInterceptor,
+        Flavour $flavour,
         SnapshotStore $snapshotStore = null
     ) {
         $this->routingMap = $routingMap;
@@ -73,7 +73,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
         $this->messageFactory = $messageFactory;
         $this->eventStore = $eventStore;
         $this->contextProviderFactory = $providerFactory;
-        $this->callInterceptor = $callInterceptor;
+        $this->flavour = $flavour;
         $this->snapshotStore = $snapshotStore;
     }
 
@@ -116,7 +116,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
-            $this->callInterceptor,
+            $this->flavour,
             $this->messageFactory,
             $this->eventStore,
             $this->snapshotStore,

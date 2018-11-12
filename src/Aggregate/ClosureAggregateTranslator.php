@@ -13,7 +13,7 @@ namespace Prooph\EventMachine\Aggregate;
 
 use Iterator;
 use Prooph\Common\Messaging\Message;
-use Prooph\EventMachine\Runtime\CallInterceptor;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventSourcing\Aggregate\AggregateTranslator as EventStoreAggregateTranslator;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 
@@ -39,15 +39,15 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
     private $eventApplyMap;
 
     /**
-     * @var CallInterceptor
+     * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
-    public function __construct(string $aggregateId, array $eventApplyMap, CallInterceptor $callInterceptor)
+    public function __construct(string $aggregateId, array $eventApplyMap, Flavour $flavour)
     {
         $this->aggregateId = $aggregateId;
         $this->eventApplyMap = $eventApplyMap;
-        $this->callInterceptor = $callInterceptor;
+        $this->flavour = $flavour;
     }
 
     /**
@@ -87,7 +87,7 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
         if (null === $this->aggregateReconstructor) {
             $arId = $this->aggregateId;
             $eventApplyMap = $this->eventApplyMap;
-            $callInterceptor = $this->callInterceptor;
+            $callInterceptor = $this->flavour;
             $this->aggregateReconstructor = function ($historyEvents) use ($arId, $aggregateType, $eventApplyMap, $callInterceptor) {
                 return static::reconstituteFromHistory($arId, $aggregateType, $eventApplyMap, $callInterceptor, $historyEvents);
             };
@@ -104,7 +104,7 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
     public function extractPendingStreamEvents($anEventSourcedAggregateRoot): array
     {
         if (null === $this->pendingEventsExtractor) {
-            $callInterceptor = $this->callInterceptor;
+            $callInterceptor = $this->flavour;
 
             $this->pendingEventsExtractor = function () use ($callInterceptor): array {
                 return \array_map(function (Message $event) use ($callInterceptor) {

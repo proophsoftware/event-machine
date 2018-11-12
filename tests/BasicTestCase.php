@@ -19,7 +19,7 @@ use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\MessageFactory;
-use Prooph\EventMachine\Runtime\StandardCallInterceptor;
+use Prooph\EventMachine\Runtime\PrototypingFlavour;
 use Prophecy\Argument;
 
 class BasicTestCase extends TestCase
@@ -45,7 +45,7 @@ class BasicTestCase extends TestCase
      */
     protected function extractRecordedEvents(GenericAggregateRoot $aggregateRoot): array
     {
-        $interceptor = new StandardCallInterceptor();
+        $interceptor = new PrototypingFlavour();
         $interceptor->setMessageFactory($this->getMockedEventMessageFactory());
         $aggregateRootTranslator = new ClosureAggregateTranslator(
             'unknown',

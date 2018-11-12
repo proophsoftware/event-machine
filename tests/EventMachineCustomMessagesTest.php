@@ -12,11 +12,11 @@ declare(strict_types=1);
 namespace Prooph\EventMachineTest;
 
 use Prooph\EventMachine\EventMachine;
-use Prooph\EventMachine\Runtime\CallInterceptor;
-use Prooph\EventMachine\Runtime\CustomMessageCallInterceptor;
-use ProophExample\CustomMessages\Aggregate\UserDescription;
-use ProophExample\CustomMessages\Api\MessageDescription;
-use ProophExample\CustomMessages\ExampleCustomMessagePort;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\FunctionalFlavour;
+use ProophExample\FunctionalFlavour\Aggregate\UserDescription;
+use ProophExample\FunctionalFlavour\Api\MessageDescription;
+use ProophExample\FunctionalFlavour\ExampleCustomMessagePort;
 
 class EventMachineCustomMessagesTest extends EventMachineTestAbstract
 {
@@ -26,8 +26,8 @@ class EventMachineCustomMessagesTest extends EventMachineTestAbstract
         $eventMachine->load(UserDescription::class);
     }
 
-    protected function getCallInterceptor(): CallInterceptor
+    protected function getCallInterceptor(): Flavour
     {
-        return new CustomMessageCallInterceptor(new ExampleCustomMessagePort());
+        return new FunctionalFlavour(new ExampleCustomMessagePort());
     }
 }

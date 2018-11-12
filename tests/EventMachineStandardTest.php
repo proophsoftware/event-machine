@@ -43,16 +43,16 @@ use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
-use ProophExample\Standard\Aggregate\Aggregate;
-use ProophExample\Standard\Aggregate\CacheableUserDescription;
-use ProophExample\Standard\Aggregate\UserDescription;
-use ProophExample\Standard\Aggregate\UserState;
-use ProophExample\Standard\Messaging\Command;
-use ProophExample\Standard\Messaging\Event;
-use ProophExample\Standard\Messaging\MessageDescription;
-use ProophExample\Standard\Messaging\Query;
-use ProophExample\Standard\Resolver\GetUserResolver;
-use ProophExample\Standard\Resolver\GetUsersResolver;
+use ProophExample\PrototypingFlavour\Aggregate\Aggregate;
+use ProophExample\PrototypingFlavour\Aggregate\CacheableUserDescription;
+use ProophExample\PrototypingFlavour\Aggregate\UserDescription;
+use ProophExample\PrototypingFlavour\Aggregate\UserState;
+use ProophExample\PrototypingFlavour\Messaging\Command;
+use ProophExample\PrototypingFlavour\Messaging\Event;
+use ProophExample\PrototypingFlavour\Messaging\MessageDescription;
+use ProophExample\PrototypingFlavour\Messaging\Query;
+use ProophExample\PrototypingFlavour\Resolver\GetUserResolver;
+use ProophExample\PrototypingFlavour\Resolver\GetUsersResolver;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
@@ -163,7 +163,7 @@ class EventMachineStandardTest extends BasicTestCase
         $this->appContainer->has(EventMachine::SERVICE_ID_ASYNC_EVENT_PRODUCER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_DOCUMENT_STORE)->willReturn(false);
-        $this->appContainer->has(EventMachine::SERVICE_ID_CALL_INTERCEPTOR)->willReturn(false);
+        $this->appContainer->has(EventMachine::SERVICE_ID_FLAVOUR)->willReturn(false);
 
         $this->containerChain = new ContainerChain(
             $this->appContainer->reveal(),

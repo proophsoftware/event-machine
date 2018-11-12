@@ -45,8 +45,8 @@ use Prooph\EventMachine\Projecting\ProjectionDescription;
 use Prooph\EventMachine\Projecting\ProjectionRunner;
 use Prooph\EventMachine\Projecting\Projector;
 use Prooph\EventMachine\Querying\QueryDescription;
-use Prooph\EventMachine\Runtime\CallInterceptor;
-use Prooph\EventMachine\Runtime\StandardCallInterceptor;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\PrototypingFlavour;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\ActionEventEmitterEventStore;
@@ -81,7 +81,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
     const SERVICE_ID_ASYNC_EVENT_PRODUCER = 'EventMachine.AsyncEventProducer';
     const SERVICE_ID_MESSAGE_FACTORY = 'EventMachine.MessageFactory';
     const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
-    const SERVICE_ID_CALL_INTERCEPTOR = 'EventMachine.CallInterceptor';
+    const SERVICE_ID_FLAVOUR = 'EventMachine.Flavour';
 
     /**
      * Map of command names and corresponding json schema of payload
@@ -204,9 +204,9 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
     private $projectionRunner;
 
     /**
-     * @var CallInterceptor
+     * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
     private $writeModelStreamName = 'event_stream';
 
@@ -534,7 +534,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
                         $preProcessorOrStr = $this->container->get($preProcessorOrStr);
                     }
 
-                    $messageOrName = $this->callInterceptor->callCommandPreProcessor($preProcessorOrStr, $messageOrName);
+                    $messageOrName = $this->flavour()->callCommandPreProcessor($preProcessorOrStr, $messageOrName);
                 }
 
                 $bus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
@@ -593,7 +593,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
         $arRepository = new AggregateRepository(
             $this->container->get(self::SERVICE_ID_EVENT_STORE),
             AggregateType::fromString($aggregateType),
-            new ClosureAggregateTranslator($aggregateId, $aggregateDesc['eventApplyMap'], $this->callInterceptor()),
+            new ClosureAggregateTranslator($aggregateId, $aggregateDesc['eventApplyMap'], $this->flavour()),
             $snapshotStore,
             new StreamName($this->writeModelStreamName())
         );
@@ -689,12 +689,12 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
                 $this->container->get(self::SERVICE_ID_JSON_SCHEMA_ASSERTION)
             );
 
-            $callInterceptor = $this->callInterceptor();
+            $flavour = $this->flavour();
 
             //Setter injection due to circular dependency to self::callInterceptor()
-            $this->messageFactory->setCallInterceptor($callInterceptor);
-            if ($callInterceptor instanceof MessageFactoryAware) {
-                $callInterceptor->setMessageFactory($this->messageFactory);
+            $this->messageFactory->setFlavour($flavour);
+            if ($flavour instanceof MessageFactoryAware) {
+                $flavour->setMessageFactory($this->messageFactory);
             }
         }
 
@@ -895,7 +895,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
             $this->container->get(self::SERVICE_ID_MESSAGE_FACTORY),
             $this->container->get(self::SERVICE_ID_EVENT_STORE),
             new ContextProviderFactory($this->container),
-            $this->callInterceptor(),
+            $this->flavour(),
             $snapshotStore
         );
 
@@ -931,7 +931,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
 
             $eventRouter = new AsyncSwitchMessageRouter(
                 $eventRouter,
-                new MessageProducer($this->callInterceptor(), $eventProducer)
+                new MessageProducer($this->flavour(), $eventProducer)
             );
         }
 
@@ -964,15 +964,15 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
         }
     }
 
-    private function callInterceptor(): CallInterceptor
+    private function flavour(): Flavour
     {
-        if (null === $this->callInterceptor) {
-            $this->callInterceptor = $this->container->has(self::SERVICE_ID_CALL_INTERCEPTOR)
-                ? $this->container->get(self::SERVICE_ID_CALL_INTERCEPTOR)
-                : new StandardCallInterceptor();
+        if (null === $this->flavour) {
+            $this->flavour = $this->container->has(self::SERVICE_ID_FLAVOUR)
+                ? $this->container->get(self::SERVICE_ID_FLAVOUR)
+                : new PrototypingFlavour();
         }
 
-        return $this->callInterceptor;
+        return $this->flavour;
     }
 
     private function assertNotInitialized(string $method)

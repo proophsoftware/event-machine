@@ -17,7 +17,7 @@ use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Messaging\Message;
-use Prooph\EventMachine\Runtime\CallInterceptor;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventSourcing\Aggregate\AggregateRepository;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventStore\EventStore;
@@ -72,9 +72,9 @@ final class CommandProcessor
     private $aggregateFunction;
 
     /**
-     * @var CallInterceptor
+     * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
     /**
      * @var MessageFactory
@@ -98,7 +98,7 @@ final class CommandProcessor
 
     public static function fromDescriptionArrayAndDependencies(
         array $description,
-        CallInterceptor $callInterceptor,
+        Flavour $flavour,
         MessageFactory $messageFactory,
         EventStore $eventStore,
         SnapshotStore $snapshotStore = null,
@@ -145,7 +145,7 @@ final class CommandProcessor
             $description['eventRecorderMap'],
             $description['eventApplyMap'],
             $description['streamName'],
-            $callInterceptor,
+            $flavour,
             $messageFactory,
             $eventStore,
             $snapshotStore,
@@ -162,7 +162,7 @@ final class CommandProcessor
         array $eventRecorderMap,
         array $eventApplyMap,
         string $streamName,
-        CallInterceptor $callInterceptor,
+        Flavour $flavour,
         MessageFactory $messageFactory,
         EventStore $eventStore,
         SnapshotStore $snapshotStore = null,
@@ -176,7 +176,7 @@ final class CommandProcessor
         $this->eventRecorderMap = $eventRecorderMap;
         $this->eventApplyMap = $eventApplyMap;
         $this->streamName = $streamName;
-        $this->callInterceptor = $callInterceptor;
+        $this->flavour = $flavour;
         $this->messageFactory = $messageFactory;
         $this->eventStore = $eventStore;
         $this->snapshotStore = $snapshotStore;
@@ -191,7 +191,7 @@ final class CommandProcessor
                 . $command->messageName() . ' received.');
         }
 
-        $arId = $this->callInterceptor->getAggregateIdFromCommand($this->aggregateIdentifier, $command);
+        $arId = $this->flavour->getAggregateIdFromCommand($this->aggregateIdentifier, $command);
         $arRepository = $this->getAggregateRepository($arId);
 
         $aggregate = null;
@@ -199,7 +199,7 @@ final class CommandProcessor
         $context = null;
 
         if ($this->createAggregate) {
-            $aggregate = new GenericAggregateRoot($arId, AggregateType::fromString($this->aggregateType), $this->eventApplyMap, $this->callInterceptor);
+            $aggregate = new GenericAggregateRoot($arId, AggregateType::fromString($this->aggregateType), $this->eventApplyMap, $this->flavour);
         } else {
             /** @var GenericAggregateRoot $aggregate */
             $aggregate = $arRepository->getAggregateRoot($arId);
@@ -212,15 +212,15 @@ final class CommandProcessor
         }
 
         if ($this->contextProvider) {
-            $context = $this->callInterceptor->callContextProvider($this->contextProvider, $command);
+            $context = $this->flavour->callContextProvider($this->contextProvider, $command);
         }
 
         $arFunc = $this->aggregateFunction;
 
         if ($this->createAggregate) {
-            $events = $this->callInterceptor->callFirstAggregateFunction($this->aggregateType, $arFunc, $command, $context);
+            $events = $this->flavour->callAggregateFactory($this->aggregateType, $arFunc, $command, $context);
         } else {
-            $events = $this->callInterceptor->callSubsequentAggregateFunction($this->aggregateType, $arFunc, $aggregateState, $command, $context);
+            $events = $this->flavour->callSubsequentAggregateFunction($this->aggregateType, $arFunc, $aggregateState, $command, $context);
         }
 
         foreach ($events as $event) {
@@ -239,7 +239,7 @@ final class CommandProcessor
             $this->aggregateRepository = new AggregateRepository(
                 $this->eventStore,
                 AggregateType::fromString($this->aggregateType),
-                new ClosureAggregateTranslator($aggregateId, $this->eventApplyMap, $this->callInterceptor),
+                new ClosureAggregateTranslator($aggregateId, $this->eventApplyMap, $this->flavour),
                 $this->snapshotStore,
                 new StreamName($this->streamName)
             );

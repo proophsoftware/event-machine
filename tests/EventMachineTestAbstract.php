@@ -20,7 +20,7 @@ use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\InMemoryConnection;
 use Prooph\EventMachine\Persistence\TransactionManager;
-use Prooph\EventMachine\Runtime\CallInterceptor;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Metadata\MetadataMatcher;
@@ -29,9 +29,9 @@ use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
-use ProophExample\CustomMessages\Api\Command;
-use ProophExample\CustomMessages\Api\Event;
-use ProophExample\OOPStyle\Aggregate\UserDescription;
+use ProophExample\FunctionalFlavour\Api\Command;
+use ProophExample\FunctionalFlavour\Api\Event;
+use ProophExample\OopFlavour\Aggregate\UserDescription;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
@@ -41,7 +41,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
 {
     abstract protected function loadEventMachineDescriptions(EventMachine $eventMachine);
 
-    abstract protected function getCallInterceptor(): CallInterceptor;
+    abstract protected function getCallInterceptor(): Flavour;
 
     /**
      * @var ObjectProphecy
@@ -95,7 +95,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
     private $inMemoryConnection;
 
     /**
-     * @var CallInterceptor
+     * @var Flavour
      */
     private $callInterceptor;
 
@@ -151,8 +151,8 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $this->appContainer->has(EventMachine::SERVICE_ID_ASYNC_EVENT_PRODUCER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_DOCUMENT_STORE)->willReturn(false);
-        $this->appContainer->has(EventMachine::SERVICE_ID_CALL_INTERCEPTOR)->willReturn(true);
-        $this->appContainer->get(EventMachine::SERVICE_ID_CALL_INTERCEPTOR)->will(function ($args) use ($self) {
+        $this->appContainer->has(EventMachine::SERVICE_ID_FLAVOUR)->willReturn(true);
+        $this->appContainer->get(EventMachine::SERVICE_ID_FLAVOUR)->will(function ($args) use ($self) {
             return $self->callInterceptor;
         });
 

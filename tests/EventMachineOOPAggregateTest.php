@@ -12,13 +12,13 @@ declare(strict_types=1);
 namespace Prooph\EventMachineTest;
 
 use Prooph\EventMachine\EventMachine;
-use Prooph\EventMachine\Runtime\CallInterceptor;
-use Prooph\EventMachine\Runtime\CustomMessageCallInterceptor;
-use Prooph\EventMachine\Runtime\OOPAggregateCallInterceptor;
-use ProophExample\CustomMessages\Api\MessageDescription;
-use ProophExample\CustomMessages\ExampleCustomMessagePort;
-use ProophExample\OOPStyle\Aggregate\UserDescription;
-use ProophExample\OOPStyle\ExampleOOPPort;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\FunctionalFlavour;
+use Prooph\EventMachine\Runtime\OopFlavour;
+use ProophExample\FunctionalFlavour\Api\MessageDescription;
+use ProophExample\FunctionalFlavour\ExampleCustomMessagePort;
+use ProophExample\OopFlavour\Aggregate\UserDescription;
+use ProophExample\OopFlavour\ExampleOOPPort;
 
 class EventMachineOOPAggregateTest extends EventMachineTestAbstract
 {
@@ -28,11 +28,11 @@ class EventMachineOOPAggregateTest extends EventMachineTestAbstract
         $eventMachine->load(UserDescription::class);
     }
 
-    protected function getCallInterceptor(): CallInterceptor
+    protected function getCallInterceptor(): Flavour
     {
-        return new OOPAggregateCallInterceptor(
+        return new OopFlavour(
             new ExampleOOPPort(),
-            new CustomMessageCallInterceptor(new ExampleCustomMessagePort())
+            new FunctionalFlavour(new ExampleCustomMessagePort())
         );
     }
 }

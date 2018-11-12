@@ -16,19 +16,19 @@ use Prooph\EventMachine\Commanding\CommandProcessor;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
-use Prooph\EventMachine\Runtime\CallInterceptor;
-use Prooph\EventMachine\Runtime\StandardCallInterceptor;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\PrototypingFlavour;
 use Prooph\EventMachineTest\Aggregate\Stub\ContextAwareAggregateDescription;
 use Prooph\EventMachineTest\BasicTestCase;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Metadata\MetadataMatcher;
 use Prooph\EventStore\StreamName;
-use ProophExample\Standard\Aggregate\Aggregate;
-use ProophExample\Standard\Aggregate\CacheableUserDescription;
-use ProophExample\Standard\Aggregate\UserDescription;
-use ProophExample\Standard\Messaging\Command;
-use ProophExample\Standard\Messaging\Event;
-use ProophExample\Standard\Messaging\MessageDescription;
+use ProophExample\PrototypingFlavour\Aggregate\Aggregate;
+use ProophExample\PrototypingFlavour\Aggregate\CacheableUserDescription;
+use ProophExample\PrototypingFlavour\Aggregate\UserDescription;
+use ProophExample\PrototypingFlavour\Messaging\Command;
+use ProophExample\PrototypingFlavour\Messaging\Event;
+use ProophExample\PrototypingFlavour\Messaging\MessageDescription;
 use Prophecy\Argument;
 use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
@@ -36,14 +36,14 @@ use Ramsey\Uuid\Uuid;
 final class CommandProcessorTest extends BasicTestCase
 {
     /**
-     * @var CallInterceptor
+     * @var Flavour
      */
     private $callInterceptor;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->callInterceptor = new StandardCallInterceptor();
+        $this->callInterceptor = new PrototypingFlavour();
         $this->callInterceptor->setMessageFactory($this->getMockedEventMessageFactory());
     }
 

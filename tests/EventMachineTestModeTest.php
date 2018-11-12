@@ -13,11 +13,11 @@ namespace Prooph\EventMachineTest;
 
 use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\EventMachine;
-use ProophExample\Standard\Aggregate\CacheableUserDescription;
-use ProophExample\Standard\Aggregate\UserDescription;
-use ProophExample\Standard\Messaging\Command;
-use ProophExample\Standard\Messaging\Event;
-use ProophExample\Standard\Messaging\MessageDescription;
+use ProophExample\PrototypingFlavour\Aggregate\CacheableUserDescription;
+use ProophExample\PrototypingFlavour\Aggregate\UserDescription;
+use ProophExample\PrototypingFlavour\Messaging\Command;
+use ProophExample\PrototypingFlavour\Messaging\Event;
+use ProophExample\PrototypingFlavour\Messaging\MessageDescription;
 use Ramsey\Uuid\Uuid;
 
 final class EventMachineTestModeTest extends BasicTestCase

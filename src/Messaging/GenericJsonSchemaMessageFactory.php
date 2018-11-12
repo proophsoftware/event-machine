@@ -19,7 +19,7 @@ use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\Exception\RuntimeException;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\Querying\GenericJsonSchemaQuery;
-use Prooph\EventMachine\Runtime\CallInterceptor;
+use Prooph\EventMachine\Runtime\Flavour;
 use Ramsey\Uuid\Uuid;
 
 final class GenericJsonSchemaMessageFactory implements MessageFactory
@@ -64,9 +64,9 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
     private $definitions = [];
 
     /**
-     * @var CallInterceptor
+     * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
     public function __construct(array $commandMap, array $eventMap, array $queryMap, array $definitions, JsonSchemaAssertion $jsonSchemaAssertion)
     {
@@ -119,16 +119,16 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
                 break;
         }
 
-        if ($this->callInterceptor) {
-            return $this->callInterceptor->convertMessageReceivedFromNetwork($message);
+        if ($this->flavour) {
+            return $this->flavour->convertMessageReceivedFromNetwork($message);
         }
 
         return $message;
     }
 
-    public function setCallInterceptor(CallInterceptor $callInterceptor): void
+    public function setFlavour(Flavour $flavour): void
     {
-        $this->callInterceptor = $callInterceptor;
+        $this->flavour = $flavour;
     }
 
     public function setPayloadFor(Message $message, array $payload): Message
