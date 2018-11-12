@@ -58,7 +58,7 @@ use Psr\Container\ContainerInterface;
 use Ramsey\Uuid\Uuid;
 use React\Promise\Deferred;
 
-class EventMachineStandardTest extends BasicTestCase
+class EventMachinePrototypingFlavourTest extends BasicTestCase
 {
     /**
      * @var EventStore

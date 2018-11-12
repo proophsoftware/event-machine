@@ -38,13 +38,13 @@ final class CommandProcessorTest extends BasicTestCase
     /**
      * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->callInterceptor = new PrototypingFlavour();
-        $this->callInterceptor->setMessageFactory($this->getMockedEventMessageFactory());
+        $this->flavour = new PrototypingFlavour();
+        $this->flavour->setMessageFactory($this->getMockedEventMessageFactory());
     }
 
     /**
@@ -79,7 +79,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
-            $this->callInterceptor,
+            $this->flavour,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );
@@ -163,7 +163,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
-            $this->callInterceptor,
+            $this->flavour,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );
@@ -220,7 +220,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
-            $this->callInterceptor,
+            $this->flavour,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );
@@ -306,7 +306,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
-            $this->callInterceptor,
+            $this->flavour,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );
@@ -359,7 +359,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
-            $this->callInterceptor,
+            $this->flavour,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal(),
             null,
@@ -421,7 +421,7 @@ final class CommandProcessorTest extends BasicTestCase
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
-            $this->callInterceptor,
+            $this->flavour,
             $this->getMockedEventMessageFactory(),
             $eventStore->reveal()
         );

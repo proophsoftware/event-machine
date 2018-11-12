@@ -30,13 +30,13 @@ final class CommandToProcessorRouterTest extends BasicTestCase
     /**
      * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->callInterceptor = new PrototypingFlavour();
-        $this->callInterceptor->setMessageFactory($this->getMockedEventMessageFactory());
+        $this->flavour = new PrototypingFlavour();
+        $this->flavour->setMessageFactory($this->getMockedEventMessageFactory());
     }
 
     /**
@@ -80,7 +80,7 @@ final class CommandToProcessorRouterTest extends BasicTestCase
             $messageFactory->reveal(),
             $eventStore->reveal(),
             $contextProviderFactory->reveal(),
-            $this->callInterceptor,
+            $this->flavour,
             $snapshotStore->reveal()
         );
 

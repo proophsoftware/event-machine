@@ -41,7 +41,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
 {
     abstract protected function loadEventMachineDescriptions(EventMachine $eventMachine);
 
-    abstract protected function getCallInterceptor(): Flavour;
+    abstract protected function getFlavour(): Flavour;
 
     /**
      * @var ObjectProphecy
@@ -97,7 +97,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
     /**
      * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
     protected function setUp()
     {
@@ -115,7 +115,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $this->eventBus = new EventBus();
         $this->queryBus = new QueryBus();
         $this->inMemoryConnection = new InMemoryConnection();
-        $this->callInterceptor = $this->getCallInterceptor();
+        $this->flavour = $this->getFlavour();
 
         $this->appContainer = $this->prophesize(ContainerInterface::class);
 
@@ -153,7 +153,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $this->appContainer->has(EventMachine::SERVICE_ID_DOCUMENT_STORE)->willReturn(false);
         $this->appContainer->has(EventMachine::SERVICE_ID_FLAVOUR)->willReturn(true);
         $this->appContainer->get(EventMachine::SERVICE_ID_FLAVOUR)->will(function ($args) use ($self) {
-            return $self->callInterceptor;
+            return $self->flavour;
         });
 
         $this->containerChain = new ContainerChain(
@@ -172,7 +172,7 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $this->appContainer = null;
         $this->transactionManager = null;
         $this->inMemoryConnection = null;
-        $this->callInterceptor = null;
+        $this->flavour = null;
     }
 
     /**

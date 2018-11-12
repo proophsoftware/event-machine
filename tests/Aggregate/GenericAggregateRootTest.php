@@ -27,13 +27,13 @@ class GenericAggregateRootTest extends BasicTestCase
     /**
      * @var Flavour
      */
-    private $callInterceptor;
+    private $flavour;
 
     protected function setUp()
     {
         parent::setUp();
-        $this->callInterceptor = new PrototypingFlavour();
-        $this->callInterceptor->setMessageFactory($this->getMockedEventMessageFactory());
+        $this->flavour = new PrototypingFlavour();
+        $this->flavour->setMessageFactory($this->getMockedEventMessageFactory());
     }
 
     /**
@@ -56,7 +56,7 @@ class GenericAggregateRootTest extends BasicTestCase
 
         $arId = Uuid::uuid4()->toString();
 
-        $user = new GenericAggregateRoot($arId, AggregateType::fromString('User'), $eventApplyMap, $this->callInterceptor);
+        $user = new GenericAggregateRoot($arId, AggregateType::fromString('User'), $eventApplyMap, $this->flavour);
 
         $userWasRegistered = new GenericJsonSchemaEvent(
             'UserWasRegistered',
@@ -82,7 +82,7 @@ class GenericAggregateRootTest extends BasicTestCase
 
         self::assertCount(2, $recordedEvents);
 
-        $translator = new ClosureAggregateTranslator($arId, $eventApplyMap, $this->callInterceptor);
+        $translator = new ClosureAggregateTranslator($arId, $eventApplyMap, $this->flavour);
 
         $sameUser = $translator->reconstituteAggregateFromHistory(AggregateType::fromString('User'), new \ArrayIterator([$recordedEvents[0]]));
 

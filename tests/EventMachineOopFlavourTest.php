@@ -14,11 +14,13 @@ namespace Prooph\EventMachineTest;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventMachine\Runtime\FunctionalFlavour;
-use ProophExample\FunctionalFlavour\Aggregate\UserDescription;
+use Prooph\EventMachine\Runtime\OopFlavour;
 use ProophExample\FunctionalFlavour\Api\MessageDescription;
 use ProophExample\FunctionalFlavour\ExampleCustomMessagePort;
+use ProophExample\OopFlavour\Aggregate\UserDescription;
+use ProophExample\OopFlavour\ExampleOOPPort;
 
-class EventMachineCustomMessagesTest extends EventMachineTestAbstract
+class EventMachineOopFlavourTest extends EventMachineTestAbstract
 {
     protected function loadEventMachineDescriptions(EventMachine $eventMachine)
     {
@@ -26,8 +28,11 @@ class EventMachineCustomMessagesTest extends EventMachineTestAbstract
         $eventMachine->load(UserDescription::class);
     }
 
-    protected function getCallInterceptor(): Flavour
+    protected function getFlavour(): Flavour
     {
-        return new FunctionalFlavour(new ExampleCustomMessagePort());
+        return new OopFlavour(
+            new ExampleOOPPort(),
+            new FunctionalFlavour(new ExampleCustomMessagePort())
+        );
     }
 }
