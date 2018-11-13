@@ -18,6 +18,9 @@ use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Messaging\MessageBag;
+use Prooph\EventMachine\Messaging\MessageDispatcher;
+use Prooph\EventMachine\Messaging\MessageFactoryAware;
 use Prooph\EventMachine\Persistence\DocumentStore;
 use Prooph\EventMachine\Persistence\InMemoryConnection;
 use Prooph\EventMachine\Persistence\InMemoryEventStore;
@@ -36,6 +39,8 @@ use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 use ProophExample\FunctionalFlavour\Api\Command;
 use ProophExample\FunctionalFlavour\Api\Event;
+use ProophExample\FunctionalFlavour\Event\UsernameChanged;
+use ProophExample\FunctionalFlavour\Event\UserRegistered;
 use ProophExample\OopFlavour\Aggregate\UserDescription;
 use ProophExample\PrototypingFlavour\Aggregate\Aggregate;
 use Prophecy\Argument;
@@ -50,6 +55,8 @@ abstract class EventMachineTestAbstract extends BasicTestCase
     abstract protected function getFlavour(): Flavour;
 
     abstract protected function getRegisteredUsersProjector(DocumentStore $documentStore);
+
+    abstract protected function getUserRegisteredListener(MessageDispatcher $messageDispatcher);
 
     /**
      * @var ObjectProphecy
@@ -256,8 +263,8 @@ abstract class EventMachineTestAbstract extends BasicTestCase
 
         $publishedEvents = [];
 
-        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function (Message $event) use (&$publishedEvents) {
-            $publishedEvents[] = $event;
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function ($event) use (&$publishedEvents) {
+            $publishedEvents[] = $this->convertToEventMachineMessage($event);
         });
 
         $this->eventMachine->initialize($this->containerChain);
@@ -281,8 +288,6 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $event = $recordedEvents[0];
 
         $this->assertUserWasRegistered($event, $registerUser, $userId);
-
-        self::assertSame($event, $publishedEvents[0]);
     }
 
     /**
@@ -298,8 +303,8 @@ abstract class EventMachineTestAbstract extends BasicTestCase
 
         $publishedEvents = [];
 
-        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function (Message $event) use (&$publishedEvents) {
-            $publishedEvents[] = $event;
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function ($event) use (&$publishedEvents) {
+            $publishedEvents[] = $this->convertToEventMachineMessage($event);
         });
 
         $this->eventMachine->initialize($this->containerChain);
@@ -317,7 +322,6 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         /** @var GenericJsonSchemaEvent $event */
         $event = $recordedEvents[0];
         self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
-        self::assertSame($event, $publishedEvents[0]);
     }
 
     /**
@@ -337,12 +341,12 @@ abstract class EventMachineTestAbstract extends BasicTestCase
 
         $publishedEvents = [];
 
-        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function (Message $event) use (&$publishedEvents) {
-            $publishedEvents[] = $event;
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function ($event) use (&$publishedEvents) {
+            $publishedEvents[] = $this->convertToEventMachineMessage($event);
         });
 
-        $this->eventMachine->on(Event::USERNAME_WAS_CHANGED, function (Message $event) use (&$publishedEvents) {
-            $publishedEvents[] = $event;
+        $this->eventMachine->on(Event::USERNAME_WAS_CHANGED, function ($event) use (&$publishedEvents) {
+            $publishedEvents[] = $this->convertToEventMachineMessage($event);
         });
 
         $this->eventMachine->initialize($this->containerChain);
@@ -365,7 +369,6 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         /** @var GenericJsonSchemaEvent $event */
         $event = $recordedEvents[1];
         self::assertEquals(Event::USERNAME_WAS_CHANGED, $event->messageName());
-        self::assertSame($event, $publishedEvents[1]);
     }
 
     /**
@@ -397,8 +400,8 @@ abstract class EventMachineTestAbstract extends BasicTestCase
 
         $publishedEvents = [];
 
-        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function (Message $event) use (&$publishedEvents) {
-            $publishedEvents[] = $event;
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function ($event) use (&$publishedEvents) {
+            $publishedEvents[] = $this->convertToEventMachineMessage($event);
         });
 
         $this->eventMachine->initialize($this->containerChain);
@@ -424,11 +427,8 @@ abstract class EventMachineTestAbstract extends BasicTestCase
 
         $this->assertUserWasRegistered($event, $registerUser, $userId);
 
-        //Event should have modified metadata (async switch) and therefor be another instance (as it is immutable)
-        self::assertNotSame($event, $publishedEvents[0]);
-        self::assertTrue($publishedEvents[0]->metadata()['handled-async']);
+        self::assertEquals(Event::USER_WAS_REGISTERED, $producedEvents[0]->messageName());
         self::assertEquals(Event::USER_WAS_REGISTERED, $publishedEvents[0]->messageName());
-        self::assertSame($publishedEvents[0], $producedEvents[0]);
     }
 
     /**
@@ -523,6 +523,51 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         ], $userState);
     }
 
+    /**
+     * @test
+     */
+    public function it_invokes_event_listener_using_flavour()
+    {
+        $messageDispatcher = $this->prophesize(MessageDispatcher::class);
+
+        $newCmdName = null;
+        $newCmdPayload = null;
+        $messageDispatcher->dispatch(Argument::any(), Argument::any())->will(function ($args) use (&$newCmdName, &$newCmdPayload) {
+            $newCmdName = $args[0] ?? null;
+            $newCmdPayload = $args[1] ?? null;
+        });
+
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, 'Test.Listener.UserRegistered');
+
+        $listener = $this->getUserRegisteredListener($messageDispatcher->reveal());
+
+        $this->appContainer->has('Test.Listener.UserRegistered')->willReturn(true);
+        $this->appContainer->get('Test.Listener.UserRegistered')->will(function ($args) use ($listener) {
+            return $listener;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Command::REGISTER_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ]]
+        );
+
+        $this->eventMachine->bootstrap()->dispatch($registerUser);
+
+        $this->assertNotNull($newCmdName);
+        $this->assertNotNull($newCmdPayload);
+
+        $this->assertEquals('SendWelcomeEmail', $newCmdName);
+        $this->assertEquals(['email' => 'contact@prooph.de'], $newCmdPayload);
+    }
+
     private function assertUserWasRegistered(
         Message $event,
         Message $registerUser,
@@ -544,5 +589,30 @@ abstract class EventMachineTestAbstract extends BasicTestCase
             $this->eventMachine->appVersion(),
             AggregateProjector::generateProjectionName($aggregate)
         );
+    }
+
+    private function convertToEventMachineMessage($event): Message
+    {
+        $flavour = $this->getFlavour();
+        if ($flavour instanceof MessageFactoryAware) {
+            $flavour->setMessageFactory($this->eventMachine->messageFactory());
+        }
+
+        switch (\get_class($event)) {
+            case UserRegistered::class:
+                return $flavour->prepareNetworkTransmission(new MessageBag(
+                    Event::USER_WAS_REGISTERED,
+                    Message::TYPE_EVENT,
+                    $event
+                ));
+            case UsernameChanged::class:
+                return $flavour->prepareNetworkTransmission(new MessageBag(
+                    Event::USERNAME_WAS_CHANGED,
+                    Message::TYPE_EVENT,
+                    $event
+                ));
+            default:
+                return $event;
+        }
     }
 }

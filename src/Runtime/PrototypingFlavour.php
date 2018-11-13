@@ -218,6 +218,11 @@ final class PrototypingFlavour implements Flavour, MessageFactoryAware
         return $this->stateConverter->convertDataToArray($aggregateState);
     }
 
+    public function callEventListener(callable $listener, Message $event): void
+    {
+        $listener($event);
+    }
+
     private function mapToMessage($event, string $aggregateType, Message $command): Message
     {
         if (! \is_array($event) || ! \array_key_exists(0, $event) || ! \array_key_exists(1, $event)

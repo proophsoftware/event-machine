@@ -12,12 +12,14 @@ declare(strict_types=1);
 namespace Prooph\EventMachineTest;
 
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\MessageDispatcher;
 use Prooph\EventMachine\Persistence\DocumentStore;
 use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventMachine\Runtime\FunctionalFlavour;
 use ProophExample\FunctionalFlavour\Aggregate\UserDescription;
 use ProophExample\FunctionalFlavour\Api\MessageDescription;
 use ProophExample\FunctionalFlavour\ExampleFunctionalPort;
+use ProophExample\FunctionalFlavour\ProcessManager\SendWelcomeEmail;
 use ProophExample\FunctionalFlavour\Projector\RegisteredUsersProjector;
 
 class EventMachineFunctionalFlavourTest extends EventMachineTestAbstract
@@ -36,5 +38,10 @@ class EventMachineFunctionalFlavourTest extends EventMachineTestAbstract
     protected function getRegisteredUsersProjector(DocumentStore $documentStore)
     {
         return new RegisteredUsersProjector($documentStore);
+    }
+
+    protected function getUserRegisteredListener(MessageDispatcher $messageDispatcher)
+    {
+        return new SendWelcomeEmail($messageDispatcher);
     }
 }

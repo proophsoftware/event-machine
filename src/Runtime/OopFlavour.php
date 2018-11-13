@@ -228,4 +228,9 @@ final class OopFlavour implements Flavour, MessageFactoryAware
     {
         $this->functionalFlavour->setMessageFactory($messageFactory);
     }
+
+    public function callEventListener(callable $listener, Message $event): void
+    {
+        $this->functionalFlavour->callEventListener($listener, $event);
+    }
 }

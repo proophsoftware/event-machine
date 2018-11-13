@@ -138,4 +138,6 @@ interface Flavour
      * @return array
      */
     public function convertAggregateStateToArray($aggregateState): array;
+
+    public function callEventListener(callable $listener, Message $event): void;
 }

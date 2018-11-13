@@ -257,4 +257,19 @@ final class FunctionalFlavour implements Flavour, MessageFactoryAware
     {
         return $this->dataConverter->convertDataToArray($aggregateState);
     }
+
+    public function callEventListener(callable $listener, Message $event): void
+    {
+        if (! $event instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
+        }
+
+        //Normalize MessageBag if possible
+        ////MessageBag can contain payload instead of custom event, if listener is called with in-memory recorded event
+        if (! $event->hasMessage()) {
+            $event = $this->port->decorateEvent($this->port->deserialize($event));
+        }
+
+        $listener($event->get(MessageBag::MESSAGE));
+    }
 }

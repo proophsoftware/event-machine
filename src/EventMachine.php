@@ -25,6 +25,7 @@ use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\ContextProviderFactory;
 use Prooph\EventMachine\Container\TestEnvContainer;
 use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Eventing\EventConverterBusPlugin;
 use Prooph\EventMachine\Exception\InvalidArgumentException;
 use Prooph\EventMachine\Exception\RuntimeException;
 use Prooph\EventMachine\Exception\TransactionCommitFailed;
@@ -954,11 +955,15 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
             );
         }
 
+        $eventConverterBusPlugin = new EventConverterBusPlugin($this->flavour());
+
+        $serviceLocatorPlugin = new ServiceLocatorPlugin($this->container);
+
         $eventBus = $this->container->get(self::SERVICE_ID_EVENT_BUS);
 
         $eventRouter->attachToMessageBus($eventBus);
 
-        $serviceLocatorPlugin = new ServiceLocatorPlugin($this->container);
+        $eventConverterBusPlugin->attachToMessageBus($eventBus);
 
         $serviceLocatorPlugin->attachToMessageBus($eventBus);
     }
