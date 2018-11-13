@@ -28,8 +28,17 @@ interface Port
      */
     public function serializePayload($customMessage): array;
 
+    /**
+     * @param mixed $customEvent
+     * @return MessageBag
+     */
     public function decorateEvent($customEvent): MessageBag;
 
+    /**
+     * @param string $aggregateIdPayloadKey
+     * @param mixed $customCommand
+     * @return string
+     */
     public function getAggregateIdFromCustomCommand(string $aggregateIdPayloadKey, $customCommand): string;
 
     /**
@@ -37,12 +46,12 @@ interface Port
      * @param mixed $preProcessor Custom preprocessor
      * @return mixed Custom message
      */
-    public function callCustomCommandPreProcessor($customCommand, $preProcessor);
+    public function callCommandPreProcessor($customCommand, $preProcessor);
 
     /**
      * @param mixed $customCommand
      * @param mixed $contextProvider
      * @return mixed
      */
-    public function callCustomContextProvider($customCommand, $contextProvider);
+    public function callContextProvider($customCommand, $contextProvider);
 }

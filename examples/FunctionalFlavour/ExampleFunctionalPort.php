@@ -17,7 +17,7 @@ use Prooph\EventMachine\Runtime\Functional\Port;
 use ProophExample\FunctionalFlavour\Api\Command;
 use ProophExample\FunctionalFlavour\Api\Event;
 
-final class ExampleCustomMessagePort implements Port
+final class ExampleFunctionalPort implements Port
 {
     /**
      * {@inheritdoc}
@@ -68,7 +68,7 @@ final class ExampleCustomMessagePort implements Port
     /**
      * {@inheritdoc}
      */
-    public function callCustomCommandPreProcessor($customCommand, $preProcessor)
+    public function callCommandPreProcessor($customCommand, $preProcessor)
     {
         //Duck typing, do not do this in production but rather use your own interfaces
         return $preProcessor->preProcess($customCommand);
@@ -77,7 +77,7 @@ final class ExampleCustomMessagePort implements Port
     /**
      * {@inheritdoc}
      */
-    public function callCustomContextProvider($customCommand, $contextProvider)
+    public function callContextProvider($customCommand, $contextProvider)
     {
         //Duck typing, do not do this in production but rather use your own interfaces
         return $contextProvider->provide($customCommand);

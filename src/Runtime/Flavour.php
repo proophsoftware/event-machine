@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Runtime;
 
 use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Projecting\CustomEventProjector;
+use Prooph\EventMachine\Projecting\Projector;
 
 /**
  * Create your own Flavour by implementing the Flavour interface.
@@ -122,4 +124,18 @@ interface Flavour
      * @return Message
      */
     public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message;
+
+    /**
+     * @param Projector|CustomEventProjector $projector The projector instance
+     * @param string $appVersion Configured in Event Machine
+     * @param string $projectionName Used to register projection in Event Machine
+     * @param Message $event
+     */
+    public function callProjector($projector, string $appVersion, string $projectionName, Message $event): void;
+
+    /**
+     * @param mixed $aggregateState
+     * @return array
+     */
+    public function convertAggregateStateToArray($aggregateState): array;
 }

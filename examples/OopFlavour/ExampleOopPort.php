@@ -17,7 +17,7 @@ use Prooph\EventMachine\Util\DetermineVariableType;
 use ProophExample\FunctionalFlavour\Command\ChangeUsername;
 use ProophExample\OopFlavour\Aggregate\User;
 
-final class ExampleOOPPort implements Port
+final class ExampleOopPort implements Port
 {
     use DetermineVariableType;
 

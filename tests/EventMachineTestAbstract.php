@@ -18,8 +18,13 @@ use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Persistence\DocumentStore;
 use Prooph\EventMachine\Persistence\InMemoryConnection;
+use Prooph\EventMachine\Persistence\InMemoryEventStore;
+use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Persistence\TransactionManager;
+use Prooph\EventMachine\Projecting\AggregateProjector;
+use Prooph\EventMachine\Projecting\InMemory\InMemoryProjectionManager;
 use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\EventStore;
@@ -32,6 +37,7 @@ use Prooph\ServiceBus\QueryBus;
 use ProophExample\FunctionalFlavour\Api\Command;
 use ProophExample\FunctionalFlavour\Api\Event;
 use ProophExample\OopFlavour\Aggregate\UserDescription;
+use ProophExample\PrototypingFlavour\Aggregate\Aggregate;
 use Prophecy\Argument;
 use Prophecy\Prophecy\ObjectProphecy;
 use Psr\Container\ContainerInterface;
@@ -42,6 +48,8 @@ abstract class EventMachineTestAbstract extends BasicTestCase
     abstract protected function loadEventMachineDescriptions(EventMachine $eventMachine);
 
     abstract protected function getFlavour(): Flavour;
+
+    abstract protected function getRegisteredUsersProjector(DocumentStore $documentStore);
 
     /**
      * @var ObjectProphecy
@@ -173,6 +181,66 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         $this->transactionManager = null;
         $this->inMemoryConnection = null;
         $this->flavour = null;
+    }
+
+    protected function setUpAggregateProjector(
+        DocumentStore $documentStore,
+        EventStore $eventStore,
+        StreamName $streamName
+    ): void {
+        $aggregateProjector = new AggregateProjector($documentStore, $this->eventMachine);
+
+        $aggregateProjector->setFlavour($this->getFlavour());
+
+        $eventStore->create(new \Prooph\EventStore\Stream($streamName, new \ArrayIterator([])));
+
+        $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(true);
+        $this->appContainer->get(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(new InMemoryProjectionManager(
+            $eventStore,
+            $this->inMemoryConnection
+        ));
+        $this->appContainer->get(EventMachine::SERVICE_ID_EVENT_STORE)->will(function ($args) use ($eventStore) {
+            return $eventStore;
+        });
+
+        $this->appContainer->has(AggregateProjector::class)->willReturn(true);
+        $this->appContainer->get(AggregateProjector::class)->will(function ($args) use ($aggregateProjector) {
+            return $aggregateProjector;
+        });
+
+        $this->eventMachine->watch(Stream::ofWriteModel())
+            ->with(AggregateProjector::generateProjectionName(Aggregate::USER), AggregateProjector::class)
+            ->filterAggregateType(Aggregate::USER);
+    }
+
+    protected function setUpRegisteredUsersProjector(
+        DocumentStore $documentStore,
+        EventStore $eventStore,
+        StreamName $streamName
+    ): void {
+        $projector = $this->getRegisteredUsersProjector($documentStore);
+
+        $eventStore->create(new \Prooph\EventStore\Stream($streamName, new \ArrayIterator([])));
+
+        $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(true);
+        $this->appContainer->get(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(new InMemoryProjectionManager(
+            $eventStore,
+            $this->inMemoryConnection
+        ));
+        $this->appContainer->get(EventMachine::SERVICE_ID_EVENT_STORE)->will(function ($args) use ($eventStore) {
+            return $eventStore;
+        });
+
+        $this->appContainer->has('Test.Projector.RegisteredUsers')->willReturn(true);
+        $this->appContainer->get('Test.Projector.RegisteredUsers')->will(function ($args) use ($projector) {
+            return $projector;
+        });
+
+        $this->eventMachine->watch(Stream::ofWriteModel())
+            ->with('registered_users', 'Test.Projector.RegisteredUsers')
+            ->filterEvents([
+                \ProophExample\PrototypingFlavour\Messaging\Event::USER_WAS_REGISTERED,
+            ]);
     }
 
     /**
@@ -363,6 +431,98 @@ abstract class EventMachineTestAbstract extends BasicTestCase
         self::assertSame($publishedEvents[0], $producedEvents[0]);
     }
 
+    /**
+     * @test
+     */
+    public function it_watches_write_model_stream()
+    {
+        $documentStore = new DocumentStore\InMemoryDocumentStore(new InMemoryConnection());
+
+        $eventStore = new ActionEventEmitterEventStore(
+            new InMemoryEventStore($this->inMemoryConnection),
+            new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $this->setUpAggregateProjector($documentStore, $eventStore, new StreamName('event_stream'));
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Command::REGISTER_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ]]
+        );
+
+        $this->eventMachine->bootstrap()->dispatch($registerUser);
+
+        $this->eventMachine->runProjections(false);
+
+        $userState = $documentStore->getDoc(
+            $this->getAggregateCollectionName(Aggregate::USER),
+            $userId
+        );
+
+        $this->assertNotNull($userState);
+
+        $this->assertEquals([
+            'userId' => $userId,
+            'username' => 'Alex',
+            'email' => 'contact@prooph.de',
+            'failed' => null,
+        ], $userState);
+    }
+
+    /**
+     * @test
+     */
+    public function it_forwards_projector_call_to_flavour()
+    {
+        $documentStore = new DocumentStore\InMemoryDocumentStore(new InMemoryConnection());
+
+        $eventStore = new ActionEventEmitterEventStore(
+            new InMemoryEventStore($this->inMemoryConnection),
+            new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $this->setUpRegisteredUsersProjector($documentStore, $eventStore, new StreamName('event_stream'));
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Command::REGISTER_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ]]
+        );
+
+        $this->eventMachine->bootstrap()->dispatch($registerUser);
+
+        $this->eventMachine->runProjections(false);
+
+        //We expect RegisteredUsersProjector to use collection naming convention: <projection_name>_<app_version>
+        $userState = $documentStore->getDoc(
+            'registered_users_0.1.0',
+            $userId
+        );
+
+        $this->assertNotNull($userState);
+
+        $this->assertEquals([
+            'userId' => $userId,
+            'username' => 'Alex',
+            'email' => 'contact@prooph.de',
+        ], $userState);
+    }
+
     private function assertUserWasRegistered(
         Message $event,
         Message $registerUser,
@@ -376,5 +536,13 @@ abstract class EventMachineTestAbstract extends BasicTestCase
             '_aggregate_id' => $userId,
             '_aggregate_type' => 'User',
         ], $event->metadata());
+    }
+
+    private function getAggregateCollectionName(string $aggregate): string
+    {
+        return AggregateProjector::generateCollectionName(
+            $this->eventMachine->appVersion(),
+            AggregateProjector::generateProjectionName($aggregate)
+        );
     }
 }

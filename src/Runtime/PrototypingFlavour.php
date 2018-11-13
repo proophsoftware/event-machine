@@ -13,6 +13,8 @@ namespace Prooph\EventMachine\Runtime;
 
 use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Commanding\CommandPreProcessor;
+use Prooph\EventMachine\Data\DataConverter;
+use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\Exception\InvalidEventFormatException;
 use Prooph\EventMachine\Exception\MissingAggregateIdentifierException;
@@ -21,6 +23,8 @@ use Prooph\EventMachine\Exception\RuntimeException;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Messaging\MessageFactory;
 use Prooph\EventMachine\Messaging\MessageFactoryAware;
+use Prooph\EventMachine\Projecting\Projector;
+use Prooph\EventMachine\Util\DetermineVariableType;
 use Prooph\EventMachine\Util\MapIterator;
 
 /**
@@ -39,10 +43,26 @@ use Prooph\EventMachine\Util\MapIterator;
  */
 final class PrototypingFlavour implements Flavour, MessageFactoryAware
 {
+    use DetermineVariableType;
+
     /**
      * @var MessageFactory
      */
     private $messageFactory;
+
+    /**
+     * @var DataConverter
+     */
+    private $stateConverter;
+
+    public function __construct(DataConverter $dataConverter = null)
+    {
+        if (null === $dataConverter) {
+            $dataConverter = new ImmutableRecordDataConverter();
+        }
+
+        $this->stateConverter = $dataConverter;
+    }
 
     public function setMessageFactory(MessageFactory $messageFactory): void
     {
@@ -57,7 +77,7 @@ final class PrototypingFlavour implements Flavour, MessageFactoryAware
         if (! $preProcessor instanceof CommandPreProcessor) {
             throw new RuntimeException(
                 'By default a CommandPreProcessor should implement the interface: '
-                . CommandPreProcessor::class . '. Got ' . ((\is_object($preProcessor) ? \get_class($preProcessor) : \gettype($preProcessor)))
+                . CommandPreProcessor::class . '. Got ' . self::getType($preProcessor)
             );
         }
 
@@ -99,7 +119,7 @@ final class PrototypingFlavour implements Flavour, MessageFactoryAware
         if (! $contextProvider instanceof ContextProvider) {
             throw new RuntimeException(
                 'By default a ContextProvider should implement the interface: '
-                . ContextProvider::class . '. Got ' . ((\is_object($contextProvider) ? \get_class($contextProvider) : \gettype($contextProvider)))
+                . ContextProvider::class . '. Got ' . self::getType($contextProvider)
             );
         }
 
@@ -176,6 +196,26 @@ final class PrototypingFlavour implements Flavour, MessageFactoryAware
     public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message
     {
         return $message;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function callProjector($projector, string $appVersion, string $projectionName, Message $event): void
+    {
+        if (! $projector instanceof Projector) {
+            throw new RuntimeException(__METHOD__ . ' can only call instances of ' . Projector::class);
+        }
+
+        $projector->handle($appVersion, $projectionName, $event);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertAggregateStateToArray($aggregateState): array
+    {
+        return $this->stateConverter->convertDataToArray($aggregateState);
     }
 
     private function mapToMessage($event, string $aggregateType, Message $command): Message

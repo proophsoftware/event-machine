@@ -14,6 +14,7 @@ namespace Prooph\EventMachine\Projecting;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\Stream;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventStore\Projection\AbstractReadModel;
 
 final class ReadModelProxy extends AbstractReadModel
@@ -33,10 +34,17 @@ final class ReadModelProxy extends AbstractReadModel
      */
     private $readModels;
 
+    /**
+     * @var Flavour
+     */
+    private $flavour;
+
     public function __construct(
+        Flavour $flavour,
         array $projectionDescriptions,
         EventMachine $eventMachine)
     {
+        $this->flavour = $flavour;
         $this->projectionDescriptions = $projectionDescriptions;
         $this->eventMachine = $eventMachine;
     }
@@ -58,7 +66,7 @@ final class ReadModelProxy extends AbstractReadModel
             $stream = Stream::fromArray($desc[ProjectionDescription::SOURCE_STREAM]);
 
             if ($stream->isLocalService()) {
-                $readModel = ReadModel::fromProjectionDescription($desc, $this->eventMachine);
+                $readModel = ReadModel::fromProjectionDescription($desc, $this->flavour, $this->eventMachine);
                 $readModel->prepareForRun();
                 $this->readModels[] = $readModel;
             }

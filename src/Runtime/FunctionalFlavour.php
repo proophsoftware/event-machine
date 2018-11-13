@@ -11,12 +11,16 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Runtime;
 
+use Prooph\EventMachine\Data\DataConverter;
+use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
 use Prooph\EventMachine\Exception\NoGeneratorException;
 use Prooph\EventMachine\Exception\RuntimeException;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Messaging\MessageBag;
 use Prooph\EventMachine\Messaging\MessageFactory;
 use Prooph\EventMachine\Messaging\MessageFactoryAware;
+use Prooph\EventMachine\Projecting\AggregateProjector;
+use Prooph\EventMachine\Projecting\CustomEventProjector;
 use Prooph\EventMachine\Runtime\Functional\Port;
 use Prooph\EventMachine\Util\MapIterator;
 
@@ -45,9 +49,20 @@ final class FunctionalFlavour implements Flavour, MessageFactoryAware
      */
     private $port;
 
-    public function __construct(Port $port)
+    /**
+     * @var DataConverter
+     */
+    private $dataConverter;
+
+    public function __construct(Port $port, DataConverter $dataConverter = null)
     {
         $this->port = $port;
+
+        if (null === $dataConverter) {
+            $dataConverter = new ImmutableRecordDataConverter();
+        }
+
+        $this->dataConverter = $dataConverter;
     }
 
     public function setMessageFactory(MessageFactory $messageFactory): void
@@ -64,7 +79,7 @@ final class FunctionalFlavour implements Flavour, MessageFactoryAware
             throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
-        return $command->withMessage($this->port->callCustomCommandPreProcessor($command->get(MessageBag::MESSAGE), $preProcessor));
+        return $command->withMessage($this->port->callCommandPreProcessor($command->get(MessageBag::MESSAGE), $preProcessor));
     }
 
     /**
@@ -88,7 +103,7 @@ final class FunctionalFlavour implements Flavour, MessageFactoryAware
             throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
-        return $this->port->callCustomContextProvider($command->get(MessageBag::MESSAGE), $contextProvider);
+        return $this->port->callContextProvider($command->get(MessageBag::MESSAGE), $contextProvider);
     }
 
     /**
@@ -199,5 +214,47 @@ final class FunctionalFlavour implements Flavour, MessageFactoryAware
     public function decorateEvent($customEvent): MessageBag
     {
         return $this->port->decorateEvent($customEvent);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function callProjector($projector, string $appVersion, string $projectionName, Message $event): void
+    {
+        if ($projector instanceof AggregateProjector) {
+            $projector->handle($appVersion, $projectionName, $event);
+
+            return;
+        }
+
+        if (! $projector instanceof CustomEventProjector) {
+            throw new RuntimeException(__METHOD__ . ' can only call instances of ' . CustomEventProjector::class);
+        }
+
+        if (! $event instanceof MessageBag) {
+            //Normalize event if possible
+            if ($event instanceof Message) {
+                $event = $this->port->decorateEvent($this->port->deserialize($event));
+            } else {
+                throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
+            }
+        }
+
+        //Normalize MessageBag if possible
+        //MessageBag can contain payload instead of custom event, if projection is called with in-memory recorded event
+        if (! $event->hasMessage()) {
+            $event = $this->port->decorateEvent($this->port->deserialize($event));
+        }
+
+        $projector->handle($appVersion, $projectionName, $event->get(MessageBag::MESSAGE));
+    }
+
+    /**
+     * @param mixed $aggregateState
+     * @return array
+     */
+    public function convertAggregateStateToArray($aggregateState): array
+    {
+        return $this->dataConverter->convertDataToArray($aggregateState);
     }
 }

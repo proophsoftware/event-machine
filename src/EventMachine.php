@@ -41,6 +41,7 @@ use Prooph\EventMachine\Messaging\MessageProducer;
 use Prooph\EventMachine\Persistence\AggregateStateStore;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Persistence\TransactionManager as BusTransactionManager;
+use Prooph\EventMachine\Projecting\CustomEventProjector;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
 use Prooph\EventMachine\Projecting\ProjectionRunner;
 use Prooph\EventMachine\Projecting\Projector;
@@ -615,6 +616,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
         if (null === $this->projectionRunner) {
             $this->projectionRunner = new ProjectionRunner(
                 $this->container->get(self::SERVICE_ID_PROJECTION_MANAGER),
+                $this->flavour(),
                 $this->compiledProjectionDescriptions,
                 $this
             );
@@ -640,9 +642,26 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
         return $this->debugMode;
     }
 
-    public function loadProjector(string $projectorServiceId): Projector
+    /**
+     * @param string $projectorServiceId
+     * @return Projector|CustomEventProjector
+     */
+    public function loadProjector(string $projectorServiceId)
     {
-        return $this->container->get($projectorServiceId);
+        $projector = $this->container->get($projectorServiceId);
+
+        if (! $projector instanceof Projector
+            && ! $projector instanceof CustomEventProjector) {
+            throw new RuntimeException(
+                \sprintf(
+                    "Projector $projectorServiceId should either be an instance of %s or %s",
+                    Projector::class,
+                    CustomEventProjector::class
+                )
+            );
+        }
+
+        return $projector;
     }
 
     public function compileCacheableConfig(): array

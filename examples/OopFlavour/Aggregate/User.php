@@ -89,7 +89,12 @@ final class User
 
     public function toArray(): array
     {
-        return (array) $this;
+        return [
+            'userId' => $this->userId,
+            'username' => $this->username,
+            'email' => $this->email,
+            'failed' => null,
+        ];
     }
 
     private function recordThat($event): void

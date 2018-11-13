@@ -12,24 +12,14 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Projecting;
 
 use Prooph\EventMachine\Aggregate\Exception\AggregateNotFound;
-use Prooph\EventMachine\Data\DataConverter;
-use Prooph\EventMachine\Data\ImmutableRecordDataConverter;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Exception\RuntimeException;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\DeletableState;
 use Prooph\EventMachine\Persistence\DocumentStore;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\PrototypingFlavour;
 
-/**
- * Note: Only aggregate events of a certain aggregate type can be handled with the projector
- *
- * Example usage:
- * <code>
- * $eventMachine->watch(Stream::ofWriteModel())
- *  ->with(AggregateProjector::generateProjectionName('My.AR'), AggregateProjector::class)
- *  ->filterAggregateType('My.AR')
- *  ->documentQuerySchema(JsonSchema::object(...))
- * </code>
- */
 final class AggregateProjector implements Projector
 {
     /**
@@ -48,9 +38,9 @@ final class AggregateProjector implements Projector
     private $indices;
 
     /**
-     * @var DataConverter
+     * @var Flavour
      */
-    private $dataConverter;
+    private $flavour;
 
     public static function aggregateCollectionName(string $appVersion, string $aggregateType): string
     {
@@ -74,17 +64,37 @@ final class AggregateProjector implements Projector
         $this->indices = $indices;
     }
 
-    public function setDataConverter(DataConverter $dataConverter): void
+    /**
+     * @TODO Turn Flavour into constructor argument for Event Machine 2.0
+     *
+     * It's not a constructor argument due to BC
+     *
+     * @param Flavour $flavour
+     */
+    public function setFlavour(Flavour $flavour): void
     {
-        if (null !== $this->dataConverter) {
-            throw new \BadMethodCallException('Cannot set data converter because another instance is already set.');
+        if (null !== $this->flavour) {
+            throw new RuntimeException('Cannot set another Flavour for ' . __CLASS__ . '. A flavour was already set bevor.');
         }
 
-        $this->dataConverter = $dataConverter;
+        $this->flavour = $flavour;
     }
 
-    public function handle(string $appVersion, string $projectionName, Message $event): void
+    private function flavour(): Flavour
     {
+        if (null === $this->flavour) {
+            $this->flavour = new PrototypingFlavour();
+        }
+
+        return $this->flavour;
+    }
+
+    public function handle(string $appVersion, string $projectionName, $event): void
+    {
+        if (! $event instanceof Message) {
+            throw new RuntimeException(__METHOD__ . ' can only handle events of type: ' . Message::class);
+        }
+
         $aggregateId = $event->metadata()['_aggregate_id'] ?? null;
 
         if (! $aggregateId) {
@@ -117,7 +127,7 @@ final class AggregateProjector implements Projector
         $this->documentStore->upsertDoc(
             $this->generateCollectionName($appVersion, $projectionName),
             (string) $aggregateId,
-            $this->convertAggregateStateToArray($aggregateState)
+            $this->flavour()->convertAggregateStateToArray($aggregateState)
         );
     }
 
@@ -145,14 +155,5 @@ final class AggregateProjector implements Projector
                 $projectionName
             ));
         }
-    }
-
-    private function convertAggregateStateToArray($aggregateState): array
-    {
-        if (null === $this->dataConverter) {
-            $this->dataConverter = new ImmutableRecordDataConverter();
-        }
-
-        return $this->dataConverter->convertDataToArray($aggregateState);
     }
 }

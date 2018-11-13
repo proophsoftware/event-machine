@@ -48,11 +48,6 @@ final class ProjectionDescription
     private $eventsFilter;
 
     /**
-     * @var array|null
-     */
-    private $documentSchema;
-
-    /**
      * @var EventMachine
      */
     private $eventMachine;

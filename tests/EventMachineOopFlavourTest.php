@@ -12,13 +12,15 @@ declare(strict_types=1);
 namespace Prooph\EventMachineTest;
 
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Persistence\DocumentStore;
 use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventMachine\Runtime\FunctionalFlavour;
 use Prooph\EventMachine\Runtime\OopFlavour;
 use ProophExample\FunctionalFlavour\Api\MessageDescription;
-use ProophExample\FunctionalFlavour\ExampleCustomMessagePort;
+use ProophExample\FunctionalFlavour\ExampleFunctionalPort;
+use ProophExample\FunctionalFlavour\Projector\RegisteredUsersProjector;
 use ProophExample\OopFlavour\Aggregate\UserDescription;
-use ProophExample\OopFlavour\ExampleOOPPort;
+use ProophExample\OopFlavour\ExampleOopPort;
 
 class EventMachineOopFlavourTest extends EventMachineTestAbstract
 {
@@ -31,8 +33,13 @@ class EventMachineOopFlavourTest extends EventMachineTestAbstract
     protected function getFlavour(): Flavour
     {
         return new OopFlavour(
-            new ExampleOOPPort(),
-            new FunctionalFlavour(new ExampleCustomMessagePort())
+            new ExampleOopPort(),
+            new FunctionalFlavour(new ExampleFunctionalPort())
         );
+    }
+
+    protected function getRegisteredUsersProjector(DocumentStore $documentStore)
+    {
+        return new RegisteredUsersProjector($documentStore);
     }
 }

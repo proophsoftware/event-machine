@@ -208,6 +208,22 @@ final class OopFlavour implements Flavour, MessageFactoryAware
         return $customMessageInBag;
     }
 
+    /**
+     * {@inheritdoc}
+     */
+    public function callProjector($projector, string $appVersion, string $projectionName, Message $event): void
+    {
+        $this->functionalFlavour->callProjector($projector, $appVersion, $projectionName, $event);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function convertAggregateStateToArray($aggregateState): array
+    {
+        return $this->port->serializeAggregate($aggregateState);
+    }
+
     public function setMessageFactory(MessageFactory $messageFactory): void
     {
         $this->functionalFlavour->setMessageFactory($messageFactory);
