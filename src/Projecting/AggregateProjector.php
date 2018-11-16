@@ -89,7 +89,7 @@ final class AggregateProjector implements Projector
         return $this->flavour;
     }
 
-    public function handle(string $appVersion, string $projectionName, $event): void
+    public function handle(string $appVersion, string $projectionName, Message $event): void
     {
         if (! $event instanceof Message) {
             throw new RuntimeException(__METHOD__ . ' can only handle events of type: ' . Message::class);

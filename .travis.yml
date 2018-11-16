@@ -9,6 +9,12 @@ matrix:
         - EXECUTE_CS_CHECK=true
         - TEST_COVERAGE=true
 
+    - php: 7.2
+      env:
+        - DEPENDENCIES=""
+        - EXECUTE_CS_CHECK=false
+        - TEST_COVERAGE=false
+
 cache:
   directories:
     - $HOME/.composer/cache

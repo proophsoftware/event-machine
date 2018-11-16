@@ -23,6 +23,7 @@ use Prooph\EventMachine\Exception\RuntimeException;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Messaging\MessageFactory;
 use Prooph\EventMachine\Messaging\MessageFactoryAware;
+use Prooph\EventMachine\Projecting\AggregateProjector;
 use Prooph\EventMachine\Projecting\Projector;
 use Prooph\EventMachine\Querying\SyncResolver;
 use Prooph\EventMachine\Util\DetermineVariableType;
@@ -205,7 +206,7 @@ final class PrototypingFlavour implements Flavour, MessageFactoryAware
      */
     public function callProjector($projector, string $appVersion, string $projectionName, Message $event): void
     {
-        if (! $projector instanceof Projector) {
+        if (! $projector instanceof Projector && ! $projector instanceof AggregateProjector) {
             throw new RuntimeException(__METHOD__ . ' can only call instances of ' . Projector::class);
         }
 
