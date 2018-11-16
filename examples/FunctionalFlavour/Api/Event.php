@@ -13,6 +13,7 @@ namespace ProophExample\FunctionalFlavour\Api;
 
 use ProophExample\FunctionalFlavour\Event\UsernameChanged;
 use ProophExample\FunctionalFlavour\Event\UserRegistered;
+use ProophExample\FunctionalFlavour\Event\UserRegistrationFailed;
 
 final class Event
 {
@@ -22,6 +23,7 @@ final class Event
 
     const CLASS_MAP = [
         self::USER_WAS_REGISTERED => UserRegistered::class,
+        self::USER_REGISTRATION_FAILED => UserRegistrationFailed::class,
         self::USERNAME_WAS_CHANGED => UsernameChanged::class,
     ];
 

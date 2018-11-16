@@ -31,7 +31,7 @@ final class CachableUserFunction
     public static function whenUserWasRegistered(Message $userWasRegistered)
     {
         $user = new UserState();
-        $user->id = $userWasRegistered->payload()[CacheableUserDescription::IDENTIFIER];
+        $user->userId = $userWasRegistered->payload()[CacheableUserDescription::IDENTIFIER];
         $user->username = $userWasRegistered->payload()['username'];
         $user->email = $userWasRegistered->payload()['email'];
 
@@ -49,7 +49,7 @@ final class CachableUserFunction
     public static function changeUsername(UserState $user, Message $changeUsername)
     {
         yield [Event::USERNAME_WAS_CHANGED, [
-            CacheableUserDescription::IDENTIFIER => $user->id,
+            CacheableUserDescription::IDENTIFIER => $user->userId,
             'oldName' => $user->username,
             'newName' => $changeUsername->payload()['username'],
         ]];

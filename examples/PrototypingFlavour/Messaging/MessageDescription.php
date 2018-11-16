@@ -90,7 +90,7 @@ final class MessageDescription implements EventMachineDescription
             'email' => JsonSchema::nullOr(JsonSchema::email()),
         ]);
         $eventMachine->registerQuery(Query::GET_FILTERED_USERS, JsonSchema::object([], [
-            'filter' => JsonSchema::nullOr(JsonSchema::typeRef('UserFilterInput')),
+            'filter' => $filterInput,
         ]))
             ->resolveWith(GetUsersResolver::class)
             ->setReturnType(JsonSchema::array(JsonSchema::typeRef('User')));

@@ -19,6 +19,7 @@ use ProophExample\FunctionalFlavour\Command\ChangeUsername;
 use ProophExample\FunctionalFlavour\Command\RegisterUser;
 use ProophExample\FunctionalFlavour\Event\UsernameChanged;
 use ProophExample\FunctionalFlavour\Event\UserRegistered;
+use ProophExample\FunctionalFlavour\Event\UserRegistrationFailed;
 
 /**
  * Class UserDescription
@@ -57,14 +58,28 @@ final class UserDescription implements EventMachineDescription
             ->withNew(Aggregate::USER)
             ->identifiedBy(self::IDENTIFIER)
             // Note: Our custom command is passed to the function
-            ->handle(function (RegisterUser $registerUser) {
+            ->handle(function (RegisterUser $command) {
                 //We can return a custom event
-                yield new UserRegistered((array) $registerUser);
+                if ($command->shouldFail) {
+                    yield new UserRegistrationFailed([self::IDENTIFIER => $command->userId]);
+
+                    return;
+                }
+
+                yield new UserRegistered([
+                    'userId' => $command->userId,
+                    'username' => $command->username,
+                    'email' => $command->email,
+                ]);
             })
             ->recordThat(Event::USER_WAS_REGISTERED)
             // The custom event is passed to the apply function
             ->apply(function (UserRegistered $event) {
                 return new UserState((array) $event);
+            })
+            ->orRecordThat(Event::USER_REGISTRATION_FAILED)
+            ->apply(function (UserRegistrationFailed $failed): UserState {
+                return new UserState([self::IDENTIFIER => $failed->userId, 'failed' => true]);
             });
     }
 

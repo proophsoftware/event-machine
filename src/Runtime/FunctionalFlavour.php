@@ -21,8 +21,10 @@ use Prooph\EventMachine\Messaging\MessageFactory;
 use Prooph\EventMachine\Messaging\MessageFactoryAware;
 use Prooph\EventMachine\Projecting\AggregateProjector;
 use Prooph\EventMachine\Projecting\CustomEventProjector;
+use Prooph\EventMachine\Querying\SyncResolver;
 use Prooph\EventMachine\Runtime\Functional\Port;
 use Prooph\EventMachine\Util\MapIterator;
+use React\Promise\Deferred;
 
 /**
  * Class FunctionalFlavour
@@ -199,8 +201,13 @@ final class FunctionalFlavour implements Flavour, MessageFactoryAware
     /**
      * {@inheritdoc}
      */
-    public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message
+    public function convertMessageReceivedFromNetwork(Message $message, $firstAggregateEvent = false): Message
     {
+        if ($message instanceof MessageBag && $message->hasMessage()) {
+            //Message is already decorated
+            return $message;
+        }
+
         return new MessageBag(
             $message->messageName(),
             $message->messageType(),
@@ -271,5 +278,28 @@ final class FunctionalFlavour implements Flavour, MessageFactoryAware
         }
 
         $listener($event->get(MessageBag::MESSAGE));
+    }
+
+    public function callQueryResolver(callable $resolver, Message $query, Deferred $deferred): void
+    {
+        if (! $query instanceof MessageBag) {
+            throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
+        }
+
+        $query = $query->get(MessageBag::MESSAGE);
+
+        if (\is_object($resolver) && $resolver instanceof SyncResolver) {
+            try {
+                $result = $resolver($query);
+            } catch (\Throwable $err) {
+                $deferred->reject($err);
+            }
+
+            $deferred->resolve($result);
+
+            return;
+        }
+
+        $resolver($query, $deferred);
     }
 }

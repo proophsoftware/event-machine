@@ -21,6 +21,9 @@ use ProophExample\FunctionalFlavour\Api\MessageDescription;
 use ProophExample\FunctionalFlavour\ExampleFunctionalPort;
 use ProophExample\FunctionalFlavour\ProcessManager\SendWelcomeEmail;
 use ProophExample\FunctionalFlavour\Projector\RegisteredUsersProjector;
+use ProophExample\FunctionalFlavour\Resolver\GetUserResolver;
+use ProophExample\FunctionalFlavour\Resolver\GetUsersResolver;
+use ProophExample\OopFlavour\Aggregate\User;
 use ProophExample\OopFlavour\Aggregate\UserDescription;
 use ProophExample\OopFlavour\ExampleOopPort;
 
@@ -48,5 +51,21 @@ class EventMachineOopFlavourTest extends EventMachineTestAbstract
     protected function getUserRegisteredListener(MessageDispatcher $messageDispatcher)
     {
         return new SendWelcomeEmail($messageDispatcher);
+    }
+
+    protected function getUserResolver(array $cachedUserState): callable
+    {
+        return new GetUserResolver($cachedUserState);
+    }
+
+    protected function getUsersResolver(array $cachedUsers): callable
+    {
+        return new GetUsersResolver($cachedUsers);
+    }
+
+    protected function assertLoadedUserState($userState): void
+    {
+        self::assertInstanceOf(User::class, $userState);
+        self::assertEquals('Tester', $userState->toArray()['username']);
     }
 }

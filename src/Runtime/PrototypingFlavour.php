@@ -24,8 +24,10 @@ use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Messaging\MessageFactory;
 use Prooph\EventMachine\Messaging\MessageFactoryAware;
 use Prooph\EventMachine\Projecting\Projector;
+use Prooph\EventMachine\Querying\SyncResolver;
 use Prooph\EventMachine\Util\DetermineVariableType;
 use Prooph\EventMachine\Util\MapIterator;
+use React\Promise\Deferred;
 
 /**
  * Class PrototypingFlavour
@@ -193,7 +195,7 @@ final class PrototypingFlavour implements Flavour, MessageFactoryAware
     /**
      * {@inheritdoc}
      */
-    public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message
+    public function convertMessageReceivedFromNetwork(Message $message, $firstAggregateEvent = false): Message
     {
         return $message;
     }
@@ -221,6 +223,23 @@ final class PrototypingFlavour implements Flavour, MessageFactoryAware
     public function callEventListener(callable $listener, Message $event): void
     {
         $listener($event);
+    }
+
+    public function callQueryResolver(callable $resolver, Message $query, Deferred $deferred): void
+    {
+        if (\is_object($resolver) && $resolver instanceof SyncResolver) {
+            try {
+                $result = $resolver($query);
+            } catch (\Throwable $err) {
+                $deferred->reject($err);
+            }
+
+            $deferred->resolve($result);
+
+            return;
+        }
+
+        $resolver($query, $deferred);
     }
 
     private function mapToMessage($event, string $aggregateType, Message $command): Message

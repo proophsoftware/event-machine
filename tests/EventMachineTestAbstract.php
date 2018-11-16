@@ -17,6 +17,13 @@ use Prooph\EventMachine\Container\ContainerChain;
 use Prooph\EventMachine\Container\EventMachineContainer;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Exception\RuntimeException;
+use Prooph\EventMachine\Exception\TransactionCommitFailed;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+use Prooph\EventMachine\JsonSchema\Type\EmailType;
+use Prooph\EventMachine\JsonSchema\Type\EnumType;
+use Prooph\EventMachine\JsonSchema\Type\StringType;
+use Prooph\EventMachine\JsonSchema\Type\UuidType;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Messaging\MessageBag;
 use Prooph\EventMachine\Messaging\MessageDispatcher;
@@ -29,16 +36,20 @@ use Prooph\EventMachine\Persistence\TransactionManager;
 use Prooph\EventMachine\Projecting\AggregateProjector;
 use Prooph\EventMachine\Projecting\InMemory\InMemoryProjectionManager;
 use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachineTest\Data\Stubs\TestIdentityVO;
 use Prooph\EventStore\ActionEventEmitterEventStore;
 use Prooph\EventStore\EventStore;
 use Prooph\EventStore\Metadata\MetadataMatcher;
 use Prooph\EventStore\StreamName;
+use Prooph\EventStore\TransactionalActionEventEmitterEventStore;
+use Prooph\EventStore\TransactionalEventStore;
 use Prooph\ServiceBus\Async\MessageProducer;
 use Prooph\ServiceBus\CommandBus;
 use Prooph\ServiceBus\EventBus;
 use Prooph\ServiceBus\QueryBus;
 use ProophExample\FunctionalFlavour\Api\Command;
 use ProophExample\FunctionalFlavour\Api\Event;
+use ProophExample\FunctionalFlavour\Api\Query;
 use ProophExample\FunctionalFlavour\Event\UsernameChanged;
 use ProophExample\FunctionalFlavour\Event\UserRegistered;
 use ProophExample\OopFlavour\Aggregate\UserDescription;
@@ -57,6 +68,12 @@ abstract class EventMachineTestAbstract extends BasicTestCase
     abstract protected function getRegisteredUsersProjector(DocumentStore $documentStore);
 
     abstract protected function getUserRegisteredListener(MessageDispatcher $messageDispatcher);
+
+    abstract protected function getUserResolver(array $cachedUserState): callable;
+
+    abstract protected function getUsersResolver(array $cachedUsers): callable;
+
+    abstract protected function assertLoadedUserState($userState): void;
 
     /**
      * @var ObjectProphecy
@@ -293,6 +310,88 @@ abstract class EventMachineTestAbstract extends BasicTestCase
     /**
      * @test
      */
+    public function it_dispatches_a_known_query()
+    {
+        $userId = Uuid::uuid4()->toString();
+
+        $getUserResolver = $this->getUserResolver([
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => 'Alex',
+        ]);
+
+        $this->appContainer->has(\get_class($getUserResolver))->willReturn(true);
+        $this->appContainer->get(\get_class($getUserResolver))->will(function ($args) use ($getUserResolver) {
+            return $getUserResolver;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $getUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Query::GET_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+            ]]
+        );
+
+        $promise = $this->eventMachine->bootstrap()->dispatch($getUser);
+
+        $userData = null;
+
+        $promise->done(function (array $data) use (&$userData) {
+            $userData = $data;
+        });
+
+        self::assertEquals([
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => 'Alex',
+        ], $userData);
+    }
+
+    /**
+     * @test
+     */
+    public function it_allows_queries_without_payload()
+    {
+        $getUsersResolver = $this->getUsersResolver([
+            [
+                UserDescription::IDENTIFIER => '123',
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ],
+        ]);
+
+        $this->appContainer->has(\get_class($getUsersResolver))->willReturn(true);
+        $this->appContainer->get(\get_class($getUsersResolver))->will(function ($args) use ($getUsersResolver) {
+            return $getUsersResolver;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $getUsers = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Query::GET_USERS,
+            ['payload' => []]
+        );
+
+        $promise = $this->eventMachine->bootstrap()->dispatch($getUsers);
+
+        $userList = null;
+
+        $promise->done(function (array $data) use (&$userList) {
+            $userList = $data;
+        });
+
+        self::assertEquals([
+            [
+                UserDescription::IDENTIFIER => '123',
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ],
+        ], $userList);
+    }
+
+    /**
+     * @test
+     */
     public function it_creates_message_on_dispatch_if_only_name_and_payload_is_given()
     {
         $recordedEvents = [];
@@ -434,6 +533,219 @@ abstract class EventMachineTestAbstract extends BasicTestCase
     /**
      * @test
      */
+    public function it_can_load_aggregate_state()
+    {
+        $this->eventMachine->initialize($this->containerChain);
+        $eventMachine = $this->eventMachine;
+        $userId = Uuid::uuid4()->toString();
+
+        $this->eventStore->load(new StreamName('event_stream'), 1, null, Argument::any())->will(function ($args) use ($userId, $eventMachine) {
+            return new \ArrayIterator([
+                $eventMachine->messageFactory()->createMessageFromArray(Event::USER_WAS_REGISTERED, [
+                    'payload' => [
+                        'userId' => $userId,
+                        'username' => 'Tester',
+                        'email' => 'tester@test.com',
+                    ],
+                    'metadata' => [
+                        '_aggregate_id' => $userId,
+                        '_aggregate_type' => Aggregate::USER,
+                        '_aggregate_version' => 1,
+                    ],
+                ]),
+            ]);
+        });
+
+        $userState = $eventMachine->bootstrap()->loadAggregateState(Aggregate::USER, $userId);
+
+        $this->assertLoadedUserState($userState);
+    }
+
+    /**
+     * @test
+     */
+    public function it_sets_up_transaction_manager_if_event_store_supports_transactions()
+    {
+        $this->eventStore = $this->prophesize(TransactionalEventStore::class);
+
+        $this->actionEventEmitterEventStore = new TransactionalActionEventEmitterEventStore(
+            $this->eventStore->reveal(),
+            new ProophActionEventEmitter(TransactionalActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $recordedEvents = [];
+
+        $this->eventStore->beginTransaction()->shouldBeCalled();
+
+        $this->eventStore->inTransaction()->willReturn(true);
+
+        $this->eventStore->appendTo(new StreamName('event_stream'), Argument::any())->will(function ($args) use (&$recordedEvents) {
+            $recordedEvents = \iterator_to_array($args[1]);
+        });
+
+        $this->eventStore->commit()->shouldBeCalled();
+
+        $publishedEvents = [];
+
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function ($event) use (&$publishedEvents) {
+            $publishedEvents[] = $event;
+        });
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $this->eventMachine->bootstrap()->dispatch(Command::REGISTER_USER, [
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => 'Alex',
+            UserDescription::EMAIL => 'contact@prooph.de',
+        ]);
+
+        self::assertCount(1, $recordedEvents);
+        self::assertCount(1, $publishedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        self::assertEquals(Event::USER_WAS_REGISTERED, $event->messageName());
+    }
+
+    /**
+     * @test
+     */
+    public function it_provides_message_schemas()
+    {
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = new UuidType();
+
+        $username = (new StringType())->withMinLength(1);
+
+        $userDataSchema = JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => $username,
+            UserDescription::EMAIL => new EmailType(),
+        ], [
+            'shouldFail' => JsonSchema::boolean(),
+        ]);
+
+        $filterInput = JsonSchema::object([
+            'username' => JsonSchema::nullOr(JsonSchema::string()),
+            'email' => JsonSchema::nullOr(JsonSchema::email()),
+        ]);
+
+        self::assertEquals([
+            'commands' => [
+                Command::REGISTER_USER => $userDataSchema->toArray(),
+                Command::CHANGE_USERNAME => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                    UserDescription::USERNAME => $username,
+                ])->toArray(),
+                Command::DO_NOTHING => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                ])->toArray(),
+            ],
+            'events' => [
+                Event::USER_WAS_REGISTERED => $userDataSchema->toArray(),
+                Event::USERNAME_WAS_CHANGED => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                    'oldName' => $username,
+                    'newName' => $username,
+                ])->toArray(),
+                Event::USER_REGISTRATION_FAILED => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                ])->toArray(),
+            ],
+            'queries' => [
+                Query::GET_USER => JsonSchema::object([
+                    UserDescription::IDENTIFIER => $userId,
+                ])->toArray(),
+                Query::GET_USERS => JsonSchema::object([])->toArray(),
+                Query::GET_FILTERED_USERS => JsonSchema::object([], [
+                    'filter' => $filterInput,
+                ])->toArray(),
+            ],
+        ],
+            $this->eventMachine->messageSchemas()
+        );
+    }
+
+    /**
+     * @test
+     */
+    public function it_builds_a_message_box_schema(): void
+    {
+        $this->eventMachine->initialize($this->containerChain);
+
+        $this->eventMachine->bootstrap();
+
+        $userId = new UuidType();
+
+        $username = (new StringType())->withMinLength(1);
+
+        $userDataSchema = JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+            UserDescription::USERNAME => $username,
+            UserDescription::EMAIL => new EmailType(),
+        ], [
+            'shouldFail' => JsonSchema::boolean(),
+        ]);
+
+        $filterInput = JsonSchema::object([
+            'username' => JsonSchema::nullOr(JsonSchema::string()),
+            'email' => JsonSchema::nullOr(JsonSchema::email()),
+        ]);
+
+        $queries = [
+            Query::GET_USER => JsonSchema::object([
+                UserDescription::IDENTIFIER => $userId,
+            ])->toArray(),
+            Query::GET_USERS => JsonSchema::object([])->toArray(),
+            Query::GET_FILTERED_USERS => JsonSchema::object([], [
+                'filter' => $filterInput,
+            ])->toArray(),
+        ];
+
+        $queries[Query::GET_USER]['response'] = JsonSchema::typeRef('User')->toArray();
+        $queries[Query::GET_USERS]['response'] = JsonSchema::array(JsonSchema::typeRef('User'))->toArray();
+        $queries[Query::GET_FILTERED_USERS]['response'] = JsonSchema::array(JsonSchema::typeRef('User'))->toArray();
+
+        $this->assertEquals([
+            'title' => 'Event Machine MessageBox',
+            'description' => 'A mechanism for handling prooph messages',
+            '$schema' => 'http://json-schema.org/draft-06/schema#',
+            'type' => 'object',
+            'properties' => [
+                'commands' => [
+                    Command::REGISTER_USER => $userDataSchema->toArray(),
+                    Command::CHANGE_USERNAME => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                        UserDescription::USERNAME => $username,
+                    ])->toArray(),
+                    Command::DO_NOTHING => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                    ])->toArray(),
+                ],
+                'events' => [
+                    Event::USER_WAS_REGISTERED => $userDataSchema->toArray(),
+                    Event::USERNAME_WAS_CHANGED => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                        'oldName' => $username,
+                        'newName' => $username,
+                    ])->toArray(),
+                    Event::USER_REGISTRATION_FAILED => JsonSchema::object([
+                        UserDescription::IDENTIFIER => $userId,
+                    ])->toArray(),
+                ],
+                'queries' => $queries,
+            ],
+            'definitions' => [
+                'User' => $userDataSchema->toArray(),
+            ],
+        ], $this->eventMachine->messageBoxSchema());
+    }
+
+    /**
+     * @test
+     */
     public function it_watches_write_model_stream()
     {
         $documentStore = new DocumentStore\InMemoryDocumentStore(new InMemoryConnection());
@@ -566,6 +878,247 @@ abstract class EventMachineTestAbstract extends BasicTestCase
 
         $this->assertEquals('SendWelcomeEmail', $newCmdName);
         $this->assertEquals(['email' => 'contact@prooph.de'], $newCmdPayload);
+    }
+
+    /**
+     * @test
+     */
+    public function it_passes_registered_types_to_json_schema_assertion()
+    {
+        $this->eventMachine->registerType('UserState', JsonSchema::object([
+            'id' => JsonSchema::string(['minLength' => 3]),
+            'email' => JsonSchema::string(['format' => 'email']),
+        ], [], true));
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $this->eventMachine->bootstrap();
+
+        $visitorSchema = JsonSchema::object(['role' => JsonSchema::enum(['guest'])], [], true);
+
+        $identifiedVisitorSchema = ['allOf' => [
+            JsonSchema::typeRef('UserState')->toArray(),
+            $visitorSchema,
+        ]];
+
+        $guest = ['id' => '123', 'role' => 'guest'];
+
+        $this->eventMachine->jsonSchemaAssertion()->assert('Guest', $guest, $visitorSchema->toArray());
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Validation of IdentifiedVisitor failed: \[email\] The property email is required/');
+
+        $this->eventMachine->jsonSchemaAssertion()->assert('IdentifiedVisitor', $guest, $identifiedVisitorSchema);
+    }
+
+    /**
+     * @test
+     */
+    public function it_registers_enum_type_as_type()
+    {
+        $colorSchema = new EnumType('red', 'blue', 'yellow');
+
+        $this->eventMachine->registerEnumType('color', $colorSchema);
+
+        $this->eventMachine->initialize($this->containerChain);
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Validation of ball failed: \[color\] Does not have a value in the enumeration \["red","blue","yellow"\]/');
+
+        $ballSchema = JsonSchema::object([
+            'color' => JsonSchema::typeRef('color'),
+        ])->toArray();
+
+        $this->eventMachine->jsonSchemaAssertion()->assert('ball', ['color' => 'green'], $ballSchema);
+    }
+
+    /**
+     * @test
+     */
+    public function it_uses_immutable_record_info_to_register_a_type()
+    {
+        $this->eventMachine->registerType(TestIdentityVO::class);
+
+        $this->eventMachine->initialize($this->containerChain)->bootstrap(EventMachine::ENV_TEST, true);
+
+        $userIdentityData = [
+            'identity' => [
+                'email' => 'test@test.local',
+                'password' => 12345,
+            ],
+        ];
+
+        $this->expectException(\InvalidArgumentException::class);
+        $this->expectExceptionMessageRegExp('/Validation of UserIdentityData failed: \[identity.password\] Integer value found, but a string is required/');
+
+        $this->eventMachine->jsonSchemaAssertion()->assert('UserIdentityData', $userIdentityData, JsonSchema::object([
+            'identity' => JsonSchema::typeRef(TestIdentityVO::__type()),
+        ])->toArray());
+    }
+
+    /**
+     * @test
+     */
+    public function it_sets_app_version()
+    {
+        $this->eventMachine->initialize($this->containerChain, '0.2.0');
+
+        $this->eventMachine->bootstrap();
+
+        $this->assertEquals('0.2.0', $this->eventMachine->appVersion());
+    }
+
+    /**
+     * @test
+     */
+    public function it_dispatches_a_known_command_with_immediate_consistency(): void
+    {
+        $documentStore = new DocumentStore\InMemoryDocumentStore($this->inMemoryConnection);
+
+        $inMemoryEventStore = new InMemoryEventStore($this->inMemoryConnection);
+
+        $eventStore = new ActionEventEmitterEventStore(
+            $inMemoryEventStore,
+            new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $streamName = new StreamName('event_stream');
+
+        $this->setUpAggregateProjector($documentStore, $eventStore, $streamName);
+
+        $this->transactionManager = new TransactionManager($this->inMemoryConnection);
+        $publishedEvents = [];
+
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function ($event) use (&$publishedEvents) {
+            $publishedEvents[] = $event;
+        });
+
+        $this->eventMachine->setImmediateConsistency(true);
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Command::REGISTER_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ]]
+        );
+
+        $this->eventMachine->bootstrap()->dispatch($registerUser);
+
+        $recordedEvents = $inMemoryEventStore->load($streamName);
+
+        self::assertCount(1, $recordedEvents);
+        self::assertCount(1, $publishedEvents);
+        /** @var GenericJsonSchemaEvent $event */
+        $event = $recordedEvents[0];
+        $this->assertUserWasRegistered($event, $registerUser, $userId);
+
+        $userState = $documentStore->getDoc(
+            $this->getAggregateCollectionName(Aggregate::USER),
+            $userId
+        );
+
+        $this->assertNotNull($userState);
+
+        $this->assertEquals([
+            'userId' => $userId,
+            'username' => 'Alex',
+            'email' => 'contact@prooph.de',
+            'failed' => null,
+        ], $userState);
+    }
+
+    /**
+     * @test
+     */
+    public function it_rolls_back_events_and_projection_with_immediate_consistency(): void
+    {
+        $documentStore = $this->prophesize(DocumentStore::class);
+        $documentStore->hasCollection(Argument::type('string'))->willReturn(false);
+        $documentStore->addCollection(Argument::type('string'))->shouldBeCalled();
+        $documentStore
+            ->upsertDoc(Argument::type('string'), Argument::type('string'), Argument::type('array'))
+            ->willThrow(new \RuntimeException('projection error'));
+
+        $inMemoryEventStore = new InMemoryEventStore($this->inMemoryConnection);
+
+        $eventStore = new ActionEventEmitterEventStore(
+            $inMemoryEventStore,
+            new ProophActionEventEmitter(ActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $streamName = new StreamName('event_stream');
+
+        $this->setUpAggregateProjector($documentStore->reveal(), $eventStore, $streamName);
+
+        $this->transactionManager = new TransactionManager($this->inMemoryConnection);
+        $publishedEvents = [];
+
+        $this->eventMachine->on(Event::USER_WAS_REGISTERED, function ($event) use (&$publishedEvents) {
+            $publishedEvents[] = $event;
+        });
+
+        $this->eventMachine->setImmediateConsistency(true);
+        $this->eventMachine->initialize($this->containerChain);
+
+        $userId = Uuid::uuid4()->toString();
+
+        $registerUser = $this->eventMachine->messageFactory()->createMessageFromArray(
+            Command::REGISTER_USER,
+            ['payload' => [
+                UserDescription::IDENTIFIER => $userId,
+                UserDescription::USERNAME => 'Alex',
+                UserDescription::EMAIL => 'contact@prooph.de',
+            ]]
+        );
+
+        $exceptionThrown = false;
+
+        // more tests after exception needed
+        try {
+            $this->eventMachine->bootstrap()->dispatch($registerUser);
+        } catch (TransactionCommitFailed $e) {
+            $exceptionThrown = true;
+        }
+        $this->assertTrue($exceptionThrown);
+        $this->assertEmpty(\iterator_to_array($eventStore->load($streamName)));
+    }
+
+    /**
+     * @test
+     */
+    public function it_switches_action_event_emitter_with_immediate_consistency(): void
+    {
+        $documentStore = new DocumentStore\InMemoryDocumentStore($this->inMemoryConnection);
+
+        $inMemoryEventStore = new InMemoryEventStore($this->inMemoryConnection);
+
+        //A TransactionalActionEventEmitterEventStore conflicts with the immediate consistency mode
+        //because the EventPublisher listens on commit event, but it never happens due to transaction managed
+        //outside of the event store
+        //Event Machine needs to take care of it
+        $eventStore = new TransactionalActionEventEmitterEventStore(
+            $inMemoryEventStore,
+            new ProophActionEventEmitter(TransactionalActionEventEmitterEventStore::ALL_EVENTS)
+        );
+
+        $streamName = new StreamName('event_stream');
+
+        $this->setUpAggregateProjector($documentStore, $eventStore, $streamName);
+
+        $this->transactionManager = new TransactionManager($this->inMemoryConnection);
+        $publishedEvents = [];
+
+        $this->eventMachine->setImmediateConsistency(true);
+        $this->eventMachine->initialize($this->containerChain);
+
+        $this->expectException(RuntimeException::class);
+
+        $this->eventMachine->bootstrap();
     }
 
     private function assertUserWasRegistered(

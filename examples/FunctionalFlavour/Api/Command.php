@@ -18,6 +18,7 @@ final class Command
 {
     const REGISTER_USER = 'RegisterUser';
     const CHANGE_USERNAME = 'ChangeUsername';
+    const DO_NOTHING = 'DoNothing';
 
     const CLASS_MAP = [
         self::REGISTER_USER => RegisterUser::class,

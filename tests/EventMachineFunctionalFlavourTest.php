@@ -17,10 +17,13 @@ use Prooph\EventMachine\Persistence\DocumentStore;
 use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventMachine\Runtime\FunctionalFlavour;
 use ProophExample\FunctionalFlavour\Aggregate\UserDescription;
+use ProophExample\FunctionalFlavour\Aggregate\UserState;
 use ProophExample\FunctionalFlavour\Api\MessageDescription;
 use ProophExample\FunctionalFlavour\ExampleFunctionalPort;
 use ProophExample\FunctionalFlavour\ProcessManager\SendWelcomeEmail;
 use ProophExample\FunctionalFlavour\Projector\RegisteredUsersProjector;
+use ProophExample\FunctionalFlavour\Resolver\GetUserResolver;
+use ProophExample\FunctionalFlavour\Resolver\GetUsersResolver;
 
 class EventMachineFunctionalFlavourTest extends EventMachineTestAbstract
 {
@@ -43,5 +46,21 @@ class EventMachineFunctionalFlavourTest extends EventMachineTestAbstract
     protected function getUserRegisteredListener(MessageDispatcher $messageDispatcher)
     {
         return new SendWelcomeEmail($messageDispatcher);
+    }
+
+    protected function getUserResolver(array $cachedUserState): callable
+    {
+        return new GetUserResolver($cachedUserState);
+    }
+
+    protected function getUsersResolver(array $cachedUsers): callable
+    {
+        return new GetUsersResolver($cachedUsers);
+    }
+
+    protected function assertLoadedUserState($userState): void
+    {
+        self::assertInstanceOf(UserState::class, $userState);
+        self::assertEquals('Tester', $userState->username);
     }
 }

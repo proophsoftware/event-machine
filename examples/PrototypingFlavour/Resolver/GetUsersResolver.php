@@ -11,10 +11,27 @@ declare(strict_types=1);
 
 namespace ProophExample\PrototypingFlavour\Resolver;
 
-use Prooph\Common\Messaging\Message;
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Querying\AsyncResolver;
 use React\Promise\Deferred;
 
-interface GetUsersResolver
+final class GetUsersResolver implements AsyncResolver
 {
-    public function __invoke(Message $getUsers, Deferred $deferred): void;
+    private $cachedUsers;
+
+    public function __construct(array $cachedUsers)
+    {
+        $this->cachedUsers = $cachedUsers;
+    }
+
+    public function __invoke(Message $getUsers, Deferred $deferred): void
+    {
+        $usernameFilter = $getUsers->getOrDefault('username', null);
+        $emailFilter = $getUsers->getOrDefault('email', null);
+
+        $deferred->resolve(\array_filter($this->cachedUsers, function (array $user) use ($usernameFilter, $emailFilter): bool {
+            return (null === $usernameFilter || $user['username'] === $usernameFilter)
+                && (null === $emailFilter || $user['email'] === $emailFilter);
+        }));
+    }
 }

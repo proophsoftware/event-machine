@@ -16,6 +16,7 @@ use Prooph\EventMachine\Messaging\MessageBag;
 use Prooph\EventMachine\Runtime\Functional\Port;
 use ProophExample\FunctionalFlavour\Api\Command;
 use ProophExample\FunctionalFlavour\Api\Event;
+use ProophExample\FunctionalFlavour\Api\Query;
 
 final class ExampleFunctionalPort implements Port
 {
@@ -31,6 +32,8 @@ final class ExampleFunctionalPort implements Port
                 return Command::createFromNameAndPayload($message->messageName(), $message->payload());
             case Message::TYPE_EVENT:
                 return Event::createFromNameAndPayload($message->messageName(), $message->payload());
+            case Message::TYPE_QUERY:
+                return Query::createFromNameAndPayload($message->messageName(), $message->payload());
         }
     }
 

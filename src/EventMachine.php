@@ -46,6 +46,7 @@ use Prooph\EventMachine\Projecting\CustomEventProjector;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
 use Prooph\EventMachine\Projecting\ProjectionRunner;
 use Prooph\EventMachine\Projecting\Projector;
+use Prooph\EventMachine\Querying\QueryConverterBusPlugin;
 use Prooph\EventMachine\Querying\QueryDescription;
 use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventMachine\Runtime\PrototypingFlavour;
@@ -932,12 +933,16 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
 
         $queryRouter = new QueryRouter($queryRouting);
 
+        $queryConverterBusPlugin = new QueryConverterBusPlugin($this->flavour());
+
+        $serviceLocatorPlugin = new ServiceLocatorPlugin($this->container);
+
         /** @var QueryBus $queryBus */
         $queryBus = $this->container->get(self::SERVICE_ID_QUERY_BUS);
 
         $queryRouter->attachToMessageBus($queryBus);
 
-        $serviceLocatorPlugin = new ServiceLocatorPlugin($this->container);
+        $queryConverterBusPlugin->attachToMessageBus($queryBus);
 
         $serviceLocatorPlugin->attachToMessageBus($queryBus);
     }

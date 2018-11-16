@@ -9,10 +9,10 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\PrototypingFlavour\Resolver;
+namespace ProophExample\FunctionalFlavour\Resolver;
 
-use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Querying\SyncResolver;
+use ProophExample\FunctionalFlavour\Query\GetUser;
 
 final class GetUserResolver implements SyncResolver
 {
@@ -26,9 +26,9 @@ final class GetUserResolver implements SyncResolver
         $this->cachedUserState = $cachedUserState;
     }
 
-    public function __invoke(Message $getUser)
+    public function __invoke(GetUser $getUser)
     {
-        if ($this->cachedUserState['userId'] === $getUser->get('userId')) {
+        if ($this->cachedUserState['userId'] === $getUser->userId) {
             return $this->cachedUserState;
         }
         new \RuntimeException('User not found');

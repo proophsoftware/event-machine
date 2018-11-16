@@ -9,11 +9,11 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\FunctionalFlavour\Command;
+namespace ProophExample\FunctionalFlavour\Event;
 
 use ProophExample\FunctionalFlavour\Util\ApplyPayload;
 
-final class RegisterUser
+final class UserRegistrationFailed
 {
     use ApplyPayload;
 
@@ -21,19 +21,4 @@ final class RegisterUser
      * @var string
      */
     public $userId;
-
-    /**
-     * @var string
-     */
-    public $username;
-
-    /**
-     * @var string
-     */
-    public $email;
-
-    /**
-     * @var bool
-     */
-    public $shouldFail = false;
 }

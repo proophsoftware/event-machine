@@ -13,7 +13,7 @@ namespace ProophExample\PrototypingFlavour\Aggregate;
 
 class UserState
 {
-    public $id;
+    public $userId;
     public $username;
     public $email;
     public $failed;

@@ -135,11 +135,13 @@ final class GenericAggregateRoot implements AggregateTypeProvider
      */
     protected function replay(\Iterator $historyEvents): void
     {
+        $isFirstEvent = true;
         foreach ($historyEvents as $pastEvent) {
             /** @var GenericJsonSchemaEvent $pastEvent */
             $this->version = $pastEvent->version();
 
-            $pastEvent = $this->flavour->convertMessageReceivedFromNetwork($pastEvent, true);
+            $pastEvent = $this->flavour->convertMessageReceivedFromNetwork($pastEvent, $isFirstEvent);
+            $isFirstEvent = false;
 
             $this->apply($pastEvent);
         }

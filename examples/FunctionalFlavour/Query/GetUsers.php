@@ -9,31 +9,21 @@
 
 declare(strict_types=1);
 
-namespace ProophExample\FunctionalFlavour\Command;
+namespace ProophExample\FunctionalFlavour\Query;
 
 use ProophExample\FunctionalFlavour\Util\ApplyPayload;
 
-final class RegisterUser
+final class GetUsers
 {
     use ApplyPayload;
 
     /**
-     * @var string
-     */
-    public $userId;
-
-    /**
-     * @var string
+     * @var string|null
      */
     public $username;
 
     /**
-     * @var string
+     * @var string|null
      */
     public $email;
-
-    /**
-     * @var bool
-     */
-    public $shouldFail = false;
 }

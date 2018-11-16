@@ -66,7 +66,7 @@ final class UserDescription implements EventMachineDescription
             // you can use anything for aggregate state - we use a simple class with public properties
             ->apply(function (Message $userWasRegistered) {
                 $user = new UserState();
-                $user->id = $userWasRegistered->payload()[self::IDENTIFIER];
+                $user->userId = $userWasRegistered->payload()[self::IDENTIFIER];
                 $user->username = $userWasRegistered->payload()['username'];
                 $user->email = $userWasRegistered->payload()['email'];
 
@@ -81,7 +81,7 @@ final class UserDescription implements EventMachineDescription
             // This time we handle command with existing aggregate, hence we get current user state injected
             ->handle(function (UserState $user, Message $changeUsername) {
                 yield [Event::USERNAME_WAS_CHANGED, [
-                    self::IDENTIFIER => $user->id,
+                    self::IDENTIFIER => $user->userId,
                     'oldName' => $user->username,
                     'newName' => $changeUsername->payload()['username'],
                 ]];

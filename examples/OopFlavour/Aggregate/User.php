@@ -16,6 +16,7 @@ use ProophExample\FunctionalFlavour\Command\ChangeUsername;
 use ProophExample\FunctionalFlavour\Command\RegisterUser;
 use ProophExample\FunctionalFlavour\Event\UsernameChanged;
 use ProophExample\FunctionalFlavour\Event\UserRegistered;
+use ProophExample\FunctionalFlavour\Event\UserRegistrationFailed;
 
 final class User
 {
@@ -26,6 +27,8 @@ final class User
     private $username;
 
     private $email;
+
+    private $failed;
 
     private $recordedEvents = [];
 
@@ -42,6 +45,14 @@ final class User
     public static function register(RegisterUser $command): self
     {
         $self = new self();
+
+        if ($command->shouldFail) {
+            $self->recordThat(new UserRegistrationFailed([
+                'userId' => $command->userId,
+            ]));
+
+            return $self;
+        }
 
         $self->recordThat(new UserRegistered([
             'userId' => $command->userId,
@@ -78,6 +89,11 @@ final class User
                 $this->username = $event->username;
                 $this->email = $event->email;
                 break;
+            case UserRegistrationFailed::class:
+                /** @var UserRegistrationFailed $event */
+                $this->userId = $event->userId;
+                $this->failed = true;
+                break;
             case UsernameChanged::class:
                 /** @var UsernameChanged $event */
                 $this->username = $event->newName;
@@ -93,7 +109,7 @@ final class User
             'userId' => $this->userId,
             'username' => $this->username,
             'email' => $this->email,
-            'failed' => null,
+            'failed' => $this->failed,
         ];
     }
 

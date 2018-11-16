@@ -14,6 +14,7 @@ namespace Prooph\EventMachine\Runtime;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Projecting\CustomEventProjector;
 use Prooph\EventMachine\Projecting\Projector;
+use React\Promise\Deferred;
 
 /**
  * Create your own Flavour by implementing the Flavour interface.
@@ -116,14 +117,15 @@ interface Flavour
      *
      * Use MessageBag::get(MessageBag::MESSAGE) in call-interceptions to access your type safe message.
      *
-     * It might be important for a Flavour implementation to know that an event is loaded from event store.
-     * In this case the flag $receivedFromEventStore is TRUE.
+     * It might be important for a Flavour implementation to know that an event is loaded from event store and
+     * that it is the first event of an aggregate history.
+     * In this case the flag $firstAggregateEvent is TRUE.
      *
      * @param Message $message
-     * @param bool $receivedFromEventStore
+     * @param bool $firstAggregateEvent
      * @return Message
      */
-    public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message;
+    public function convertMessageReceivedFromNetwork(Message $message, $firstAggregateEvent = false): Message;
 
     /**
      * @param Projector|CustomEventProjector $projector The projector instance
@@ -140,4 +142,6 @@ interface Flavour
     public function convertAggregateStateToArray($aggregateState): array;
 
     public function callEventListener(callable $listener, Message $event): void;
+
+    public function callQueryResolver(callable $resolver, Message $query, Deferred $deferred): void;
 }

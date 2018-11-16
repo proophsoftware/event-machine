@@ -17,9 +17,9 @@ use Prooph\EventMachine\JsonSchema\JsonSchema;
 use Prooph\EventMachine\JsonSchema\Type\EmailType;
 use Prooph\EventMachine\JsonSchema\Type\StringType;
 use Prooph\EventMachine\JsonSchema\Type\UuidType;
+use ProophExample\FunctionalFlavour\Resolver\GetUserResolver;
+use ProophExample\FunctionalFlavour\Resolver\GetUsersResolver;
 use ProophExample\PrototypingFlavour\Aggregate\UserDescription;
-use ProophExample\PrototypingFlavour\Resolver\GetUserResolver;
-use ProophExample\PrototypingFlavour\Resolver\GetUsersResolver;
 
 /**
  * You're free to organize EventMachineDescriptions in the way that best fits your personal preferences
@@ -46,7 +46,13 @@ final class MessageDescription implements EventMachineDescription
             UserDescription::IDENTIFIER => $userId,
             UserDescription::USERNAME => $username,
             UserDescription::EMAIL => new EmailType(),
+        ], [
+            //If it is set to true user registration handler will record a UserRegistrationFailed event
+        'shouldFail' => JsonSchema::boolean(),
         ]);
+        $eventMachine->registerCommand(Command::DO_NOTHING, JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+        ]));
 
         /* Message Registration */
         $eventMachine->registerCommand(Command::REGISTER_USER, $userDataSchema);
@@ -62,7 +68,10 @@ final class MessageDescription implements EventMachineDescription
             'newName' => $username,
         ]));
 
-        /*
+        $eventMachine->registerEvent(Event::USER_REGISTRATION_FAILED, JsonSchema::object([
+            UserDescription::IDENTIFIER => $userId,
+        ]));
+
         //Register user state as a Type so that we can reference it as query return type
         $eventMachine->registerType('User', $userDataSchema);
         $eventMachine->registerQuery(Query::GET_USER, JsonSchema::object([
@@ -80,10 +89,9 @@ final class MessageDescription implements EventMachineDescription
             'email' => JsonSchema::nullOr(JsonSchema::email()),
         ]);
         $eventMachine->registerQuery(Query::GET_FILTERED_USERS, JsonSchema::object([], [
-            'filter' => JsonSchema::nullOr(JsonSchema::typeRef('UserFilterInput')),
+            'filter' => $filterInput,
         ]))
             ->resolveWith(GetUsersResolver::class)
             ->setReturnType(JsonSchema::array(JsonSchema::typeRef('User')));
-        */
     }
 }

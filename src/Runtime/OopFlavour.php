@@ -20,6 +20,7 @@ use Prooph\EventMachine\Runtime\Oop\AggregateAndEventBag;
 use Prooph\EventMachine\Runtime\Oop\Port;
 use Prooph\EventMachine\Util\DetermineVariableType;
 use Prooph\EventMachine\Util\MapIterator;
+use React\Promise\Deferred;
 
 /**
  * Class OopFlavour
@@ -185,11 +186,11 @@ final class OopFlavour implements Flavour, MessageFactoryAware
     /**
      * {@inheritdoc}
      */
-    public function convertMessageReceivedFromNetwork(Message $message, $receivedFromEventStore = false): Message
+    public function convertMessageReceivedFromNetwork(Message $message, $firstAggregateEvent = false): Message
     {
         $customMessageInBag = $this->functionalFlavour->convertMessageReceivedFromNetwork($message);
 
-        if ($receivedFromEventStore && $message->messageType() === Message::TYPE_EVENT) {
+        if ($firstAggregateEvent && $message->messageType() === Message::TYPE_EVENT) {
             $aggregateType = $message->metadata()[self::META_AGGREGATE_TYPE] ?? null;
 
             if (null === $aggregateType) {
@@ -197,7 +198,7 @@ final class OopFlavour implements Flavour, MessageFactoryAware
             }
 
             if (! $customMessageInBag instanceof MessageBag) {
-                throw new RuntimeException('CustomMessageInterceptor is expected to return a ' . MessageBag::class);
+                throw new RuntimeException('FunctionalFlavour is expected to return a ' . MessageBag::class);
             }
 
             $aggregate = $this->port->reconstituteAggregate((string) $aggregateType, [$customMessageInBag->get(MessageBag::MESSAGE)]);
@@ -232,5 +233,10 @@ final class OopFlavour implements Flavour, MessageFactoryAware
     public function callEventListener(callable $listener, Message $event): void
     {
         $this->functionalFlavour->callEventListener($listener, $event);
+    }
+
+    public function callQueryResolver(callable $resolver, Message $query, Deferred $deferred): void
+    {
+        $this->functionalFlavour->callQueryResolver($resolver, $query, $deferred);
     }
 }
