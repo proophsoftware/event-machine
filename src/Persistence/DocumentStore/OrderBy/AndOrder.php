@@ -41,7 +41,7 @@ final class AndOrder implements OrderBy
 
         if ($this->orderByA instanceof AndOrder) {
             throw new \InvalidArgumentException(
-                sprintf(
+                \sprintf(
                     'First element of %s must not be again an AndOrderBy. This is only allowed for the alternative element.',
                     __CLASS__
                 )
@@ -78,12 +78,12 @@ final class AndOrder implements OrderBy
 
     public function __toString(): string
     {
-        return json_encode($this->toArray());
+        return \json_encode($this->toArray());
     }
 
     private function orderByToArray(OrderBy $orderBy): array
     {
-        switch (get_class($orderBy)) {
+        switch (\get_class($orderBy)) {
             case Asc::class:
                 return [
                     'type' => self::TYPE_DIRECTION_ASC,
@@ -100,7 +100,7 @@ final class AndOrder implements OrderBy
                     'data' => $orderBy->toArray(),
                 ];
             default:
-                throw new \RuntimeException('Unknown OrderBy class. Got ' . get_class($orderBy));
+                throw new \RuntimeException('Unknown OrderBy class. Got ' . \get_class($orderBy));
         }
     }
 

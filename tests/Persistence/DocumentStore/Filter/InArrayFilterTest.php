@@ -30,8 +30,8 @@ class InArrayFilterTest extends BasicTestCase
             new InArrayFilter('status', 'hungry')
         );
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Tiger', implode(', ', $names));
+        $this->assertEquals('Tiger', \implode(', ', $names));
     }
 }

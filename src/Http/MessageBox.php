@@ -54,7 +54,7 @@ final class MessageBox implements RequestHandlerInterface
         try {
             $payload = $request->getParsedBody();
 
-            if (is_array($payload) && isset($payload['message_name'])) {
+            if (\is_array($payload) && isset($payload['message_name'])) {
                 $messageName = $payload['message_name'];
             }
 

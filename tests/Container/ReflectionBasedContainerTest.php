@@ -20,8 +20,8 @@ use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
 use Prooph\EventMachine\Messaging\GenericJsonSchemaMessageFactory;
 use Prooph\EventMachineTest\BasicTestCase;
-use ProophExample\Aggregate\UserDescription;
-use ProophExample\Messaging\Command;
+use ProophExample\PrototypingFlavour\Aggregate\UserDescription;
+use ProophExample\PrototypingFlavour\Messaging\Command;
 
 final class ReflectionBasedContainerTest extends BasicTestCase
 {

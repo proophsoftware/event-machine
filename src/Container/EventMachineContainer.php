@@ -48,6 +48,6 @@ final class EventMachineContainer implements ContainerInterface
      */
     public function has($id)
     {
-        return in_array($id, $this->supportedServices);
+        return \in_array($id, $this->supportedServices);
     }
 }

@@ -14,6 +14,7 @@ namespace Prooph\EventMachine\Commanding;
 use Prooph\Common\Event\ActionEvent;
 use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Container\ContextProviderFactory;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\MessageBus;
 use Prooph\ServiceBus\Plugin\AbstractPlugin;
@@ -49,6 +50,11 @@ final class CommandToProcessorRouter extends AbstractPlugin
     private $contextProviderFactory;
 
     /**
+     * @var Flavour
+     */
+    private $flavour;
+
+    /**
      * @var SnapshotStore|null
      */
     private $snapshotStore;
@@ -59,6 +65,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
         MessageFactory $messageFactory,
         EventStore $eventStore,
         ContextProviderFactory $providerFactory,
+        Flavour $flavour,
         SnapshotStore $snapshotStore = null
     ) {
         $this->routingMap = $routingMap;
@@ -66,6 +73,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
         $this->messageFactory = $messageFactory;
         $this->eventStore = $eventStore;
         $this->contextProviderFactory = $providerFactory;
+        $this->flavour = $flavour;
         $this->snapshotStore = $snapshotStore;
     }
 
@@ -108,6 +116,7 @@ final class CommandToProcessorRouter extends AbstractPlugin
 
         $commandProcessor = CommandProcessor::fromDescriptionArrayAndDependencies(
             $processorDesc,
+            $this->flavour,
             $this->messageFactory,
             $this->eventStore,
             $this->snapshotStore,

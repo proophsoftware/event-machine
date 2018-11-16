@@ -35,7 +35,7 @@ trait FilterTestHelperTrait
     private function extractFieldIntoList(string $field, \Traversable $docs): \Generator
     {
         foreach ($docs as $doc) {
-            if (array_key_exists($field, $doc)) {
+            if (\array_key_exists($field, $doc)) {
                 yield $doc[$field];
                 continue;
             }

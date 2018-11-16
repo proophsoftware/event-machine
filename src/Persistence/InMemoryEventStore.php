@@ -11,7 +11,6 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Persistence;
 
-use ArrayIterator;
 use EmptyIterator;
 use Iterator;
 use Prooph\Common\Messaging\Message;
@@ -23,6 +22,8 @@ use Prooph\EventStore\Exception\TransactionNotStarted;
 use Prooph\EventStore\Metadata\FieldType;
 use Prooph\EventStore\Metadata\MetadataMatcher;
 use Prooph\EventStore\Metadata\Operator;
+use Prooph\EventStore\StreamIterator\EmptyStreamIterator;
+use Prooph\EventStore\StreamIterator\InMemoryStreamIterator;
 use Prooph\EventStore\StreamName;
 use Prooph\EventStore\TransactionalEventStore;
 use Prooph\EventStore\Util\Assertion;
@@ -50,11 +51,11 @@ final class InMemoryEventStore implements TransactionalEventStore
             throw StreamExistsAlready::with($streamName);
         }
 
-        $pos = strpos($streamNameString, '-');
+        $pos = \strpos($streamNameString, '-');
         $category = null;
 
         if (false !== $pos && $pos > 0) {
-            $category = substr($streamNameString, 0, $pos);
+            $category = \substr($streamNameString, 0, $pos);
         }
 
         $this->inMemoryConnection['event_streams'][$streamNameString] = [
@@ -117,10 +118,10 @@ final class InMemoryEventStore implements TransactionalEventStore
         }
 
         if (0 === $found) {
-            return new EmptyIterator();
+            return new EmptyStreamIterator();
         }
 
-        return new ArrayIterator($streamEvents);
+        return new InMemoryStreamIterator($streamEvents);
     }
 
     public function loadReverse(
@@ -167,10 +168,10 @@ final class InMemoryEventStore implements TransactionalEventStore
         }
 
         if (0 === $found) {
-            return new EmptyIterator();
+            return new EmptyStreamIterator();
         }
 
-        return new ArrayIterator($streamEvents);
+        return new InMemoryStreamIterator($streamEvents);
     }
 
     public function delete(StreamName $streamName): void

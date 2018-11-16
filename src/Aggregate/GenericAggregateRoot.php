@@ -12,6 +12,8 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Aggregate;
 
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 use Prooph\EventSourcing\Aggregate\AggregateTypeProvider;
 use Prooph\EventSourcing\Aggregate\Exception\RuntimeException;
@@ -56,29 +58,40 @@ final class GenericAggregateRoot implements AggregateTypeProvider
     private $recordedEvents = [];
 
     /**
+     * @var Flavour
+     */
+    private $flavour;
+
+    /**
      * @throws RuntimeException
      */
-    protected static function reconstituteFromHistory(string $aggregateId, AggregateType $aggregateType, array $eventApplyMap, \Iterator $historyEvents): self
-    {
-        $instance = new self($aggregateId, $aggregateType, $eventApplyMap);
+    protected static function reconstituteFromHistory(
+        string $aggregateId,
+        AggregateType $aggregateType,
+        array $eventApplyMap,
+        Flavour $flavour,
+        \Iterator $historyEvents
+    ): self {
+        $instance = new self($aggregateId, $aggregateType, $eventApplyMap, $flavour);
         $instance->replay($historyEvents);
 
         return $instance;
     }
 
-    public function __construct(string  $aggregateId, AggregateType $aggregateType, array $eventApplyMap)
+    public function __construct(string  $aggregateId, AggregateType $aggregateType, array $eventApplyMap, Flavour $flavour)
     {
         $this->aggregateId = $aggregateId;
         $this->aggregateType = $aggregateType;
         $this->eventApplyMap = $eventApplyMap;
+        $this->flavour = $flavour;
     }
 
     /**
      * Record an aggregate changed event
      */
-    public function recordThat(GenericJsonSchemaEvent $event): void
+    public function recordThat(Message $event): void
     {
-        if (! array_key_exists($event->messageName(), $this->eventApplyMap)) {
+        if (! \array_key_exists($event->messageName(), $this->eventApplyMap)) {
             throw new \RuntimeException('Wrong event recording detected. Unknown event passed to GenericAggregateRoot: ' . $event->messageName());
         }
 
@@ -122,22 +135,26 @@ final class GenericAggregateRoot implements AggregateTypeProvider
      */
     protected function replay(\Iterator $historyEvents): void
     {
+        $isFirstEvent = true;
         foreach ($historyEvents as $pastEvent) {
             /** @var GenericJsonSchemaEvent $pastEvent */
             $this->version = $pastEvent->version();
+
+            $pastEvent = $this->flavour->convertMessageReceivedFromNetwork($pastEvent, $isFirstEvent);
+            $isFirstEvent = false;
 
             $this->apply($pastEvent);
         }
     }
 
-    private function apply(GenericJsonSchemaEvent $event): void
+    private function apply(Message $event): void
     {
         $apply = $this->eventApplyMap[$event->messageName()];
 
         if ($this->aggregateState === null) {
-            $newArState = $apply($event);
+            $newArState = $this->flavour->callApplyFirstEvent($apply, $event);
         } else {
-            $newArState = $apply($this->aggregateState, $event);
+            $newArState = $this->flavour->callApplySubsequentEvent($apply, $this->aggregateState, $event);
         }
 
         if (null === $newArState) {

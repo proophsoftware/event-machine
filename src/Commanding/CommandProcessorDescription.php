@@ -108,7 +108,7 @@ final class CommandProcessorDescription
 
     public function recordThat(string $eventName): EventRecorderDescription
     {
-        if (array_key_exists($eventName, $this->eventRecorderMap)) {
+        if (\array_key_exists($eventName, $this->eventRecorderMap)) {
             throw new \BadMethodCallException('Method recordThat was already called for event: ' . $eventName);
         }
 

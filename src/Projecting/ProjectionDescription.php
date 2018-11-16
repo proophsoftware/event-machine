@@ -12,7 +12,6 @@ declare(strict_types=1);
 namespace Prooph\EventMachine\Projecting;
 
 use Prooph\EventMachine\EventMachine;
-use Prooph\EventMachine\JsonSchema\Type;
 use Prooph\EventMachine\Persistence\Stream;
 
 final class ProjectionDescription
@@ -49,11 +48,6 @@ final class ProjectionDescription
     private $eventsFilter;
 
     /**
-     * @var array|null
-     */
-    private $documentSchema;
-
-    /**
      * @var EventMachine
      */
     private $eventMachine;
@@ -66,11 +60,11 @@ final class ProjectionDescription
 
     public function with(string $projectionName, string $projectorServiceId): self
     {
-        if (mb_strlen($projectionName) === 0) {
+        if (\mb_strlen($projectionName) === 0) {
             throw new \InvalidArgumentException('Projection name must not be empty');
         }
 
-        if (mb_strlen($projectorServiceId) === 0) {
+        if (\mb_strlen($projectorServiceId) === 0) {
             throw new \InvalidArgumentException('Projector service id must not be empty');
         }
 
@@ -96,7 +90,7 @@ final class ProjectionDescription
     {
         $this->assertWithProjectionIsCalled(__METHOD__);
 
-        if (mb_strlen($aggregateType) === 0) {
+        if (\mb_strlen($aggregateType) === 0) {
             throw new \InvalidArgumentException('Aggregate type filter must not be empty');
         }
 
@@ -110,8 +104,8 @@ final class ProjectionDescription
         $this->assertWithProjectionIsCalled(__METHOD__);
 
         foreach ($listOfEvents as $event) {
-            if (! is_string($event)) {
-                throw new \InvalidArgumentException('Event filter must be a list of event names. Got a ' . (is_object($event) ? get_class($event) : gettype($event)));
+            if (! \is_string($event)) {
+                throw new \InvalidArgumentException('Event filter must be a list of event names. Got a ' . (\is_object($event) ? \get_class($event) : \gettype($event)));
             }
         }
 

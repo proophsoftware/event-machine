@@ -13,6 +13,7 @@ namespace Prooph\EventMachine\Aggregate;
 
 use Iterator;
 use Prooph\Common\Messaging\Message;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventSourcing\Aggregate\AggregateTranslator as EventStoreAggregateTranslator;
 use Prooph\EventSourcing\Aggregate\AggregateType;
 
@@ -37,10 +38,16 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
 
     private $eventApplyMap;
 
-    public function __construct(string $aggregateId, array $eventApplyMap)
+    /**
+     * @var Flavour
+     */
+    private $flavour;
+
+    public function __construct(string $aggregateId, array $eventApplyMap, Flavour $flavour)
     {
         $this->aggregateId = $aggregateId;
         $this->eventApplyMap = $eventApplyMap;
+        $this->flavour = $flavour;
     }
 
     /**
@@ -80,8 +87,9 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
         if (null === $this->aggregateReconstructor) {
             $arId = $this->aggregateId;
             $eventApplyMap = $this->eventApplyMap;
-            $this->aggregateReconstructor = function ($historyEvents) use ($arId, $aggregateType, $eventApplyMap) {
-                return static::reconstituteFromHistory($arId, $aggregateType, $eventApplyMap, $historyEvents);
+            $flavour = $this->flavour;
+            $this->aggregateReconstructor = function ($historyEvents) use ($arId, $aggregateType, $eventApplyMap, $flavour) {
+                return static::reconstituteFromHistory($arId, $aggregateType, $eventApplyMap, $flavour, $historyEvents);
             };
         }
 
@@ -96,8 +104,12 @@ final class ClosureAggregateTranslator implements EventStoreAggregateTranslator
     public function extractPendingStreamEvents($anEventSourcedAggregateRoot): array
     {
         if (null === $this->pendingEventsExtractor) {
-            $this->pendingEventsExtractor = function (): array {
-                return $this->popRecordedEvents();
+            $callInterceptor = $this->flavour;
+
+            $this->pendingEventsExtractor = function () use ($callInterceptor): array {
+                return \array_map(function (Message $event) use ($callInterceptor) {
+                    return $callInterceptor->prepareNetworkTransmission($event);
+                }, $this->popRecordedEvents());
             };
         }
 

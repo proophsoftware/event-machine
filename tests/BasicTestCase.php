@@ -12,13 +12,14 @@ declare(strict_types=1);
 namespace Prooph\EventMachineTest;
 
 use PHPUnit\Framework\TestCase;
-use Prooph\Common\Messaging\MessageFactory;
 use Prooph\EventMachine\Aggregate\ClosureAggregateTranslator;
 use Prooph\EventMachine\Aggregate\GenericAggregateRoot;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\JsonSchema\JustinRainbowJsonSchemaAssertion;
+use Prooph\EventMachine\Messaging\MessageFactory;
+use Prooph\EventMachine\Runtime\PrototypingFlavour;
 use Prophecy\Argument;
 
 class BasicTestCase extends TestCase
@@ -44,7 +45,13 @@ class BasicTestCase extends TestCase
      */
     protected function extractRecordedEvents(GenericAggregateRoot $aggregateRoot): array
     {
-        $aggregateRootTranslator = new ClosureAggregateTranslator('unknown', []);
+        $interceptor = new PrototypingFlavour();
+        $interceptor->setMessageFactory($this->getMockedEventMessageFactory());
+        $aggregateRootTranslator = new ClosureAggregateTranslator(
+            'unknown',
+            [],
+            $interceptor
+        );
 
         return $aggregateRootTranslator->extractPendingStreamEvents($aggregateRoot);
     }

@@ -22,7 +22,7 @@ final class ContainerChain implements ContainerInterface
 
     public function __construct(ContainerInterface ...$chain)
     {
-        if (! count($chain)) {
+        if (! \count($chain)) {
             throw new \InvalidArgumentException('At least one container should be passed to container chain');
         }
 

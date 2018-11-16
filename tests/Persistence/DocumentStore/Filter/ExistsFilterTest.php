@@ -27,8 +27,8 @@ class ExistsFilterTest extends BasicTestCase
 
         $animals = $this->store->filterDocs($this->collection, new ExistsFilter('race'));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Hasso, Quak', implode(', ', $names));
+        $this->assertEquals('Hasso, Quak', \implode(', ', $names));
     }
 }

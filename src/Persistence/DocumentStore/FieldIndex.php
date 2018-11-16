@@ -52,7 +52,7 @@ final class FieldIndex implements Index
         int $sort,
         bool $unique
     ) {
-        if (mb_strlen($field) === 0) {
+        if (\mb_strlen($field) === 0) {
             throw new \InvalidArgumentException('Field must not be empty');
         }
 
@@ -109,6 +109,6 @@ final class FieldIndex implements Index
 
     public function __toString(): string
     {
-        return json_encode($this->toArray());
+        return \json_encode($this->toArray());
     }
 }

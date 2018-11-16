@@ -55,10 +55,10 @@ final class InArrayFilter implements Filter
 
         $prop = $reader->mixedValue($this->prop, self::NOT_SET_PROPERTY);
 
-        if (! is_array($prop)) {
+        if (! \is_array($prop)) {
             return false;
         }
 
-        return in_array($this->val, $prop);
+        return \in_array($this->val, $prop);
     }
 }

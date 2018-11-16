@@ -27,9 +27,9 @@ class EqFilterTest extends BasicTestCase
 
         $animals = $this->store->filterDocs($this->collection, new EqFilter('animal', 'duck'));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Quak', implode(', ', $names));
+        $this->assertEquals('Quak', \implode(', ', $names));
     }
 
     /**
@@ -41,8 +41,8 @@ class EqFilterTest extends BasicTestCase
 
         $animals = $this->store->filterDocs($this->collection, new EqFilter('race', null));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Quak', implode(', ', $names));
+        $this->assertEquals('Quak', \implode(', ', $names));
     }
 }

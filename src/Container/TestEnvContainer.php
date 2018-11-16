@@ -132,7 +132,7 @@ final class TestEnvContainer implements ContainerInterface
 
                 return $this->transactionManager;
             default:
-                if (! array_key_exists($id, $this->services)) {
+                if (! \array_key_exists($id, $this->services)) {
                     throw ServiceNotFound::withServiceId($id);
                 }
 
@@ -164,7 +164,7 @@ final class TestEnvContainer implements ContainerInterface
             case EventMachine::SERVICE_ID_TRANSACTION_MANAGER:
                 return true;
             default:
-                return array_key_exists($id, $this->services);
+                return \array_key_exists($id, $this->services);
         }
     }
 

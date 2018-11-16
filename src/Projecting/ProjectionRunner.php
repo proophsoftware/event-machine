@@ -14,6 +14,7 @@ namespace Prooph\EventMachine\Projecting;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\Stream;
+use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventStore\Projection\ProjectionManager;
 use Prooph\EventStore\Projection\ReadModelProjector;
 
@@ -27,17 +28,23 @@ final class ProjectionRunner
     private $projection;
 
     /**
+     * @var Flavour
+     */
+    private $flavour;
+
+    /**
      * @var bool
      */
     private $testMode;
 
     public static function eventMachineProjectionName(string $appVersion): string
     {
-        return self::EVENT_MACHINE_PROJECTION . '_' . str_replace('.', '_', $appVersion);
+        return self::EVENT_MACHINE_PROJECTION . '_' . \str_replace('.', '_', $appVersion);
     }
 
     public function __construct(
         ProjectionManager $projectionManager,
+        Flavour $flavour,
         array $projectionDescriptions,
         EventMachine $eventMachine,
         array $projectionOptions = null)
@@ -47,6 +54,8 @@ final class ProjectionRunner
                 ReadModelProjector::OPTION_PERSIST_BLOCK_SIZE => 1,
             ];
         }
+
+        $this->flavour = $flavour;
 
         $this->testMode = $eventMachine->isTestMode();
 
@@ -60,9 +69,9 @@ final class ProjectionRunner
             }
         }
 
-        $sourceStreams = array_keys($sourceStreams);
+        $sourceStreams = \array_keys($sourceStreams);
 
-        $totalSourceStreams = count($sourceStreams);
+        $totalSourceStreams = \count($sourceStreams);
 
         if ($totalSourceStreams === 0) {
             return;
@@ -71,6 +80,7 @@ final class ProjectionRunner
         $this->projection = $projectionManager->createReadModelProjection(
             self::eventMachineProjectionName($eventMachine->appVersion()),
             new ReadModelProxy(
+                $this->flavour,
                 $projectionDescriptions,
                 $eventMachine
             ),

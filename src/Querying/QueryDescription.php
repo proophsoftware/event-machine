@@ -56,9 +56,9 @@ final class QueryDescription
 
     public function resolveWith($resolver): self
     {
-        if (! is_string($resolver) && ! is_callable($resolver)) {
+        if (! \is_string($resolver) && ! \is_callable($resolver)) {
             throw new \InvalidArgumentException('Resolver should be either a service id string or a callable function. Got '
-                . (is_object($resolver) ? get_class($resolver) : gettype($resolver)));
+                . (\is_object($resolver) ? \get_class($resolver) : \gettype($resolver)));
         }
 
         $this->resolver = $resolver;

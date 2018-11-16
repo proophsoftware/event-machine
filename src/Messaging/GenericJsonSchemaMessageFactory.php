@@ -13,12 +13,13 @@ namespace Prooph\EventMachine\Messaging;
 
 use Fig\Http\Message\StatusCodeInterface;
 use Prooph\Common\Messaging\DomainMessage;
-use Prooph\Common\Messaging\Message;
-use Prooph\Common\Messaging\MessageFactory;
+use Prooph\Common\Messaging\Message as ProophMessage;
 use Prooph\EventMachine\Commanding\GenericJsonSchemaCommand;
 use Prooph\EventMachine\Eventing\GenericJsonSchemaEvent;
+use Prooph\EventMachine\Exception\RuntimeException;
 use Prooph\EventMachine\JsonSchema\JsonSchemaAssertion;
 use Prooph\EventMachine\Querying\GenericJsonSchemaQuery;
+use Prooph\EventMachine\Runtime\Flavour;
 use Ramsey\Uuid\Uuid;
 
 final class GenericJsonSchemaMessageFactory implements MessageFactory
@@ -62,6 +63,11 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
      */
     private $definitions = [];
 
+    /**
+     * @var Flavour
+     */
+    private $flavour;
+
     public function __construct(array $commandMap, array $eventMap, array $queryMap, array $definitions, JsonSchemaAssertion $jsonSchemaAssertion)
     {
         $this->jsonSchemaAssertion = $jsonSchemaAssertion;
@@ -75,44 +81,15 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
     /**
      * {@inheritdoc}
      */
-    public function createMessageFromArray(string $messageName, array $messageData): Message
+    public function createMessageFromArray(string $messageName, array $messageData): ProophMessage
     {
-        $messageType = null;
-        $payloadSchema = null;
-
         GenericJsonSchemaMessage::assertMessageName($messageName);
 
-        if (array_key_exists($messageName, $this->commandMap)) {
-            $messageType = DomainMessage::TYPE_COMMAND;
-            $payloadSchema = $this->commandMap[$messageName];
-        }
-
-        if ($messageType === null && array_key_exists($messageName, $this->eventMap)) {
-            $messageType = DomainMessage::TYPE_EVENT;
-            $payloadSchema = $this->eventMap[$messageName];
-        }
-
-        if ($messageType === null && array_key_exists($messageName, $this->queryMap)) {
-            $messageType = DomainMessage::TYPE_QUERY;
-            $payloadSchema = $this->queryMap[$messageName];
-        }
-
-        if (null === $messageType) {
-            throw new \RuntimeException(
-                "Unknown message received. Got message with name: $messageName",
-                StatusCodeInterface::STATUS_NOT_FOUND
-            );
-        }
+        [$messageType, $payloadSchema] = $this->getPayloadSchemaAndMessageType($messageName);
 
         if (! isset($messageData['payload'])) {
             $messageData['payload'] = [];
         }
-
-        if (null === $payloadSchema && $messageType === DomainMessage::TYPE_QUERY) {
-            $payloadSchema = [];
-        }
-
-        $payloadSchema['definitions'] = $this->definitions;
 
         $this->jsonSchemaAssertion->assert($messageName, $messageData['payload'], $payloadSchema);
 
@@ -132,11 +109,68 @@ final class GenericJsonSchemaMessageFactory implements MessageFactory
 
         switch ($messageType) {
             case DomainMessage::TYPE_COMMAND:
-                return GenericJsonSchemaCommand::fromArray($messageData);
+                $message = GenericJsonSchemaCommand::fromArray($messageData);
+                break;
             case DomainMessage::TYPE_EVENT:
-                return GenericJsonSchemaEvent::fromArray($messageData);
+                $message = GenericJsonSchemaEvent::fromArray($messageData);
+                break;
             case DomainMessage::TYPE_QUERY:
-                return GenericJsonSchemaQuery::fromArray($messageData);
+                $message = GenericJsonSchemaQuery::fromArray($messageData);
+                break;
         }
+
+        if ($this->flavour) {
+            return $this->flavour->convertMessageReceivedFromNetwork($message);
+        }
+
+        return $message;
+    }
+
+    public function setFlavour(Flavour $flavour): void
+    {
+        $this->flavour = $flavour;
+    }
+
+    public function setPayloadFor(Message $message, array $payload): Message
+    {
+        [, $payloadSchema] = $this->getPayloadSchemaAndMessageType($message->messageName());
+
+        return $message->withPayload($payload, $this->jsonSchemaAssertion, $payloadSchema);
+    }
+
+    private function getPayloadSchemaAndMessageType(string $messageName): array
+    {
+        $payloadSchema = null;
+        $messageType = null;
+
+        if (\array_key_exists($messageName, $this->commandMap)) {
+            $messageType = DomainMessage::TYPE_COMMAND;
+            $payloadSchema = $this->commandMap[$messageName];
+        }
+
+        if ($messageType === null && \array_key_exists($messageName, $this->eventMap)) {
+            $messageType = DomainMessage::TYPE_EVENT;
+            $payloadSchema = $this->eventMap[$messageName];
+        }
+
+        if ($messageType === null && \array_key_exists($messageName, $this->queryMap)) {
+            $messageType = DomainMessage::TYPE_QUERY;
+            $payloadSchema = $this->queryMap[$messageName];
+        }
+
+        if (null === $messageType) {
+            throw new RuntimeException(
+                "Unknown message received. Got message with name: $messageName",
+                StatusCodeInterface::STATUS_NOT_FOUND
+            );
+        }
+
+        if (null === $payloadSchema && $messageType === DomainMessage::TYPE_QUERY) {
+            $payloadSchema = [];
+        }
+
+        $payloadSchema['definitions'] = $this->definitions;
+
+        return [$messageType, $payloadSchema];
     }
 }

@@ -43,9 +43,9 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
 
         $dogs = $this->store->filterDocs(self::COLLECTION, new EqFilter('animal', 'dog'));
 
-        $dogNames = iterator_to_array($this->extractFieldIntoList('name', $dogs));
+        $dogNames = \iterator_to_array($this->extractFieldIntoList('name', $dogs));
 
-        $this->assertEquals('Jack, Hasso', implode(', ', $dogNames));
+        $this->assertEquals('Jack, Hasso', \implode(', ', $dogNames));
     }
 
     /**
@@ -57,9 +57,9 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
 
         $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), null, null, Asc::fromString('name'));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Gini, Hasso, Jack, Quak, Tiger', implode(', ', $names));
+        $this->assertEquals('Gini, Hasso, Jack, Quak, Tiger', \implode(', ', $names));
     }
 
     /**
@@ -71,9 +71,9 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
 
         $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), null, null, Desc::fromString('name'));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Tiger, Quak, Jack, Hasso, Gini', implode(', ', $names));
+        $this->assertEquals('Tiger, Quak, Jack, Hasso, Gini', \implode(', ', $names));
     }
 
     /**
@@ -91,9 +91,9 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
             AndOrder::by(Asc::byProp('animal'), Desc::byProp('age'))
         );
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Gini, Tiger, Hasso, Jack, Quak', implode(', ', $names));
+        $this->assertEquals('Gini, Tiger, Hasso, Jack, Quak', \implode(', ', $names));
     }
 
     /**
@@ -105,9 +105,9 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
 
         $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), 2, null, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Jack, Hasso, Quak', implode(', ', $names));
+        $this->assertEquals('Jack, Hasso, Quak', \implode(', ', $names));
     }
 
     /**
@@ -119,9 +119,9 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
 
         $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), null, 3, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Tiger, Gini, Jack', implode(', ', $names));
+        $this->assertEquals('Tiger, Gini, Jack', \implode(', ', $names));
     }
 
     /**
@@ -133,15 +133,15 @@ final class InMemoryDocumentStoreTest extends BasicTestCase
 
         $animals = $this->store->filterDocs(self::COLLECTION, new AnyFilter(), 2, 2, AndOrder::by(Asc::byProp('animal'), Asc::byProp('age')));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Jack, Hasso', implode(', ', $names));
+        $this->assertEquals('Jack, Hasso', \implode(', ', $names));
     }
 
     private function extractFieldIntoList(string $field, \Traversable $docs): \Generator
     {
         foreach ($docs as $doc) {
-            if (array_key_exists($field, $doc)) {
+            if (\array_key_exists($field, $doc)) {
                 yield $doc[$field];
                 continue;
             }

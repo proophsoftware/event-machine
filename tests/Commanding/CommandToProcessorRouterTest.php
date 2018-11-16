@@ -17,6 +17,8 @@ use Prooph\EventMachine\Aggregate\ContextProvider;
 use Prooph\EventMachine\Commanding\CommandProcessor;
 use Prooph\EventMachine\Commanding\CommandToProcessorRouter;
 use Prooph\EventMachine\Container\ContextProviderFactory;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\PrototypingFlavour;
 use Prooph\EventMachineTest\BasicTestCase;
 use Prooph\EventStore\EventStore;
 use Prooph\ServiceBus\MessageBus;
@@ -25,6 +27,18 @@ use Prophecy\Argument;
 
 final class CommandToProcessorRouterTest extends BasicTestCase
 {
+    /**
+     * @var Flavour
+     */
+    private $flavour;
+
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->flavour = new PrototypingFlavour();
+        $this->flavour->setMessageFactory($this->getMockedEventMessageFactory());
+    }
+
     /**
      * @test
      */
@@ -66,6 +80,7 @@ final class CommandToProcessorRouterTest extends BasicTestCase
             $messageFactory->reveal(),
             $eventStore->reveal(),
             $contextProviderFactory->reveal(),
+            $this->flavour,
             $snapshotStore->reveal()
         );
 

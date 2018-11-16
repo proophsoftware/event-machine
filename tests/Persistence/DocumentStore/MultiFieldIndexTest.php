@@ -28,7 +28,7 @@ final class MultiFieldIndexTest extends BasicTestCase
                 '{"field":"testField1","sort":1,"unique":false}',
                 '{"field":"testField2","sort":1,"unique":false}',
             ],
-            array_map(
+            \array_map(
                 function ($index) {
                     return (string) $index;
                 },

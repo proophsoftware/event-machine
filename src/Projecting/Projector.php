@@ -18,7 +18,7 @@ use Prooph\EventMachine\Messaging\Message;
  *
  * A projector should always include the app version in table/collection names.
  *
- * A blue/green deployment strategy is used.
+ * A blue/green deployment strategy can be used:
  * This means that the read model for the new app version is built during deployment.
  * The old read model remains active. In case of a rollback it is still available and can be accessed.
  *

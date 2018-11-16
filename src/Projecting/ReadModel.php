@@ -14,6 +14,7 @@ namespace Prooph\EventMachine\Projecting;
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\Messaging\Message;
 use Prooph\EventMachine\Persistence\Stream;
+use Prooph\EventMachine\Runtime\Flavour;
 
 final class ReadModel
 {
@@ -28,26 +29,32 @@ final class ReadModel
     private $sourceStream;
 
     /**
-     * @var Projector
+     * @var Projector|CustomEventProjector
      */
     private $projector;
+
+    /**
+     * @var Flavour
+     */
+    private $flavour;
 
     /**
      * @var string
      */
     private $appVersion;
 
-    public static function fromProjectionDescription(array $desc, EventMachine $eventMachine): ReadModel
+    public static function fromProjectionDescription(array $desc, Flavour $flavour, EventMachine $eventMachine): ReadModel
     {
         $projector = $eventMachine->loadProjector($desc[ProjectionDescription::PROJECTOR_SERVICE_ID]);
 
-        return new self($desc, $projector, $eventMachine->appVersion());
+        return new self($desc, $projector, $flavour, $eventMachine->appVersion());
     }
 
-    private function __construct(array $desc, Projector $projector, string $appVersion)
+    private function __construct(array $desc, $projector, Flavour $flavour, string $appVersion)
     {
         $this->desc = $desc;
         $this->sourceStream = Stream::fromArray($this->desc[ProjectionDescription::SOURCE_STREAM]);
+        $this->flavour = $flavour;
         $this->projector = $projector;
         $this->appVersion = $appVersion;
     }
@@ -71,7 +78,7 @@ final class ReadModel
         }
 
         if ($this->desc[ProjectionDescription::EVENTS_FILTER]) {
-            if (! in_array($event->messageName(), $this->desc[ProjectionDescription::EVENTS_FILTER])) {
+            if (! \in_array($event->messageName(), $this->desc[ProjectionDescription::EVENTS_FILTER])) {
                 return false;
             }
         }
@@ -86,7 +93,7 @@ final class ReadModel
 
     public function handle(Message $event): void
     {
-        $this->projector->handle($this->appVersion, $this->desc[ProjectionDescription::PROJECTION_NAME], $event);
+        $this->flavour->callProjector($this->projector, $this->appVersion, $this->desc[ProjectionDescription::PROJECTION_NAME], $event);
     }
 
     public function delete(): void

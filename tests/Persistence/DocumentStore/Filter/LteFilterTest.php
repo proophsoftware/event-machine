@@ -27,8 +27,8 @@ class LteFilterTest extends BasicTestCase
 
         $animals = $this->store->filterDocs($this->collection, new LteFilter('age', 5));
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Gini, Tiger, Quak', implode(', ', $names));
+        $this->assertEquals('Gini, Tiger, Quak', \implode(', ', $names));
     }
 }

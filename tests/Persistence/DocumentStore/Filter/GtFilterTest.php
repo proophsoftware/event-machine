@@ -30,8 +30,8 @@ class GtFilterTest extends BasicTestCase
             new GtFilter('age', 5)
         );
 
-        $names = iterator_to_array($this->extractFieldIntoList('name', $animals));
+        $names = \iterator_to_array($this->extractFieldIntoList('name', $animals));
 
-        $this->assertEquals('Jack, Hasso', implode(', ', $names));
+        $this->assertEquals('Jack, Hasso', \implode(', ', $names));
     }
 }

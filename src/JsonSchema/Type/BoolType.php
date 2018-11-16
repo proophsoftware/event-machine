@@ -26,6 +26,6 @@ final class BoolType implements AnnotatedType
 
     public function toArray(): array
     {
-        return array_merge(['type' => $this->type], $this->annotations());
+        return \array_merge(['type' => $this->type], $this->annotations());
     }
 }

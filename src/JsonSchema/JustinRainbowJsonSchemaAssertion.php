@@ -23,8 +23,8 @@ final class JustinRainbowJsonSchemaAssertion implements JsonSchemaAssertion
             $data = new \stdClass();
         }
 
-        $enforcedObjectData = json_decode(json_encode($data));
-        $jsonSchema = json_decode(json_encode($jsonSchema));
+        $enforcedObjectData = \json_decode(\json_encode($data));
+        $jsonSchema = \json_decode(\json_encode($jsonSchema));
 
         $this->jsonValidator()->validate($enforcedObjectData, $jsonSchema);
 
@@ -34,11 +34,11 @@ final class JustinRainbowJsonSchemaAssertion implements JsonSchemaAssertion
             $this->jsonValidator()->reset();
 
             foreach ($errors as $i => $error) {
-                $errors[$i] = sprintf("[%s] %s\n", $error['property'], $error['message']);
+                $errors[$i] = \sprintf("[%s] %s\n", $error['property'], $error['message']);
             }
 
             throw new \InvalidArgumentException(
-                "Validation of $objectName failed: " . implode("\n", $errors),
+                "Validation of $objectName failed: " . \implode("\n", $errors),
                 400
             );
         }
