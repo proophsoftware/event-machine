@@ -214,8 +214,6 @@ abstract class EventMachineTestAbstract extends BasicTestCase
     ): void {
         $aggregateProjector = new AggregateProjector($documentStore, $this->eventMachine);
 
-        $aggregateProjector->setFlavour($this->getFlavour());
-
         $eventStore->create(new \Prooph\EventStore\Stream($streamName, new \ArrayIterator([])));
 
         $this->appContainer->has(EventMachine::SERVICE_ID_PROJECTION_MANAGER)->willReturn(true);

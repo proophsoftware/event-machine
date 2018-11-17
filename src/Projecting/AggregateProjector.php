@@ -20,7 +20,7 @@ use Prooph\EventMachine\Persistence\DocumentStore;
 use Prooph\EventMachine\Runtime\Flavour;
 use Prooph\EventMachine\Runtime\PrototypingFlavour;
 
-final class AggregateProjector implements Projector
+final class AggregateProjector implements Projector, FlavourAware
 {
     /**
      * @var DocumentStore
@@ -64,19 +64,8 @@ final class AggregateProjector implements Projector
         $this->indices = $indices;
     }
 
-    /**
-     * @TODO Turn Flavour into constructor argument for Event Machine 2.0
-     *
-     * It's not a constructor argument due to BC
-     *
-     * @param Flavour $flavour
-     */
     public function setFlavour(Flavour $flavour): void
     {
-        if (null !== $this->flavour) {
-            throw new RuntimeException('Cannot set another Flavour for ' . __CLASS__ . '. A flavour was already set bevor.');
-        }
-
         $this->flavour = $flavour;
     }
 

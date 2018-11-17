@@ -43,6 +43,7 @@ use Prooph\EventMachine\Persistence\AggregateStateStore;
 use Prooph\EventMachine\Persistence\Stream;
 use Prooph\EventMachine\Persistence\TransactionManager as BusTransactionManager;
 use Prooph\EventMachine\Projecting\CustomEventProjector;
+use Prooph\EventMachine\Projecting\FlavourAware;
 use Prooph\EventMachine\Projecting\ProjectionDescription;
 use Prooph\EventMachine\Projecting\ProjectionRunner;
 use Prooph\EventMachine\Projecting\Projector;
@@ -661,6 +662,10 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
                     CustomEventProjector::class
                 )
             );
+        }
+
+        if ($projector instanceof FlavourAware) {
+            $projector->setFlavour($this->flavour());
         }
 
         return $projector;
