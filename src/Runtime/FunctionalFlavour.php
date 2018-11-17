@@ -93,7 +93,7 @@ final class FunctionalFlavour implements Flavour, MessageFactoryAware
             throw new RuntimeException('Message passed to ' . __METHOD__ . ' should be of type ' . MessageBag::class);
         }
 
-        return $this->port->getAggregateIdFromCustomCommand($aggregateIdPayloadKey, $command->get(MessageBag::MESSAGE));
+        return $this->port->getAggregateIdFromCommand($aggregateIdPayloadKey, $command->get(MessageBag::MESSAGE));
     }
 
     /**

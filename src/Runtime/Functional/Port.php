@@ -36,10 +36,10 @@ interface Port
 
     /**
      * @param string $aggregateIdPayloadKey
-     * @param mixed $customCommand
+     * @param mixed $command
      * @return string
      */
-    public function getAggregateIdFromCustomCommand(string $aggregateIdPayloadKey, $customCommand): string;
+    public function getAggregateIdFromCommand(string $aggregateIdPayloadKey, $command): string;
 
     /**
      * @param mixed $customCommand
