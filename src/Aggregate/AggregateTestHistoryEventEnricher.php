@@ -11,11 +11,12 @@ declare(strict_types=1);
 
 namespace Prooph\EventMachine\Aggregate;
 
-use Prooph\Common\Messaging\Message;
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Runtime\Flavour;
 
 final class AggregateTestHistoryEventEnricher
 {
-    public static function enrichHistory(array $history, array $aggregateDefinitions): array
+    public static function enrichHistory(array $history, array $aggregateDefinitions, Flavour $flavour): array
     {
         $enrichedHistory = [];
 
@@ -29,7 +30,9 @@ final class AggregateTestHistoryEventEnricher
                 throw new \InvalidArgumentException('Unable to find aggregate description for event with name: ' . $event->messageName());
             }
 
-            $arId = $event->payload()[$aggregateDefinition['aggregateIdentifier']] ?? null;
+            $serializedEvent = $flavour->prepareNetworkTransmission($event);
+
+            $arId = $serializedEvent->getOrDefault($aggregateDefinition['aggregateIdentifier'], null);
 
             if (! $arId) {
                 throw new \InvalidArgumentException(\sprintf(

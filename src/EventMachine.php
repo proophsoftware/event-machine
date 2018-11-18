@@ -816,7 +816,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
         /** @var ActionEventEmitterEventStore $es */
         $es = $this->container->get(self::SERVICE_ID_EVENT_STORE);
 
-        $history = AggregateTestHistoryEventEnricher::enrichHistory($history, $this->aggregateDescriptions);
+        $history = AggregateTestHistoryEventEnricher::enrichHistory($history, $this->aggregateDescriptions, $this->flavour());
 
         $es->appendTo(new StreamName($this->writeModelStreamName), new \ArrayIterator($history));
 
