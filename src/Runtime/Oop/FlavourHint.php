@@ -13,7 +13,7 @@ namespace Prooph\EventMachine\Runtime\Oop;
 
 use Prooph\EventMachine\Runtime\OopFlavour;
 
-final class InterceptorHint
+final class FlavourHint
 {
     public static function useAggregate()
     {

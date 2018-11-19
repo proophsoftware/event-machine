@@ -13,7 +13,7 @@ namespace ProophExample\OopFlavour\Aggregate;
 
 use Prooph\EventMachine\EventMachine;
 use Prooph\EventMachine\EventMachineDescription;
-use Prooph\EventMachine\Runtime\Oop\InterceptorHint;
+use Prooph\EventMachine\Runtime\Oop\FlavourHint;
 use ProophExample\FunctionalFlavour\Api\Command;
 use ProophExample\FunctionalFlavour\Api\Event;
 
@@ -46,16 +46,16 @@ final class UserDescription implements EventMachineDescription
             // because OOPAggregateCallInterceptor does not use this callable
             // see OOPAggregateCallInterceptor::callApplyFirstEvent()
             // and OOPAggregateCallInterceptor::callApplySubsequentEvent()
-            ->apply([InterceptorHint::class, 'useAggregate']);
+            ->apply([FlavourHint::class, 'useAggregate']);
     }
 
     private static function describeChangeUsername(EventMachine $eventMachine): void
     {
         $eventMachine->process(Command::CHANGE_USERNAME)
             ->withExisting(User::TYPE)
-            ->handle([InterceptorHint::class, 'useAggregate'])
+            ->handle([FlavourHint::class, 'useAggregate'])
             ->recordThat(Event::USERNAME_WAS_CHANGED)
-            ->apply([InterceptorHint::class, 'useAggregate']);
+            ->apply([FlavourHint::class, 'useAggregate']);
     }
 
     private function __construct()
