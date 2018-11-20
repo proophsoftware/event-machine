@@ -583,6 +583,14 @@
     <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
 
     </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
+
+    </li>
             </ul>
 
     </li>
@@ -810,6 +818,7 @@ use App\Api\Payload;
 use App\Infrastructure\Projector\UserBuildingList;
 use AppTest\BaseTestCase;
 use Prooph\EventMachine\Persistence\DocumentStore;
+use Prooph\EventMachine\Persistence\InMemoryConnection;
 use Prooph\EventMachine\Projecting\AggregateProjector;
 
 final class UserBuildingListTest extends BaseTestCase
@@ -834,7 +843,7 @@ final class UserBuildingListTest extends BaseTestCase
     {
         parent::setUp();
 
-        $this-&gt;documentStore = new DocumentStore\InMemoryDocumentStore();
+        $this-&gt;documentStore = new DocumentStore\InMemoryDocumentStore(new InMemoryConnection());
         $this-&gt;projector = new UserBuildingList($this-&gt;documentStore);
         $this-&gt;projector-&gt;prepareForRun(self::APP_VERSION, self::PROJECTION_NAME);
     }
@@ -998,7 +1007,7 @@ final class NotifySecurityTest extends BaseTestCase
                 <div class="prev col-xs-6">
                                             <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusI.html">Previous</a>                                    </div>
                 <div class="next col-xs-6">
-                                            <a href="https://proophsoftware.github.io/event-machine/api/">Next</a>                                    </div>
+                                            <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Next</a>                                    </div>
             </div>
         </div>
     </div>

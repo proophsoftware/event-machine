@@ -583,6 +583,14 @@
     <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
 
     </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
+
+    </li>
             </ul>
 
     </li>
@@ -725,6 +733,8 @@ We could also use plain PHP functions instead but unfortunately PHP does not pro
 we stick to static methods and group all methods of an aggregate in a class.</p>
 <p><code>Building::add()</code> receives <code>AddBuilding</code> messages (of type command) and should perform the business logic needed to
 add a new building to our application. But instead of adding a new building directly we're ask to yield a domain event.</p>
+<p class="alert alert-info">A neat feature called <strong>Flavours</strong> allows you to choose between different programming styles. Throughout the tutorial
+we use the <strong>PrototypingFlavour</strong>. Two bonus parts at the end of the tutorial introduce the <strong>FunctionalFlavour</strong> and <strong>OopFlavour</strong>.</p>
 <h2 id="2-3-1">Domain Events</h2>
 <p>Domain events are the second message type used by Event Machine. The domain model is event sourced, meaning it records
 all state changes in a series of domain events. These domain events are yielded by aggregate methods and stored in an event store

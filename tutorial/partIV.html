@@ -583,6 +583,14 @@
     <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
 
     </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
+
+    </li>
             </ul>
 
     </li>
@@ -896,6 +904,8 @@ prooph's query bus can be used in an async, non-blocking I/O runtime as well as 
 so the finder must resolve the deferred object instead of returning a result.
 We work with the <code>Promise</code> and <code>Deferred</code> objects provided by the <code>ReactPHP</code> library (unfortunately, we have no
 PSR for promises yet). Event Machine takes care of resolving promises returned by prooph's query bus.</p>
+<p class="alert alert-info">Finders or resolvers are async by default, due to prooph's QueryBus used under the hood. However, a finder can implement the marker interface
+<code>Prooph\EventMachine\Querying\SyncResolver</code> to change method signature and return a result instead of resolving a deferred object. Check the docs for details.</p>
 <p>The finder needs to query the read model. While looking at projections we briefly discussed
 Event Machine's <code>DocumentStore</code> API. The finder can use it to access documents organized in collections. Let's see
 how that works.</p>

@@ -1,0 +1,1996 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="HandheldFriendly" content="True"/>
+<title>Bonus IV - OOP Flavour</title>
+<link rel="shortcut icon" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/prooph-logo@0.5x.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-144-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-57-precomposed.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@prooph_software">
+<meta name="twitter:title" content="Event Machine">
+<meta name="twitter:description" content="Event Sourced RAD - based on prooph components">
+<meta name="twitter:image" content="https://proophsoftware.github.io/event-machine/api/event_machine/img/Aggregate_Lifecycle.png">
+    <link rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/lumen/bootstrap.min.css">
+<link rel="stylesheet"
+      href="https://tobiju.github.io/share/prismjs/prism-ghcolors.css"/>
+<link rel="stylesheet"
+      href="https://tobiju.github.io/share/prismjs/prism-linenumbers.css"/>
+<style>
+    body, html {
+        height: 100%;
+        padding-top: 36px;
+        position: relative;
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+    code span {
+        white-space: nowrap;
+    }
+    code span.comment {
+        white-space: pre;
+    }
+
+    .highlight {
+        background: #FFFF88;
+    }
+
+    .page-wrapper {
+        min-height: 100%;
+        padding-bottom: 170px;
+        position: relative;
+    }
+
+    .box-header {
+        position: relative;
+    }
+
+    /* Header Section */
+    header {
+        background: white;
+        color: black;
+        font-size: 16px;
+        font-weight: 300;
+    }
+
+    h1:first-child {
+        margin-top: 0;
+    }
+
+    /* anchor link will be displayed after the static top nav */
+    h1:before,
+    h2:before,
+    h3:before,
+    h4:before,
+    h5:before,
+    h6:before {
+        display: block;
+        content: " ";
+        margin-top: -64px;
+        height: 64px;
+        visibility: hidden;
+    }
+
+    .navbar-brand {
+        padding: 0;
+    }
+
+    .navbar-brand img {
+        max-height: 100%;
+    }
+
+    /* Content Section */
+    #content {
+        margin-bottom: 17px;
+        font-size: 17px;
+        min-height: 200px;
+    }
+
+    .breadcrumb {
+        position: relative;
+        z-index: 999;
+    }
+
+    .links {
+        background: #f8f8f8;
+        border-top: 1px solid #e5e5e5;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 16px 0;
+    }
+
+    .links .prev {
+        text-align: left;
+    }
+
+    .links .parent {
+        text-align: center;
+    }
+
+    .links .next {
+        text-align: right;
+    }
+
+    /* Search */
+    .form-search {
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 999;
+    }
+
+    @media (max-width: 767px) {
+        .form-search {
+            position: relative;
+            margin-top: 0;
+        }
+    }
+
+    .form-search .form-control {
+        border: 0;
+        width: 80px;
+    }
+
+    @media (max-width: 767px) {
+        .form-search .form-control {
+            width: 100% !important;
+        }
+    }
+
+    .form-search .list-search-results {
+        position: relative;
+    }
+
+    .form-search .list-search-results ul {
+        background: #eee;
+        border: 1px solid inherit;
+        list-style: none;
+        max-height: 300px;
+        overflow: auto;
+        padding: 0;
+        position: absolute;
+        width: 100%;
+        z-index: 999;
+    }
+
+    .form-search .list-search-results ul li:nth-child(even) {
+        background: rgba(255, 255, 255, 0.3)
+    }
+
+    .form-search .list-search-results ul li.selected {
+        background: #ccc;
+    }
+
+    .form-search .list-search-results ul li a {
+        display: block;
+        padding: 4px 8px;
+    }
+
+    /* TOC */
+    .list-toc {
+        padding: 0;
+    }
+
+    .list-toc .list-group-item {
+        background: 0 none;
+        position: relative;
+        font-weight: bold;
+        padding: 0;
+        margin: 0;
+    }
+
+    .list-toc li .text-number {
+        padding-left: 20px;
+    }
+    .list-toc li li .text-number {
+        padding-left: 40px;
+    }
+    .list-toc li li li .text-number {
+        padding-left: 60px;
+    }
+    .list-toc li li li li .text-number {
+        padding-left: 80px;
+    }
+    .list-toc li li li li li .text-number {
+        padding-left: 100px;
+    }
+    .list-toc .text-number {
+        padding-left: 100px;
+    }
+
+    .list-toc .list-group-item .row {
+        padding: 7px 0 7px;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-weight: normal;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle:before {
+        content: "";
+        display: block;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle.collapsed:before {
+        content: "";
+        display: block;
+    }
+
+    .list-toc > li:nth-child(2n+1) {
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    .bbt-theme-cyborg .list-toc > li:nth-child(2n+1),
+    .bbt-theme-darkly .list-toc > li:nth-child(2n+1),
+    .bbt-theme-slate .list-toc > li:nth-child(2n+1),
+    .bbt-theme-superhero .list-toc > li:nth-child(2n+1) {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .list-toc .list-group-item {
+        border-bottom: 0 none;
+        border-left: 0 none;
+        border-right: 0 none;
+        font-size: inherit;
+    }
+
+    .list-toc .list-group-item:first-child {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+
+    .list-toc .list-group-item:last-child {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    /* Left navigation */
+    .nav-left ul li a {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        border-left: 1px solid transparent;
+    }
+
+    .nav-left ul li.active a,
+    .nav-left ul li a:hover {
+        background: none !important;
+        color: inherit;
+        border-color: inherit;
+    }
+
+    .navbar-top {
+        position: relative;
+    }
+
+    .affix {
+        top: 60px;
+    }
+
+    .badge {
+        border-radius: 4px;
+        padding: 5px;
+    }
+
+    /* Footer Section */
+    footer {
+        color: black;
+        background: white;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+    }
+
+    footer #copyright {
+        padding: 30px;
+        text-align: center;
+        color: #444;
+    }
+
+    footer #copyright p {
+        margin: 0;
+    }
+
+    footer #copyright span a {
+        color: white;
+    }
+
+    /* Top Navigation */
+    @media (max-width: 767px) {
+        ul.navbar-nav {
+            margin: 0 -15px
+        }
+
+        ul.navbar-nav li {
+            border-radius: 0;
+        }
+
+        ul.navbar-nav li ul {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            display: block;
+            float: none;
+            left: auto;
+            padding: 0;
+            position: static;
+        }
+
+        ul.navbar-nav li ul li a {
+            padding: 8px 30px;
+        }
+
+        ul.navbar-nav li ul li ul li a {
+            padding: 6px 40px;
+        }
+    }
+
+    @media (min-width: 768px) {
+
+        ul.navbar-nav li {
+            display: block;
+            position: relative;
+            float: left;
+        }
+
+        ul.navbar-nav li ul {
+            display: none;
+        }
+
+        ul.navbar-nav li a {
+            display: block;
+        }
+
+        ul.navbar-nav li:hover > ul {
+            display: block;
+            position: absolute;
+        }
+
+        ul.navbar-nav li:hover li {
+            float: none;
+        }
+
+        ul.navbar-nav ul ul {
+            left: 100%;
+            top: 0;
+        }
+    }
+</style>
+    <style>
+    body {
+        font-size: 16px;
+    }
+    /* Header Section */
+    header {
+        font-size: 17px;
+        font-weight: 400;
+    }
+
+    .dropdown-menu {
+        font-size: 17px;
+    }
+
+    .alert-light {
+        color: #818182;
+        background-color: #fefefe;
+    }
+
+    .alert-dark {
+        color: #1b1e21;
+        background-color: #d6d8d9;
+        border-color: #c6c8ca;
+    }
+
+    .prooph-logo {
+        float: left;
+        margin-left: 8px;
+        margin-right: 8px;
+        transition-timing-function: ease-in-out;
+        transition: all 5s;
+        height: 50px;
+        padding: 5px;
+    }
+
+    #forkongithub a {
+        background: #000;
+        color: #fff;
+        text-decoration: none;
+        font-family: arial, sans-serif;
+        text-align: center;
+        font-weight: bold;
+        padding: 5px 40px;
+        font-size: 1rem;
+        line-height: 2rem;
+        position: relative;
+        transition: 0.5s;
+    }
+
+    #forkongithub a:hover {
+        background: #c11;
+        color: #fff;
+    }
+
+    #forkongithub a::before, #forkongithub a::after {
+        content: "";
+        width: 100%;
+        display: block;
+        position: absolute;
+        top: 1px;
+        left: 0;
+        height: 1px;
+        background: #fff;
+    }
+
+    #forkongithub a::after {
+        bottom: 1px;
+        top: auto;
+    }
+
+    @media screen and (min-width: 800px) {
+        #forkongithub {
+            position: fixed;
+            display: block;
+            top: 0;
+            right: 0;
+            width: 200px;
+            overflow: hidden;
+            height: 200px;
+            z-index: 1000;
+        }
+
+        #forkongithub a {
+            width: 200px;
+            position: absolute;
+            top: 80px;
+            right: -60px;
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
+        }
+    }
+</style>
+</head>
+<body data-spy="scroll" data-target="#sideNav" data-offset="50" class="bbt-theme-lumen">
+<div class="page-wrapper">
+    <header>
+    
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="box-header container">
+        <form class="form-search navbar-form navbar-right" role="search">
+            <div class="form-group">
+                <input type="text"
+                       placeholder="Search"
+                       class="js-search-input form-control"
+                       data-roothref="https://proophsoftware.github.io/event-machine/">
+
+                <div class="js-search-results"></div>
+            </div>
+        </form>
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#js-navbar-collapse" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://getprooph.org">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="prooph-logo">
+                    <defs>
+                        <style>
+                            .cls-1{fill:#04a1b0;}.cls-2{fill:#26896c;}.cls-3{fill:#eeca50;}.cls-4{fill:#eb6842;}.cls-5{fill:#cc3340;}.cls-6{fill:#715671;}
+                        </style>
+                    </defs>
+                    <title>prooph-logo</title>
+                    <g id="artwork">
+                        <g id="Layer_5" data-name="Layer 5">
+                            <path class="cls-1"
+                                  d="M57.22,17,67.84,35.43a1.77,1.77,0,0,0,1.53.89h61.25a1.77,1.77,0,0,0,1.53-.89L142.78,17a1.77,1.77,0,0,0-1.53-2.66H58.76A1.77,1.77,0,0,0,57.22,17Z"/>
+                            <path class="cls-2"
+                                  d="M29.54,94.68l30.63-53a1.77,1.77,0,0,0,0-1.77L49.55,21.48a1.77,1.77,0,0,0-3.07,0L5.24,92.91a1.77,1.77,0,0,0,1.53,2.66H28A1.77,1.77,0,0,0,29.54,94.68Z"/>
+                            <path class="cls-3"
+                                  d="M60.16,158.36l-30.63-53a1.77,1.77,0,0,0-1.53-.89H6.78a1.77,1.77,0,0,0-1.53,2.66l41.24,71.43a1.77,1.77,0,0,0,3.07,0l10.61-18.38A1.77,1.77,0,0,0,60.16,158.36Z"/>
+                            <path class="cls-4"
+                                  d="M130.63,163.68H69.37a1.77,1.77,0,0,0-1.53.89L57.22,183a1.77,1.77,0,0,0,1.53,2.66h82.48a1.77,1.77,0,0,0,1.53-2.66l-10.61-18.38A1.77,1.77,0,0,0,130.63,163.68Z"/>
+                            <path class="cls-5"
+                                  d="M170.46,105.32l-30.63,53a1.77,1.77,0,0,0,0,1.77l10.61,18.38a1.77,1.77,0,0,0,3.07,0l41.24-71.43a1.77,1.77,0,0,0-1.53-2.66H172A1.77,1.77,0,0,0,170.46,105.32Z"/>
+                            <path class="cls-6"
+                                  d="M139.84,41.64l30.63,53a1.77,1.77,0,0,0,1.53.89h21.23a1.77,1.77,0,0,0,1.53-2.66L153.52,21.48a1.77,1.77,0,0,0-3.07,0L139.84,39.86A1.77,1.77,0,0,0,139.84,41.64Z"/>
+                        </g>
+                    </g>
+                </svg>
+            </a>
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="js-navbar-collapse">
+            
+    
+    <ul class="nav navbar-nav">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/intro/">Introduction</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/intro/about.html">About Event Machine</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/intro/pros_and_cons.html">Pros and cons</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/">Tutorial</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/intro.html">Introduction</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partI.html">Part I - Add A Building</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partII.html">Part II - The Building Aggregate</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partIII.html">Part III - Aggregate State</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partIV.html">Part IV - Projections and Queries</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partV.html">Part V - DRY</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partVI.html">Part VI - Check in User</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partVII.html">Part VII - The Unhappy Path</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusI.html">Bonus I - Custom Projection</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/">API</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/set_up/">Set Up</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/set_up/installation.html">Installation</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/set_up/di.html">Dependency Injection</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/set_up/production_optimization.html">Optimize For Production</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/descriptions.html">Event Machine Descriptions</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/aggregates.html">Aggregates</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/immutable_state.html">Immutable State</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/document_store/">Document Store</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/document_store/set_up.html">Document Store</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/projections/">Projections</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/projections/set_up.html">Custom Projections</a>
+
+    </li>
+            </ul>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/news/">News</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/news/2018-09-08-future.html">Future of Event Machine</a>
+
+    </li>
+            </ul>
+
+    </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+</header>
+<div class="container">
+    <ol class="breadcrumb">
+                        <li><a href="https://proophsoftware.github.io/event-machine/">Event Machine Docs</a></li>
+                                <li><a href="https://proophsoftware.github.io/event-machine/tutorial/">Tutorial</a></li>
+                                <li class="active">Bonus IV - OOP Flavour</li>
+            </ol>
+    <div class="row">
+
+                <div class="col-md-3">
+            <nav class="nav-left hidden-xs hidden-sm" id="sideNav">
+    <ul class="nav nav-stacked" data-spy="affix" data-offset-top="59" role="tablist">
+                                <li>
+                <a href="#2-12" title="Bonus&#x20;IV&#x20;-&#x20;OOP&#x20;Flavour">Bonus IV - OOP Flavour</a>
+            </li>
+                                <li>
+                <a href="#2-12-1" title="Original&#x20;Object-Oriented&#x20;Programming">Original Object-Oriented...</a>
+            </li>
+                                <li>
+                <a href="#2-12-2" title="It&#x20;Is&#x20;Not&#x20;Functional&#x20;Programming">It Is Not Functional Pro...</a>
+            </li>
+                                <li>
+                <a href="#2-12-3" title="OopFlavour&#x20;on&#x20;top&#x20;of&#x20;FunctionalFlavour">OopFlavour on top of Fun...</a>
+            </li>
+                                <li>
+                <a href="#2-12-4" title="OOP&#x20;Port">OOP Port</a>
+            </li>
+                                <li>
+                <a href="#2-12-5" title="Event&#x20;Sourced&#x20;Aggregate&#x20;Root">Event Sourced Aggregate ...</a>
+            </li>
+                                <li>
+                <a href="#2-12-6" title="Aggregate&#x20;Root&#x20;Lifecycle">Aggregate Root Lifecycle</a>
+            </li>
+                                                                                <li>
+                <a href="#2-12-7" title="Merge&#x20;Functions&#x20;And&#x20;State">Merge Functions And Stat...</a>
+            </li>
+                                <li>
+                <a href="#2-12-8" title="Aggregate&#x20;Factory">Aggregate Factory</a>
+            </li>
+                                <li>
+                <a href="#2-12-9" title="Command&#x20;Handling">Command Handling</a>
+            </li>
+                                <li>
+                <a href="#2-12-10" title="Aggregate&#x20;State">Aggregate State</a>
+            </li>
+                                <li>
+                <a href="#2-12-11" title="Activate&#x20;OopFlavour">Activate OopFlavour</a>
+            </li>
+                                <li>
+                <a href="#2-12-12" title="Fixing&#x20;tests">Fixing tests</a>
+            </li>
+                                <li>
+                <a href="#2-12-13" title="Wrap&#x20;Up">Wrap Up</a>
+            </li>
+            </ul>
+</nav>
+        </div>
+                <div class="col-md-9">
+<div id="section-main"><h1 id="2-12">Bonus IV - OOP Flavour</h1>
+<p>The previous bonus part introduced Event Machine Flavours, especially the <strong>FunctionalFlavour</strong>.
+Biggest change was the replacement of generic Event Machine messages with dedicated message types.</p>
+<h2 id="2-12-1">Original Object-Oriented Programming</h2>
+<p>Event Machine emphasizes the usage of a functional core. That's true for the <strong>PrototypingFlavour</strong> and unfolds completely
+with the <strong>FunctionalFlavour</strong>. A functional core has huge advantages compared to its object-oriented counterpart.
+At least compared to the way we tend to work with objects in our projects the last twenty years or so.</p>
+<p>Dr. Alan Kay (who has coined the term) had quite a different idea of object-oriented programming back in 1967.</p>
+<blockquote>
+<p>I thought of objects being like biological cells and/or individual computers on a network, only able to communicate with messages</p>
+</blockquote>
+<p><em><a href="http://userpage.fu-berlin.de/~ram/pub/pub_jf47ht81Ht/doc_kay_oop_en">source</a></em></p>
+<p>Let that sink in - <em>only able to communicate with messages</em>.</p>
+<p>If you look at what we've built so far, you might recognize that we are very close to that statement.
+Finder/Resolver, Event Listener, Process Manager and Projector all are invoked with messages. They don't interact with each other directly.
+Event Machine takes over coordination. It's like the network Alan Kay is talking about. But what about aggregate functions?
+The functions are stateless and don't have side effects. They are <strong>pure</strong>. Immutable data types and messages (commands or events) are passed to
+them. With coordination performed by Event Machine pure functions work great.</p>
+<h2 id="2-12-2">It Is Not Functional Programming</h2>
+<p>We are not used to work with pure functions in PHP.
+It's not a functional programming language, right? Autoloading functions doesn't work so we are either forced to require all files manually
+or use the workaround shown in the tutorial to turn pure functions into static methods of otherwise useless classes.</p>
+<p class="alert alert-dark">Personally, I don't have a big problem with the latter approach. I see those classes as the last part of the namespace or even similar to an ES6 module
+(if you're familiar with JavaScript). The module (PHP class) can export functions (public static functions) and use internal functions (private static functions).
+But I have to admit that it is a workaround.</p>
+<h2 id="2-12-3">OopFlavour on top of FunctionalFlavour</h2>
+<p>What can we do if the workaround is not acceptable for a project or personal taste? <strong>Exactly, we can pick another Flavour :D</strong></p>
+<p>The <strong>OopFlavour</strong> in a nutshell:</p>
+<p class="alert alert-info">Aggregate functions (command handling and apply functions) are combined with state into one object. Each aggregate manages its own state internally.
+Commands trigger state changes. A state change is first recorded as an event and then applied by the aggregate.</p>
+<p>You know what this means, right?</p>
+<blockquote>
+<p>I thought of objects being like biological cells and/or individual computers on a network, only able to communicate with messages</p>
+</blockquote>
+<p>As I said, we're very close to that statement. That's the reason why the <strong>OopFlavour</strong> uses the <strong>FunctionalFlavour</strong> internally. It works on top of it
+only to combine aggregate functions and state. More on that in a minute. First we need a solid foundation for event sourced objects.</p>
+<h2 id="2-12-4">OOP Port</h2>
+<p>Similar to the <code>Functional\Port</code> we need to implement an <code>Oop\Port</code> to use the <strong>OopFlavour</strong>. Let's start again by looking at the required methods.
+Create a new class <code>EventSourcedAggregatePort</code> in <code>src/Infrastructure/Flavour</code>:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Flavour;
+
+use Prooph\EventMachine\Runtime\Oop\Port;
+
+final class EventSourcedAggregatePort implements Port
+{
+    /**
+     * @param string $aggregateType
+     * @param callable $aggregateFactory
+     * @param $customCommand
+     * @param null|mixed $context
+     * @return mixed Created aggregate
+     */
+    public function callAggregateFactory(string $aggregateType, callable $aggregateFactory, $customCommand, $context = null)
+    {
+        // TODO: Implement callAggregateFactory() method.
+    }
+
+    /**
+     * @param mixed $aggregate
+     * @param mixed $customCommand
+     * @param null|mixed $context
+     */
+    public function callAggregateWithCommand($aggregate, $customCommand, $context = null): void
+    {
+        // TODO: Implement callAggregateWithCommand() method.
+    }
+
+    /**
+     * @param mixed $aggregate
+     * @return array of custom events
+     */
+    public function popRecordedEvents($aggregate): array
+    {
+        // TODO: Implement popRecordedEvents() method.
+    }
+
+    /**
+     * @param mixed $aggregate
+     * @param mixed $customEvent
+     */
+    public function applyEvent($aggregate, $customEvent): void
+    {
+        // TODO: Implement applyEvent() method.
+    }
+
+    /**
+     * @param mixed $aggregate
+     * @return array
+     */
+    public function serializeAggregate($aggregate): array
+    {
+        // TODO: Implement serializeAggregate() method.
+    }
+
+    /**
+     * @param string $aggregateType
+     * @param iterable $events history
+     * @return mixed Aggregate instance
+     */
+    public function reconstituteAggregate(string $aggregateType, iterable $events)
+    {
+        // TODO: Implement reconstituteAggregate() method.
+    }
+}
+
+</code></pre>
+<p>This time we don't work top to bottom but start in the middle. <code>popRecordedEvents</code> and <code>applyEvent</code> are the first targets.</p>
+<p class="alert alert-info">Same basic rules apply here as we discussed for the <code>Functional\Port</code>.
+Event Machine does not require a specific strategy to work with event sourced aggregates. You can implement them in any way as
+long as the <code>Oop\Port</code> is able to fulfill the contract. That said, the approach shown in the tutorial is just a suggestion.
+We're going to use a simple and pragmatic implementation with publicly accessible methods that are actually internal methods.
+You might want to hide them in your project using a decorator or PHP's Reflection API. Anyway, that would be overkill for the tutorial.</p>
+<h2 id="2-12-5">Event Sourced Aggregate Root</h2>
+<p class="alert alert-light">A state change is first recorded as an event and then applied by the aggregate.</p>
+<p>Let's create an interface for the port to rely on:</p>
+<p><code>src/Model/Base/AggregateRoot.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Base;
+
+interface AggregateRoot
+{
+    /**
+     * @return DomainEvent[]
+     */
+    public function popRecordedEvents(): array;
+
+    public function apply(DomainEvent $event): void;
+}
+
+</code></pre>
+<p>We don't have a <code>DomainEvent</code> type yet. Add it next to the <code>AggregateRoot</code> interface in the same directory.</p>
+<p><code>src/Model/Base/DomainEvent.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Base;
+
+interface DomainEvent
+{
+    //Marker interface
+}
+
+</code></pre>
+<p>With those two interfaces we can implement the first methods of the <code>Oop\Port</code>:</p>
+<p><code>src/Infrastructure/Flavour/EventSourcedAggregatePort.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Flavour;
+
+use App\Model\Base\AggregateRoot;
+use Prooph\EventMachine\Runtime\Oop\Port;
+
+final class EventSourcedAggregatePort implements Port
+{
+    /* ... */
+
+    /**
+     * @param mixed $aggregate
+     * @return array of custom events
+     */
+    public function popRecordedEvents($aggregate): array
+    {
+        if(!$aggregate instanceof AggregateRoot) {
+            throw new \RuntimeException(
+                sprintf("Cannot pop recorded events. Given aggregate is not an instance of %s. Got %s",
+                    AggregateRoot::class,
+                    (is_object($aggregate)? get_class($aggregate) : gettype($aggregate))
+                )
+            );
+        }
+
+        return $aggregate-&gt;popRecordedEvents();
+    }
+
+    /**
+     * @param mixed $aggregate
+     * @param mixed $customEvent
+     */
+    public function applyEvent($aggregate, $customEvent): void
+    {
+        if(!$aggregate instanceof AggregateRoot) {
+            throw new \RuntimeException(
+                sprintf("Cannot apply event. Given aggregate is not an instance of %s. Got %s",
+                    AggregateRoot::class,
+                    (is_object($aggregate)? get_class($aggregate) : gettype($aggregate))
+                )
+            );
+        }
+
+        $aggregate-&gt;apply($customEvent);
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<h2 id="2-12-6">Aggregate Root Lifecycle</h2>
+<p>Next two methods we are looking at are <code>callAggregateFactory</code> and <code>reconstituteAggregate</code>. The former starts the lifecycle of a new aggregate and the latter brings it
+back into shape by passing aggregate event history (all events previously recorded by the aggregate) to the method.</p>
+<p>Traits are a great way to reuse code snippets without inheritance. It's like copy and pasting methods from a blueprint into a class. Let's define one for common event sourcing
+logic that we can later use in aggregates.</p>
+<p><code>src/Model/Base/EventSourced.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Base;
+
+trait EventSourced
+{
+    /**
+     * @var DomainEvent[]
+     */
+    private $recordedEvents = [];
+
+    /**
+     * @param DomainEvent[] $domainEvents
+     * @return EventSourced aggregate
+     */
+    public static function reconstituteFromHistory(DomainEvent ...$domainEvents): AggregateRoot
+    {
+        $self = new self();
+        foreach ($domainEvents as $domainEvent) {
+            $self-&gt;apply($domainEvent);
+        }
+        return $self;
+    }
+
+    private function __construct()
+    {
+        //Do not override this!!!!
+        //Use named constructors aka public static factory methods to create aggregae instances!
+    }
+
+    private function recordThat(DomainEvent $event): void
+    {
+        $this-&gt;recordedEvents[] = $event;
+    }
+
+    /**
+     * @return DomainEvent[]
+     */
+    public function popRecordedEvents(): array
+    {
+        $events = $this-&gt;recordedEvents;
+        $this-&gt;recordedEvents = [];
+        return $events;
+    }
+
+    public function apply(DomainEvent $event): void
+    {
+        $whenMethod = $this-&gt;deriveMethodNameFromEvent($event);
+
+        if(!method_exists($this, $whenMethod)) {
+            throw new \RuntimeException(\sprintf(
+                "Unable to apply event %s. Missing method %s in class %s",
+                \get_class($event),
+                $whenMethod,
+                \get_class($this)
+            ));
+        }
+
+        $this-&gt;{$whenMethod}($event);
+    }
+
+    private function deriveMethodNameFromEvent(DomainEvent $event): string
+    {
+        $nameParts = \explode('\\', \get_class($event));
+        return 'when' . \array_pop($nameParts);
+    }
+}
+
+</code></pre>
+<p>The trait provides implementations for <code>popRecordedEvents</code> and <code>apply</code> defined by <code>AggregateRoot</code>. But it contains some more stuff!</p>
+<h3 id="2-12-6-1">Derive Method Name From Event</h3>
+<p>A convention is used that says: <strong>An aggregate should have an apply method for each domain event following the naming pattern "when&lt;EventName&gt;",
+whereby &lt;EventName&gt; is the class name of the event without namespace.</strong></p>
+<h3 id="2-12-6-2">Record That</h3>
+<p>An aggregate should use <code>recordThat</code> to record new domain events. The trait takes care of storing recorded events internally until the <code>Oop\Port</code> calls <code>popRecordedEvents()</code>.</p>
+<h3 id="2-12-6-3">Private Empty Constructor</h3>
+<p>While a trait cannot enforce a private empty <code>__construct</code> (it could be overridden by a class), it's still included in the trait as a reminder for future developers to not
+use <code>__construct</code> in aggregate roots but rather use named constructors. This rule is important for <code>Oop\Port::callAggregateFactory()</code>. More on that in a minute.</p>
+<h3 id="2-12-6-4">Reconstitute From History</h3>
+<p><code>reconstituteFromHistory</code> should be called by the <code>Oop\Port</code>. But the port works against our <code>AggregateRoot</code> interface, so we should add such a method signature there, too.</p>
+<p><code>src/Model/Base/AggregateRoot.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Base;
+
+interface AggregateRoot
+{
+    public static function reconstituteFromHistory(DomainEvent ...$domainEvents): self;
+
+    /**
+     * @return DomainEvent[]
+     */
+    public function popRecordedEvents(): array;
+
+    public function apply(DomainEvent $event): void;
+}
+
+</code></pre>
+<p>Cool, we can implement the next port method now!</p>
+<p><code>src/Infrastructure/Flavour/EventSourcedAggregatePort.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Flavour;
+
+use App\Model\Base\AggregateRoot;
+use Prooph\EventMachine\Runtime\Oop\Port;
+
+final class EventSourcedAggregatePort implements Port
+{
+    /* ... */
+
+    /**
+     * @param string $aggregateType
+     * @param iterable $events history
+     * @return mixed Aggregate instance
+     */
+    public function reconstituteAggregate(string $aggregateType, iterable $events)
+    {
+        $arClass = $this-&gt;getAggregateClassOfType($aggregateType);
+
+        /** @var AggregateRoot $arClass */
+        return $arClass::reconstituteFromHistory(...$events);
+    }
+
+    private function getAggregateClassOfType(string $aggregateType): string
+    {
+        switch ($aggregateType) {
+            case Aggregate::BUILDING:
+                return Building::class;
+            default:
+                throw new \RuntimeException("Unknown aggregate type $aggregateType");
+        }
+    }
+}
+
+</code></pre>
+<p>Obviously, this won't work. We did not touch <code>Building</code> yet. Let's do that next.</p>
+<h2 id="2-12-7">Merge Functions And State</h2>
+<p>Our <code>Building</code> aggregate consists of a set of pure functions grouped in a class and immutable data types. Turning it into an event sourced
+object is less work than you might expect:</p>
+<p><code>src/Model/Building.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model;
+
+use App\Model\Base\AggregateRoot;
+use App\Model\Base\EventSourced;
+use App\Model\Building\Command\AddBuilding;
+use App\Model\Building\Command\CheckInUser;
+use App\Model\Building\Command\CheckOutUser;
+use App\Model\Building\Event\BuildingAdded;
+use App\Model\Building\Event\DoubleCheckInDetected;
+use App\Model\Building\Event\DoubleCheckOutDetected;
+use App\Model\Building\Event\UserCheckedIn;
+use App\Model\Building\Event\UserCheckedOut;
+
+final class Building implements AggregateRoot
+{
+    use EventSourced;
+
+    /**
+     * @var Building\State
+     */
+    private $state;
+
+    public static function add(AddBuilding $addBuilding): AggregateRoot
+    {
+        $self = new self();
+        $self-&gt;recordThat(BuildingAdded::fromArray($addBuilding-&gt;toArray()));
+        return $self;
+    }
+
+    public function whenBuildingAdded(BuildingAdded $buildingAdded): void
+    {
+        $this-&gt;state = Building\State::fromArray($buildingAdded-&gt;toArray());
+    }
+
+    public function checkInUser(CheckInUser $checkInUser): void
+    {
+        if($this-&gt;state-&gt;isUserCheckedIn($checkInUser-&gt;name())) {
+            $this-&gt;recordThat(DoubleCheckInDetected::fromArray($checkInUser-&gt;toArray()));
+            return;
+        }
+
+        $this-&gt;recordThat(UserCheckedIn::fromArray($checkInUser-&gt;toArray()));
+    }
+
+    private function whenUserCheckedIn(UserCheckedIn $userCheckedIn): void
+    {
+        $this-&gt;state = $this-&gt;state-&gt;withCheckedInUser($userCheckedIn-&gt;name());
+    }
+
+    private function whenDoubleCheckInDetected(DoubleCheckInDetected $event): void
+    {
+        //No state change required
+    }
+
+    public function checkOutUser(CheckOutUser $checkOutUser): void
+    {
+        if(!$this-&gt;state-&gt;isUserCheckedIn($checkOutUser-&gt;name())) {
+            $this-&gt;recordThat(DoubleCheckOutDetected::fromArray($checkOutUser-&gt;toArray()));
+            return;
+        }
+
+        $this-&gt;recordThat(UserCheckedOut::fromArray($checkOutUser-&gt;toArray()));
+    }
+
+    private function whenUserCheckedOut(UserCheckedOut $userCheckedOut): void
+    {
+        $this-&gt;state = $this-&gt;state-&gt;withCheckedOutUser($userCheckedOut-&gt;name());
+    }
+
+    private function whenDoubleCheckOutDetected(DoubleCheckOutDetected $event): void
+    {
+        //No state change required
+    }
+}
+
+
+</code></pre>
+<p>Here are the refactoring steps:</p>
+<ul>
+<li>All events need to implement <code>App\Model\Base\DomainEvent</code>
+</li>
+<li>
+<code>Building</code> implements <code>AggregateRoot</code>
+</li>
+<li>
+<code>Building</code> uses <code>EventSourced</code>
+</li>
+<li>
+<code>Building</code> stores <code>Building\State</code> internally in a <code>state</code> property</li>
+<li>
+<code>Building::add()</code> creates an instance of itself and records <code>BuildingAdded</code> instead of yielding it</li>
+<li>All other command handling functions:
+<ul>
+<li>Remove <code>static</code>, they become instance methods</li>
+<li>Change return type to <code>void</code>
+</li>
+<li>
+<code>Building\State</code> is no longer an argument, but accessed internally</li>
+<li>Domain events get recorded</li>
+</ul>
+</li>
+<li>All apply/when functions
+<ul>
+<li>Remove <code>static</code> and make them <code>private</code>, they become internal methods</li>
+<li>Change return type to <code>void</code>
+</li>
+<li>
+<code>Building\State</code> is no longer an argument, but accessed internally</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-12-8">Aggregate Factory</h2>
+<p><code>Building::add()</code> is the aggregate factory for <code>Building</code>. The <code>Oop\Port</code> can simply call it.</p>
+<p><code>src/Infrastructure/Flavour/EventSourcedAggregatePort.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Flavour;
+
+use App\Model\Base\AggregateRoot;
+use Prooph\EventMachine\Runtime\Oop\Port;
+
+final class EventSourcedAggregatePort implements Port
+{
+    /**
+     * @param string $aggregateType
+     * @param callable $aggregateFactory
+     * @param $customCommand
+     * @param null|mixed $context
+     * @return mixed Created aggregate
+     */
+    public function callAggregateFactory(string $aggregateType, callable $aggregateFactory, $customCommand, $context = null)
+    {
+        return $aggregateFactory($customCommand, $context);
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p>The <code>callable $aggregateFactory</code> passed to the port, is still the one we've defined in the Event Machine Description:</p>
+<p><code>src/Api/Aggregate.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Api;
+
+use App\Model\Building;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+
+class Aggregate implements EventMachineDescription
+{
+    const BUILDING = 'Building';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        $eventMachine-&gt;process(Command::ADD_BUILDING)
+            -&gt;withNew(self::BUILDING)
+            -&gt;identifiedBy(Payload::BUILDING_ID)
+            -&gt;handle([Building::class, 'add']) //&lt;-- Aggregate Factory
+            -&gt;recordThat(Event::BUILDING_ADDED)
+            -&gt;apply([Building::class, 'whenBuildingAdded']);
+
+        /* ... */
+    }
+}
+
+</code></pre>
+<p class="alert alert-warning"><code>$context</code> is not an argument of <code>Building::add()</code> but PHP does not care. We can use that to our advantage.
+The port does not need to know if an aggregate factory or command handling function is interested in a context or not.
+It just passes it always to the function. If context is <code>null</code> and the function doesn't care, everything is fine.</p>
+<h2 id="2-12-9">Command Handling</h2>
+<p><code>Oop\Port::callAggregateWithCommand()</code> is next on the list. Let's see ...</p>
+<pre><code class="language-php">/**
+ * @param mixed $aggregate
+ * @param mixed $customCommand
+ * @param null|mixed $context
+ */
+public function callAggregateWithCommand($aggregate, $customCommand, $context = null): void
+{
+    // TODO: Implement callAggregateWithCommand() method.
+}
+</code></pre>
+<p>We get the <code>$aggregate</code> instance, a <code>$customCommand</code> and optionally a <code>$context</code>. We could use a <code>switch (command) -&gt; call $aggregate-&gt;method</code> approach,
+but we are lazy. We don't want to touch the port each time we add a new command to the system. Conventions work great to get around the issue.</p>
+<p><strong>An aggregate root should have a method named like the command, whereby command name is derived from its class name without namespace. The first letter of the name is lowercase.</strong></p>
+<p>Looking at <code>Building</code> methods, it's exactly what we already have in place ;) We just need to implement the convention in the port.</p>
+<p><code>src/Infrastructure/Flavour/EventSourcedAggregatePort.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Flavour;
+
+use App\Model\Base\AggregateRoot;
+use Prooph\EventMachine\Runtime\Oop\Port;
+
+final class EventSourcedAggregatePort implements Port
+{
+    /* ... */
+
+    /**
+     * @param mixed $aggregate
+     * @param mixed $customCommand
+     * @param null|mixed $context
+     */
+    public function callAggregateWithCommand($aggregate, $customCommand, $context = null): void
+    {
+        $commandNameParts = \explode('\\', \get_class($customCommand));
+        $handlingMethod = \lcfirst(\array_pop($commandNameParts));
+        $aggregate-&gt;{$handlingMethod}($customCommand, $context);
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p>Low hanging fruits, right? But the Event Machine Aggregate Description is broken! Handle and apply functions are no longer callable (except aggregate factory),
+because they are instance methods now. To get around the issue, we can replace the definition with a <code>FlavourHint</code>.</p>
+<p><code>src/Api/Aggregate.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Api;
+
+use App\Model\Building;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\Runtime\Oop\FlavourHint;
+
+class Aggregate implements EventMachineDescription
+{
+    const BUILDING = 'Building';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        $eventMachine-&gt;process(Command::ADD_BUILDING)
+            -&gt;withNew(self::BUILDING)
+            -&gt;identifiedBy(Payload::BUILDING_ID)
+            -&gt;handle([Building::class, 'add'])
+            -&gt;recordThat(Event::BUILDING_ADDED)
+            -&gt;apply([FlavourHint::class, 'useAggregate']);
+
+        $eventMachine-&gt;process(Command::CHECK_IN_USER)
+            -&gt;withExisting(self::BUILDING)
+            -&gt;handle([FlavourHint::class, 'useAggregate'])
+            -&gt;recordThat(Event::USER_CHECKED_IN)
+            -&gt;apply([FlavourHint::class, 'useAggregate'])
+            -&gt;orRecordThat(Event::DOUBLE_CHECK_IN_DETECTED)
+            -&gt;apply([FlavourHint::class, 'useAggregate']);
+
+        $eventMachine-&gt;process(Command::CHECK_OUT_USER)
+            -&gt;withExisting(self::BUILDING)
+            -&gt;handle([FlavourHint::class, 'useAggregate'])
+            -&gt;recordThat(Event::USER_CHECKED_OUT)
+            -&gt;apply([FlavourHint::class, 'useAggregate'])
+            -&gt;orRecordThat(Event::DOUBLE_CHECK_OUT_DETECTED)
+            -&gt;apply([FlavourHint::class, 'useAggregate']);
+    }
+}
+
+</code></pre>
+<p class="alert alert-warning">That's a bit of a drawback of the <strong>OopFlavour</strong>. It relies less on Event Machine, but Event Machine still wants to make
+sure that you don't forget to handle a command or apply an event (handle and apply definition is mandatory). With the
+<code>FlavourHint</code> we basically tell Event Machine: "Don't worry, we know what we're doing!". It's a small extra step, but trust
+me, it still saves you time. Forgetting to add a route for a message to some config or have a typo somewhere is one of the
+most silly bugs that can cost you hours for nothing!</p>
+<h2 id="2-12-10">Aggregate State</h2>
+<p>One method left in the port: <code>serializeAggregate()</code>. This method is only important when using aggregate projections.
+Let's check the Projection Description:</p>
+<p><code>src/Api/Projecion.php</code></p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Api;
+
+use App\Infrastructure\Projector\UserBuildingList;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\Persistence\Stream;
+
+class Projection implements EventMachineDescription
+{
+    const USER_BUILDING_LIST = 'user_building_list';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        $eventMachine-&gt;watch(Stream::ofWriteModel())
+            -&gt;withAggregateProjection(Aggregate::BUILDING);
+
+        $eventMachine-&gt;watch(Stream::ofWriteModel())
+            -&gt;with(self::USER_BUILDING_LIST, UserBuildingList::class)
+            -&gt;filterEvents([
+                Event::USER_CHECKED_IN,
+                Event::USER_CHECKED_OUT,
+            ]);
+    }
+}
+
+</code></pre>
+<p>Ok, we do use it, so we have to implement the port method, otherwise we could throw a <code>\BadMethodCallException</code> and are done.</p>
+<p class="alert alert-danger">A word about aggregate projection: It's a default projection provided by Event Machine for rapid application development.
+With an aggregate projection you can get very close to RAD frameworks that work with relational databases and an ORM.
+The main difference is, with Event Machine you use CQRS / ES from the beginning. However, using aggregate
+state as a read model couples the aggregate with read concerns. It cannot simply change its internal state without
+the risk of breaking a query. The good news is, that you can remove that coupling at any point in time by turning
+an aggregae projection into a dedicated projection like the <code>USER_BUILDING_LIST</code> projection. You can start simple,
+but make a cut whenever things start to look messy.</p>
+<p>A simple <code>toArray()</code> on the aggregate is sufficient. We add it to the <code>AggregateRoot</code> interface to enforce its implementation.</p>
+<p><code>src/Model/Base/AggregateRoot.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Base;
+
+interface AggregateRoot
+{
+    /**
+     * @return DomainEvent[]
+     */
+    public function popRecordedEvents(): array;
+
+    public function apply(DomainEvent $event): void;
+
+    public function toArray(): array;
+}
+
+</code></pre>
+<p><code>Building</code> can call the <code>toArray</code> method of <code>Building\State</code> ...</p>
+<p><code>src/Model/Building.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model;
+
+use App\Model\Base\AggregateRoot;
+use App\Model\Base\EventSourced;
+use App\Model\Building\Command\AddBuilding;
+use App\Model\Building\Command\CheckInUser;
+use App\Model\Building\Command\CheckOutUser;
+use App\Model\Building\Event\BuildingAdded;
+use App\Model\Building\Event\DoubleCheckInDetected;
+use App\Model\Building\Event\DoubleCheckOutDetected;
+use App\Model\Building\Event\UserCheckedIn;
+use App\Model\Building\Event\UserCheckedOut;
+
+final class Building implements AggregateRoot
+{
+    use EventSourced;
+
+    /**
+     * @var Building\State
+     */
+    private $state;
+
+    /* ... */
+
+    public function toArray(): array
+    {
+        return $this-&gt;state-&gt;toArray();
+    }
+}
+
+
+</code></pre>
+<p>... and the <code>Oop\Port</code> does the same:</p>
+<p><code>src/Infrastructure/Flavour/EventSourcedAggregatePort.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Flavour;
+
+use App\Model\Base\AggregateRoot;
+use Prooph\EventMachine\Runtime\Oop\Port;
+
+final class EventSourcedAggregatePort implements Port
+{
+    /* ... */
+
+    /**
+     * @param mixed $aggregate
+     * @return array
+     */
+    public function serializeAggregate($aggregate): array
+    {
+        if(!$aggregate instanceof AggregateRoot) {
+            throw new \RuntimeException(
+                sprintf("Cannot serialize aggregate. Given aggregate is not an instance of %s. Got %s",
+                    AggregateRoot::class,
+                    (is_object($aggregate)? get_class($aggregate) : gettype($aggregate))
+                )
+            );
+        }
+
+        return $aggregate-&gt;toArray();
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p class="alert alert-info">Of course, you can use a totally different serialization strategy. Organising aggregate state in a single immutable state object is also
+only a suggestion. Do whatever you like or don't use aggregate projections at all and don't implement the functionality. It's your choice!</p>
+<h2 id="2-12-11">Activate OopFlavour</h2>
+<p>As a last step (before looking at the tests 🙈) we should activate the <strong>OopFlavour</strong> in the <code>ServiceFactory</code>:</p>
+<p><code>src/Service/ServiceFactory.php</code></p>
+<pre><code class="language-php">&lt;?php
+namespace App\Service;
+
+use App\Infrastructure\Flavour\AppMessagePort;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\FunctionalFlavour;
+/* ... */
+
+final class ServiceFactory
+{
+    use ServiceRegistry;
+
+    /**
+     * @var ArrayReader
+     */
+    private $config;
+
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    public function __construct(array $appConfig)
+    {
+        $this-&gt;config = new ArrayReader($appConfig);
+    }
+
+    public function setContainer(ContainerInterface $container): void
+    {
+        $this-&gt;container = $container;
+    }
+
+    //Flavour
+    public function flavour(): Flavour
+    {
+        return $this-&gt;makeSingleton(Flavour::class, function () {
+            return new OopFlavour(
+                new EventSourcedAggregatePort(),
+                new FunctionalFlavour(new AppMessagePort())
+            );
+        });
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p>As stated at the beginning, the <strong>OopFlavour</strong> uses the <strong>FunctionalFlavour</strong> mainly to make use of custom message handling.</p>
+<h2 id="2-12-12">Fixing tests</h2>
+<p>At least the <code>BuildingTest</code> should fail after latest changes. Let's see if we need to work some extra hours or can go out to have a beer with a friend:</p>
+<pre><code class="language-bash">docker-compose run php php vendor/bin/phpunit
+</code></pre>
+<p>As expected, <code>BuildingTest</code> is broken, but should be easy to fix.
+First, we need to change the Flavour in the test suite as well.</p>
+<p><code>tests/BaseTestCase.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace AppTest;
+
+use App\Api\Event;
+use App\Infrastructure\Flavour\AppMessagePort;
+use App\Infrastructure\Flavour\EventSourcedAggregatePort;
+use App\Model\Base\AggregateRoot;
+use App\Model\Base\DomainEvent;
+use PHPUnit\Framework\TestCase;
+use Prooph\EventMachine\Container\ContainerChain;
+use Prooph\EventMachine\Container\EventMachineContainer;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Messaging\MessageBag;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\FunctionalFlavour;
+use Prooph\EventMachine\Runtime\Oop\FlavourHint;
+use Prooph\EventMachine\Runtime\OopFlavour;
+
+class BaseTestCase extends TestCase
+{
+    /**
+     * @var EventMachine
+     */
+    protected $eventMachine;
+
+    /**
+     * @var Flavour
+     */
+    protected $flavour;
+
+    protected function setUp()
+    {
+        $this-&gt;eventMachine = new EventMachine();
+        $this-&gt;flavour = new OopFlavour(
+            new EventSourcedAggregatePort(),
+            new FunctionalFlavour(new AppMessagePort())
+        );
+
+        $config = include __DIR__ . '/../config/autoload/global.php';
+
+        foreach ($config['event_machine']['descriptions'] as $description) {
+            $this-&gt;eventMachine-&gt;load($description);
+        }
+
+        $this-&gt;eventMachine-&gt;initialize(
+            new ContainerChain(
+                new FlavourContainer($this-&gt;flavour),
+                new EventMachineContainer($this-&gt;eventMachine)
+            )
+        );
+    }
+
+    /* ... */
+
+    protected function applyEvents(AggregateRoot $aggregateRoot)
+    {
+        array_walk($aggregateRoot-&gt;popRecordedEvents(), function (DomainEvent $event) use ($aggregateRoot) {
+            $this-&gt;flavour-&gt;callApplySubsequentEvent(
+                [FlavourHint::class, 'useAggregate'],
+                $aggregateRoot,
+                new MessageBag(
+                    Event::nameOf($event),
+                    MessageBag::TYPE_EVENT,
+                    $event
+                )
+            );
+        });
+    }
+}
+
+</code></pre>
+<p>With a little test helper <code>applyEvents</code> we can use the Flavour to apply recorded events.</p>
+<p>When testing event sourced objects we cannot simply prepare state and call a function.
+We have to invoke all command handling functions needed to get the aggregate into desired state.
+That's the change we have to make in <code>BuildingTest</code>:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace AppTest\Model;
+
+use App\Api\Event;
+use App\Api\Payload;
+use AppTest\BaseTestCase;
+use Ramsey\Uuid\Uuid;
+use App\Model\Building;
+
+class BuildingTest extends BaseTestCase
+{
+    private $buildingId;
+    private $buildingName;
+    private $username;
+
+    protected function setUp()
+    {
+        $this-&gt;buildingId = Uuid::uuid4()-&gt;toString();
+        $this-&gt;buildingName = 'Acme Headquarters';
+        $this-&gt;username = 'John';
+
+        parent::setUp();
+    }
+
+    /**
+     * @test
+     */
+    public function it_checks_in_a_user()
+    {
+        //Prepare expected aggregate state
+        $addBuilding = Building\Command\AddBuilding::fromArray([
+            Payload::BUILDING_ID =&gt; $this-&gt;buildingId,
+            Payload::NAME =&gt; $this-&gt;buildingName
+        ]);
+        /** @var Building $building */
+        $building = Building::add($addBuilding);
+
+        //New test helper to apply recorded events
+        $this-&gt;applyEvents($building);
+
+        $command = Building\Command\CheckInUser::fromArray([
+            Payload::BUILDING_ID =&gt; $this-&gt;buildingId,
+            Payload::NAME =&gt; $this-&gt;username,
+        ]);
+
+        $building-&gt;checkInUser($command);
+
+        $events = $building-&gt;popRecordedEvents();
+
+        $this-&gt;assertRecordedEvent(Event::USER_CHECKED_IN, [
+            Payload::BUILDING_ID =&gt; $this-&gt;buildingId,
+            Payload::NAME =&gt; $this-&gt;username
+        ], $events);
+    }
+
+    /**
+     * @test
+     */
+    public function it_detects_double_check_in()
+    {
+        //Prepare expected aggregate state
+        $addBuilding = Building\Command\AddBuilding::fromArray([
+            Payload::BUILDING_ID =&gt; $this-&gt;buildingId,
+            Payload::NAME =&gt; $this-&gt;buildingName
+        ]);
+        /** @var Building $building */
+        $building = Building::add($addBuilding);
+
+        $this-&gt;applyEvents($building);
+
+        $checkInUser = Building\Command\CheckInUser::fromArray([
+            Payload::BUILDING_ID =&gt; $this-&gt;buildingId,
+            Payload::NAME =&gt; $this-&gt;username,
+        ]);
+
+        $building-&gt;checkInUser($checkInUser);
+
+        $this-&gt;applyEvents($building);
+
+        //Test double check in
+
+        $command = Building\Command\CheckInUser::fromArray([
+            Payload::BUILDING_ID =&gt; $this-&gt;buildingId,
+            Payload::NAME =&gt; $this-&gt;username,
+        ]);
+
+        $building-&gt;checkInUser($command);
+
+        $events = $building-&gt;popRecordedEvents();
+
+        //Another test helper to assert that list of recorded events contains given event
+        $this-&gt;assertRecordedEvent(Event::DOUBLE_CHECK_IN_DETECTED, [
+            Payload::BUILDING_ID =&gt; $this-&gt;buildingId,
+            Payload::NAME =&gt; $this-&gt;username
+        ], $events);
+
+        //And the other way round, list should not contain event with given name
+        $this-&gt;assertNotRecordedEvent(Event::USER_CHECKED_IN, $events);
+    }
+}
+
+</code></pre>
+<h2 id="2-12-13">Wrap Up</h2>
+<p class="alert alert-success">At this point the tutorial ends. Thank you for taking the tour through the world of CQRS and Event Sourcing with Event Machine.
+We started our tour with a rapid development approach. Event Machine really shines here. The skeleton application is preconfigured including
+some best practices like splitting Event Machine Descriptions by functionality. We learned how to react on domain events and how
+to project them into a read model, that we can access using queries and finders. All that with a minimum of boilerplate. Finally, Event Machine
+Flavours gave us a way to write more explicit code and harden the domain model. Every team can find its own style by mixing Flavours, conventions
+and serialization techniques.</p>
+<p><strong>What's next?</strong></p>
+<p>You can start to work on your own project. Event Machine docs cover advanced topics and a lot more details, but get some practice first and revisit them every now and then.</p>
+</div>        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="links">
+        <div class="container">
+            <div class="row">
+                <div class="prev col-xs-6">
+                                            <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Previous</a>                                    </div>
+                <div class="next col-xs-6">
+                                            <a href="https://proophsoftware.github.io/event-machine/api/">Next</a>                                    </div>
+            </div>
+        </div>
+    </div>
+    <div id="copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <p><a href="http://prooph-software.de/about.html">Imprint</a> | Powered by <a href="https://github.com/tobiju/bookdown-bootswatch-templates" title="Visit project to generate your own docs">Bookdown Bootswatch Templates</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+<span id="forkongithub"><a href="https://github.com/proophsoftware/event-machine-docs">Fork me on GitHub</a></span><script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+        integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/0.6.0/lunr.min.js"></script>
+<script src="http://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+<script src="https://tobiju.github.io/share/prismjs/main.js"></script>
+<script src="https://tobiju.github.io/share/prismjs/prism.js"></script>
+<script type="text/javascript">
+
+    function Search() {
+        this.store = {};
+        this.index = lunr(function () {
+            this.ref('id');
+            this.field('title', {boost: 10});
+            this.field('content');
+        });
+        this.searchResults = $('.js-search-results').addClass('list-search-results');
+    }
+
+    Search.prototype = {
+        constructor: Search,
+        init: function () {
+            this.createIndex();
+            this.bindEvents();
+        },
+        createIndex: function () {
+            var $this = this,
+                indexFilePath = $('.js-search-input').data('roothref') + 'index.json';
+
+            $.getJSON(indexFilePath, function (data) {
+                $.each(data, function (key, item) {
+                    $this.index.add({
+                        id: item.id,
+                        title: item.title,
+                        content: item.content
+                    });
+
+                    $this.store[item.id] = {
+                        href: item.id,
+                        title: item.title,
+                        content: item.content
+                    }
+                });
+            });
+        },
+        bindEvents: function () {
+            var $this = this;
+
+            $('html')
+                .on('click', function (event) {
+                    $this.close($(this), event);
+                });
+
+            $('.js-search-input, .js-search-results')
+                .on('click', function (event) {
+                    $this.click($(this), event);
+                });
+
+            $('.js-search-input')
+                .on('focus', function (event) {
+                    $this.focus($(this), event);
+                })
+                .on('keyup', function (event) {
+                    $this.search($(this), event)
+                })
+                .on('keydown', function (event) {
+                    if ($('.js-search-results ul').is(':visible')){
+                        $this.navigation($(this), event)
+                    }
+                })
+        },
+        click: function (element, event) {
+            event.stopPropagation();
+        },
+        focus: function (element, event) {
+            this.searchInputWidth = element.css('width');
+            element.animate({
+                'width': 600
+            }, 500);
+            $('#js-navbar-collapse > ul').fadeOut();
+        },
+        close: function (element, event) {
+            var $this = this;
+
+            $('.js-search-results').hide();
+            $('.js-search-input').animate({
+                'width': $this.searchInputWidth
+            }, 500);
+            $('#js-navbar-collapse > ul').fadeIn();
+        },
+        search: function (element, event) {
+            var $this = this;
+
+            if (event.keyCode == 13 || event.keyCode == 38 || event.keyCode == 40) {
+                return;
+            }
+
+            var query = element.val(),
+                results = $this.index.search(query);
+
+            if (!results.length) {
+                $this.searchResults.empty();
+                return;
+            }
+
+            var resultsList = results.reduce(function (ul, result) {
+                var item = $this.store[result.ref];
+                var title = $('<b>').text(item.title);
+
+                var cropText = $this.cropText(item.content, query);
+                if (cropText.length === 0) {
+                    cropText = $('<p>').html(item.content.substring(0, 120) + "...");
+                }
+                var content = content = $('<p>').html(cropText);
+
+                var div = $('<div>')
+                    .append(title)
+                    .append(content);
+                var a = $('<a>').attr('href', item.href)
+                    .append(div);
+                var li = $('<li>')
+                    .append(a);
+                ul.append(li);
+
+                return ul;
+            }, $('<ul>'));
+
+            this.searchResults.html(resultsList);
+
+            $('.js-search-results').show();
+            $(".js-search-results li:first-child").addClass('selected');
+        },
+        cropText: function (content, query) {
+            var cropedText = '',
+                re = new RegExp("\\s?(.{0,30})?" + query + ".*?\\b(.{0,30}.)?\\s?", "gi");
+
+            $.each(content.match(re), function (key, value) {
+                cropedText += '...' + value + '...';
+            });
+
+            return cropedText;
+        },
+        navigation: function (element, event) {
+            var selected = null,
+                listSelector = ".js-search-results ul",
+                listItemSelector = listSelector + " li",
+                selectedListItemSelector = listItemSelector + ".selected",
+                selectedListItemSelectorAnchor = listItemSelector + ".selected a";
+
+            // enter
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                this.close();
+                window.location.replace($(selectedListItemSelectorAnchor).attr('href'));
+            }
+
+            // up
+            if (event.keyCode == 38) {
+                selected = $(selectedListItemSelector);
+                $(listItemSelector).removeClass("selected");
+
+                if (selected.prev().length == 0) {
+                    selected.siblings().last().addClass("selected");
+                } else {
+                    selected.prev().addClass("selected");
+                }
+
+                selected = $(selectedListItemSelector);
+                this.scrollListUp(selected);
+            }
+
+            // down
+            if (event.keyCode == 40) {
+                selected = $(selectedListItemSelector);
+                $(listItemSelector).removeClass("selected");
+
+                if (selected.next().length == 0) {
+                    selected.siblings().first().addClass("selected");
+                } else {
+                    selected.next().addClass("selected");
+                }
+
+                selected = $(selectedListItemSelector);
+                this.scrollListDown(selected);
+            }
+        },
+        scrollListDown: function (element) {
+            var ul = element.parent(),
+                ulHeight = ul.height(),
+                ulBottomPosition = ulHeight + ul.scrollTop(),
+                liBottomPosition = element.position().top + element.height();
+
+            if (liBottomPosition > ulBottomPosition) {
+                ul.scrollTop(liBottomPosition - ulHeight);
+            }
+
+            if (element.is(':first-child')) {
+                ul.scrollTop(0);
+            }
+        },
+        scrollListUp: function (element) {
+            var ul = element.parent(),
+                ulTopPosition = ul.scrollTop(),
+                liTopPosition = element.position().top;
+
+            if (liTopPosition < ulTopPosition) {
+                ul.scrollTop(element.position().top);
+            }
+
+            if (element.is(':last-child')) {
+                ul.scrollTop(element.position().top - element.height());
+            }
+        }
+    };
+
+    $(function () {
+        var search = new Search();
+        search.init();
+    });
+</script>
+<script src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+</body></html>

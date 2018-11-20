@@ -583,6 +583,14 @@
     <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
 
     </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
+
+    </li>
             </ul>
 
     </li>
@@ -714,6 +722,37 @@ class Payload
 
 </code></pre>
 <p>... and replace plain strings with the constants in our codebase:</p>
+<p><code>src/Api/Aggregate</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Api;
+
+use App\Model\Building;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+
+class Aggregate implements EventMachineDescription
+{
+    const BUILDING = 'Building';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        $eventMachine-&gt;process(Command::ADD_BUILDING)
+            -&gt;withNew(self::BUILDING)
+            -&gt;identifiedBy(Payload::BUILDING_ID) //&lt;-- AggregateId payload property
+            -&gt;handle([Building::class, 'add'])
+            -&gt;recordThat(Event::BUILDING_ADDED)
+            -&gt;apply([Building::class, 'whenBuildingAdded']);
+
+        /* ... */
+    }
+}
+
+</code></pre>
 <p><code>src/Api/Command</code></p>
 <pre><code class="language-php">&lt;?php
 

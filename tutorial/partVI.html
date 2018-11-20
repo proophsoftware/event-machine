@@ -583,6 +583,14 @@
     <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
 
     </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
+
+    </li>
             </ul>
 
     </li>
@@ -876,11 +884,9 @@ final class State implements ImmutableRecord
      */
     private $users = [];
 
-    public static function __schema(): Type
+    private static function arrayPropItemTypeMap(): array
     {
-        return self::generateSchemaFromPropTypeMap([
-            'users' =&gt; ImmutableRecord::PHP_TYPE_STRING
-        ]);
+        return ['users' =&gt; JsonSchema::TYPE_STRING];
     }
 
     /**

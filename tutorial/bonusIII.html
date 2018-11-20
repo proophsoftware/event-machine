@@ -1,0 +1,3007 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<meta name="HandheldFriendly" content="True"/>
+<title>Bonus III - Functional Flavour</title>
+<link rel="shortcut icon" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/prooph-logo@0.5x.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-144-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-72-precomposed.png">
+<link rel="apple-touch-icon-precomposed" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-57-precomposed.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:site" content="@prooph_software">
+<meta name="twitter:title" content="Event Machine">
+<meta name="twitter:description" content="Event Sourced RAD - based on prooph components">
+<meta name="twitter:image" content="https://proophsoftware.github.io/event-machine/api/event_machine/img/Aggregate_Lifecycle.png">
+    <link rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/lumen/bootstrap.min.css">
+<link rel="stylesheet"
+      href="https://tobiju.github.io/share/prismjs/prism-ghcolors.css"/>
+<link rel="stylesheet"
+      href="https://tobiju.github.io/share/prismjs/prism-linenumbers.css"/>
+<style>
+    body, html {
+        height: 100%;
+        padding-top: 36px;
+        position: relative;
+    }
+
+    img {
+        max-width: 100%;
+    }
+
+    code span {
+        white-space: nowrap;
+    }
+    code span.comment {
+        white-space: pre;
+    }
+
+    .highlight {
+        background: #FFFF88;
+    }
+
+    .page-wrapper {
+        min-height: 100%;
+        padding-bottom: 170px;
+        position: relative;
+    }
+
+    .box-header {
+        position: relative;
+    }
+
+    /* Header Section */
+    header {
+        background: white;
+        color: black;
+        font-size: 16px;
+        font-weight: 300;
+    }
+
+    h1:first-child {
+        margin-top: 0;
+    }
+
+    /* anchor link will be displayed after the static top nav */
+    h1:before,
+    h2:before,
+    h3:before,
+    h4:before,
+    h5:before,
+    h6:before {
+        display: block;
+        content: " ";
+        margin-top: -64px;
+        height: 64px;
+        visibility: hidden;
+    }
+
+    .navbar-brand {
+        padding: 0;
+    }
+
+    .navbar-brand img {
+        max-height: 100%;
+    }
+
+    /* Content Section */
+    #content {
+        margin-bottom: 17px;
+        font-size: 17px;
+        min-height: 200px;
+    }
+
+    .breadcrumb {
+        position: relative;
+        z-index: 999;
+    }
+
+    .links {
+        background: #f8f8f8;
+        border-top: 1px solid #e5e5e5;
+        border-bottom: 1px solid #e5e5e5;
+        padding: 16px 0;
+    }
+
+    .links .prev {
+        text-align: left;
+    }
+
+    .links .parent {
+        text-align: center;
+    }
+
+    .links .next {
+        text-align: right;
+    }
+
+    /* Search */
+    .form-search {
+        position: absolute;
+        right: 0;
+        top: 0;
+        z-index: 999;
+    }
+
+    @media (max-width: 767px) {
+        .form-search {
+            position: relative;
+            margin-top: 0;
+        }
+    }
+
+    .form-search .form-control {
+        border: 0;
+        width: 80px;
+    }
+
+    @media (max-width: 767px) {
+        .form-search .form-control {
+            width: 100% !important;
+        }
+    }
+
+    .form-search .list-search-results {
+        position: relative;
+    }
+
+    .form-search .list-search-results ul {
+        background: #eee;
+        border: 1px solid inherit;
+        list-style: none;
+        max-height: 300px;
+        overflow: auto;
+        padding: 0;
+        position: absolute;
+        width: 100%;
+        z-index: 999;
+    }
+
+    .form-search .list-search-results ul li:nth-child(even) {
+        background: rgba(255, 255, 255, 0.3)
+    }
+
+    .form-search .list-search-results ul li.selected {
+        background: #ccc;
+    }
+
+    .form-search .list-search-results ul li a {
+        display: block;
+        padding: 4px 8px;
+    }
+
+    /* TOC */
+    .list-toc {
+        padding: 0;
+    }
+
+    .list-toc .list-group-item {
+        background: 0 none;
+        position: relative;
+        font-weight: bold;
+        padding: 0;
+        margin: 0;
+    }
+
+    .list-toc li .text-number {
+        padding-left: 20px;
+    }
+    .list-toc li li .text-number {
+        padding-left: 40px;
+    }
+    .list-toc li li li .text-number {
+        padding-left: 60px;
+    }
+    .list-toc li li li li .text-number {
+        padding-left: 80px;
+    }
+    .list-toc li li li li li .text-number {
+        padding-left: 100px;
+    }
+    .list-toc .text-number {
+        padding-left: 100px;
+    }
+
+    .list-toc .list-group-item .row {
+        padding: 7px 0 7px;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle {
+        display: block;
+        position: absolute;
+        top: 5px;
+        right: 10px;
+        font-weight: normal;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle:before {
+        content: "";
+        display: block;
+    }
+
+    .list-toc .list-group-item .bbt-toc-toggle.collapsed:before {
+        content: "";
+        display: block;
+    }
+
+    .list-toc > li:nth-child(2n+1) {
+        background: rgba(0, 0, 0, 0.03);
+    }
+
+    .bbt-theme-cyborg .list-toc > li:nth-child(2n+1),
+    .bbt-theme-darkly .list-toc > li:nth-child(2n+1),
+    .bbt-theme-slate .list-toc > li:nth-child(2n+1),
+    .bbt-theme-superhero .list-toc > li:nth-child(2n+1) {
+        background: rgba(255, 255, 255, 0.05);
+    }
+
+    .list-toc .list-group-item {
+        border-bottom: 0 none;
+        border-left: 0 none;
+        border-right: 0 none;
+        font-size: inherit;
+    }
+
+    .list-toc .list-group-item:first-child {
+        border-top-right-radius: 0;
+        border-top-left-radius: 0;
+    }
+
+    .list-toc .list-group-item:last-child {
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+
+    /* Left navigation */
+    .nav-left ul li a {
+        padding-top: 3px;
+        padding-bottom: 3px;
+        border-left: 1px solid transparent;
+    }
+
+    .nav-left ul li.active a,
+    .nav-left ul li a:hover {
+        background: none !important;
+        color: inherit;
+        border-color: inherit;
+    }
+
+    .navbar-top {
+        position: relative;
+    }
+
+    .affix {
+        top: 60px;
+    }
+
+    .badge {
+        border-radius: 4px;
+        padding: 5px;
+    }
+
+    /* Footer Section */
+    footer {
+        color: black;
+        background: white;
+        width: 100%;
+        position: absolute;
+        bottom: 0;
+    }
+
+    footer #copyright {
+        padding: 30px;
+        text-align: center;
+        color: #444;
+    }
+
+    footer #copyright p {
+        margin: 0;
+    }
+
+    footer #copyright span a {
+        color: white;
+    }
+
+    /* Top Navigation */
+    @media (max-width: 767px) {
+        ul.navbar-nav {
+            margin: 0 -15px
+        }
+
+        ul.navbar-nav li {
+            border-radius: 0;
+        }
+
+        ul.navbar-nav li ul {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 0;
+            box-shadow: none;
+            display: block;
+            float: none;
+            left: auto;
+            padding: 0;
+            position: static;
+        }
+
+        ul.navbar-nav li ul li a {
+            padding: 8px 30px;
+        }
+
+        ul.navbar-nav li ul li ul li a {
+            padding: 6px 40px;
+        }
+    }
+
+    @media (min-width: 768px) {
+
+        ul.navbar-nav li {
+            display: block;
+            position: relative;
+            float: left;
+        }
+
+        ul.navbar-nav li ul {
+            display: none;
+        }
+
+        ul.navbar-nav li a {
+            display: block;
+        }
+
+        ul.navbar-nav li:hover > ul {
+            display: block;
+            position: absolute;
+        }
+
+        ul.navbar-nav li:hover li {
+            float: none;
+        }
+
+        ul.navbar-nav ul ul {
+            left: 100%;
+            top: 0;
+        }
+    }
+</style>
+    <style>
+    body {
+        font-size: 16px;
+    }
+    /* Header Section */
+    header {
+        font-size: 17px;
+        font-weight: 400;
+    }
+
+    .dropdown-menu {
+        font-size: 17px;
+    }
+
+    .alert-light {
+        color: #818182;
+        background-color: #fefefe;
+    }
+
+    .alert-dark {
+        color: #1b1e21;
+        background-color: #d6d8d9;
+        border-color: #c6c8ca;
+    }
+
+    .prooph-logo {
+        float: left;
+        margin-left: 8px;
+        margin-right: 8px;
+        transition-timing-function: ease-in-out;
+        transition: all 5s;
+        height: 50px;
+        padding: 5px;
+    }
+
+    #forkongithub a {
+        background: #000;
+        color: #fff;
+        text-decoration: none;
+        font-family: arial, sans-serif;
+        text-align: center;
+        font-weight: bold;
+        padding: 5px 40px;
+        font-size: 1rem;
+        line-height: 2rem;
+        position: relative;
+        transition: 0.5s;
+    }
+
+    #forkongithub a:hover {
+        background: #c11;
+        color: #fff;
+    }
+
+    #forkongithub a::before, #forkongithub a::after {
+        content: "";
+        width: 100%;
+        display: block;
+        position: absolute;
+        top: 1px;
+        left: 0;
+        height: 1px;
+        background: #fff;
+    }
+
+    #forkongithub a::after {
+        bottom: 1px;
+        top: auto;
+    }
+
+    @media screen and (min-width: 800px) {
+        #forkongithub {
+            position: fixed;
+            display: block;
+            top: 0;
+            right: 0;
+            width: 200px;
+            overflow: hidden;
+            height: 200px;
+            z-index: 1000;
+        }
+
+        #forkongithub a {
+            width: 200px;
+            position: absolute;
+            top: 80px;
+            right: -60px;
+            transform: rotate(45deg);
+            -webkit-transform: rotate(45deg);
+            -ms-transform: rotate(45deg);
+            -moz-transform: rotate(45deg);
+            -o-transform: rotate(45deg);
+            box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
+        }
+    }
+</style>
+</head>
+<body data-spy="scroll" data-target="#sideNav" data-offset="50" class="bbt-theme-lumen">
+<div class="page-wrapper">
+    <header>
+    
+<nav class="navbar navbar-default navbar-fixed-top">
+    <div class="box-header container">
+        <form class="form-search navbar-form navbar-right" role="search">
+            <div class="form-group">
+                <input type="text"
+                       placeholder="Search"
+                       class="js-search-input form-control"
+                       data-roothref="https://proophsoftware.github.io/event-machine/">
+
+                <div class="js-search-results"></div>
+            </div>
+        </form>
+
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#js-navbar-collapse" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="http://getprooph.org">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="prooph-logo">
+                    <defs>
+                        <style>
+                            .cls-1{fill:#04a1b0;}.cls-2{fill:#26896c;}.cls-3{fill:#eeca50;}.cls-4{fill:#eb6842;}.cls-5{fill:#cc3340;}.cls-6{fill:#715671;}
+                        </style>
+                    </defs>
+                    <title>prooph-logo</title>
+                    <g id="artwork">
+                        <g id="Layer_5" data-name="Layer 5">
+                            <path class="cls-1"
+                                  d="M57.22,17,67.84,35.43a1.77,1.77,0,0,0,1.53.89h61.25a1.77,1.77,0,0,0,1.53-.89L142.78,17a1.77,1.77,0,0,0-1.53-2.66H58.76A1.77,1.77,0,0,0,57.22,17Z"/>
+                            <path class="cls-2"
+                                  d="M29.54,94.68l30.63-53a1.77,1.77,0,0,0,0-1.77L49.55,21.48a1.77,1.77,0,0,0-3.07,0L5.24,92.91a1.77,1.77,0,0,0,1.53,2.66H28A1.77,1.77,0,0,0,29.54,94.68Z"/>
+                            <path class="cls-3"
+                                  d="M60.16,158.36l-30.63-53a1.77,1.77,0,0,0-1.53-.89H6.78a1.77,1.77,0,0,0-1.53,2.66l41.24,71.43a1.77,1.77,0,0,0,3.07,0l10.61-18.38A1.77,1.77,0,0,0,60.16,158.36Z"/>
+                            <path class="cls-4"
+                                  d="M130.63,163.68H69.37a1.77,1.77,0,0,0-1.53.89L57.22,183a1.77,1.77,0,0,0,1.53,2.66h82.48a1.77,1.77,0,0,0,1.53-2.66l-10.61-18.38A1.77,1.77,0,0,0,130.63,163.68Z"/>
+                            <path class="cls-5"
+                                  d="M170.46,105.32l-30.63,53a1.77,1.77,0,0,0,0,1.77l10.61,18.38a1.77,1.77,0,0,0,3.07,0l41.24-71.43a1.77,1.77,0,0,0-1.53-2.66H172A1.77,1.77,0,0,0,170.46,105.32Z"/>
+                            <path class="cls-6"
+                                  d="M139.84,41.64l30.63,53a1.77,1.77,0,0,0,1.53.89h21.23a1.77,1.77,0,0,0,1.53-2.66L153.52,21.48a1.77,1.77,0,0,0-3.07,0L139.84,39.86A1.77,1.77,0,0,0,139.84,41.64Z"/>
+                        </g>
+                    </g>
+                </svg>
+            </a>
+
+        </div>
+
+        <div class="collapse navbar-collapse" id="js-navbar-collapse">
+            
+    
+    <ul class="nav navbar-nav">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/intro/">Introduction</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/intro/about.html">About Event Machine</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/intro/pros_and_cons.html">Pros and cons</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/">Tutorial</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/intro.html">Introduction</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partI.html">Part I - Add A Building</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partII.html">Part II - The Building Aggregate</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partIII.html">Part III - Aggregate State</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partIV.html">Part IV - Projections and Queries</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partV.html">Part V - DRY</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partVI.html">Part VI - Check in User</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/partVII.html">Part VII - The Unhappy Path</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusI.html">Bonus I - Custom Projection</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/">API</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/set_up/">Set Up</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/set_up/installation.html">Installation</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/set_up/di.html">Dependency Injection</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/set_up/production_optimization.html">Optimize For Production</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/descriptions.html">Event Machine Descriptions</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/aggregates.html">Aggregates</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/immutable_state.html">Immutable State</a>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/document_store/">Document Store</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/document_store/set_up.html">Document Store</a>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/projections/">Projections</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/api/projections/set_up.html">Custom Projections</a>
+
+    </li>
+            </ul>
+
+    </li>
+            </ul>
+
+    </li>
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/news/">News</a>
+    
+    <ul class="dropdown-menu">
+                        <li>
+    <a href="https://proophsoftware.github.io/event-machine/news/2018-09-08-future.html">Future of Event Machine</a>
+
+    </li>
+            </ul>
+
+    </li>
+            </ul>
+
+        </div>
+    </div>
+</nav>
+</header>
+<div class="container">
+    <ol class="breadcrumb">
+                        <li><a href="https://proophsoftware.github.io/event-machine/">Event Machine Docs</a></li>
+                                <li><a href="https://proophsoftware.github.io/event-machine/tutorial/">Tutorial</a></li>
+                                <li class="active">Bonus III - Functional Flavour</li>
+            </ol>
+    <div class="row">
+
+                <div class="col-md-3">
+            <nav class="nav-left hidden-xs hidden-sm" id="sideNav">
+    <ul class="nav nav-stacked" data-spy="affix" data-offset-top="59" role="tablist">
+                                <li>
+                <a href="#2-11" title="Bonus&#x20;III&#x20;-&#x20;Functional&#x20;Flavour">Bonus III - Functional F...</a>
+            </li>
+                                <li>
+                <a href="#2-11-1" title="Harden&#x20;The&#x20;Domain&#x20;Model">Harden The Domain Model</a>
+            </li>
+                                <li>
+                <a href="#2-11-2" title="Functional&#x20;Port">Functional Port</a>
+            </li>
+                                <li>
+                <a href="#2-11-3" title="Deserialize">Deserialize</a>
+            </li>
+                                <li>
+                <a href="#2-11-4" title="Serialize&#x20;Payload">Serialize Payload</a>
+            </li>
+                                <li>
+                <a href="#2-11-5" title="Decorate&#x20;Event">Decorate Event</a>
+            </li>
+                                            <li>
+                <a href="#2-11-6" title="Call&#x20;Command&#x20;Preprocessor">Call Command Preprocesso...</a>
+            </li>
+                                <li>
+                <a href="#2-11-7" title="Call&#x20;Context&#x20;Provider">Call Context Provider</a>
+            </li>
+                                <li>
+                <a href="#2-11-8" title="Switching&#x20;The&#x20;Flavour">Switching The Flavour</a>
+            </li>
+                                <li>
+                <a href="#2-11-9" title="Refactoring">Refactoring</a>
+            </li>
+            </ul>
+</nav>
+        </div>
+                <div class="col-md-9">
+<div id="section-main"><h1 id="2-11">Bonus III - Functional Flavour</h1>
+<p>Event Machine has a nice feature called <strong>Flavours</strong>. A Flavour lets you customize the way Event Machine interacts with
+your code. Throughout the tutorial we worked with the <strong>PrototypingFlavour</strong>, which is the default.</p>
+<p>As the name suggests, the PrototypingFlavour is optimized for rapid development. For example instead of defining classes
+for each type of message, Event Machine passes its default <code>Message</code> implementation to aggregate functions, process manager,
+finder and projectors. You don't need to care about serialization and mapping.</p>
+<p class="alert alert-info">If you want to try out new ideas, PrototypingFlavour is your best friend.
+Following Domain-Driven Design best practices <strong>Continuous Discovery</strong> and <strong>Agile Development</strong> are key drivers for successful
+projects. This requires experimentation and with the PrototypingFlavour it's easier than ever.</p>
+<h2 id="2-11-1">Harden The Domain Model</h2>
+<p>Experimentation is great, but at some point you'll be satisfied with the domain model and want to turn it into a clean and
+robust implementation. That's very important for long-lived applications. Fortunately, Event Machine offers two additional Flavours.
+One is called the <strong>FunctionalFlavour</strong> and the other one <strong>OopFlavour</strong>. Finally, you can implement your own <code>Prooph\EventMachine\Runtime\Flavour</code>
+to turn Event Machine into your very own CQRS / ES framework.</p>
+<p>First let's look at the <strong>FunctionalFlavour</strong>. It's similar to what we did so fare, except that explicit message types are used instead of
+generic Event Machine messages.</p>
+<h2 id="2-11-2">Functional Port</h2>
+<p>The FunctionalFlavour requires an implementation of <code>Prooph\EventMachine\Runtime\Functional\Port</code>. Here you have to define custom mapping and serialization
+logic for message types. Create a new class <code>AppMessagePort</code> in <code>src/Infrastructure/Flavour</code>:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Flavour;
+
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Messaging\MessageBag;
+use Prooph\EventMachine\Runtime\Functional\Port;
+
+final class AppMessagePort implements Port
+{
+    /**
+     * @param Message $message
+     * @return mixed The custom message
+     */
+    public function deserialize(Message $message)
+    {
+        // TODO: Implement deserialize() method.
+    }
+
+    /**
+     * @param mixed $customMessage
+     * @return array
+     */
+    public function serializePayload($customMessage): array
+    {
+        // TODO: Implement serializePayload() method.
+    }
+
+    /**
+     * @param mixed $customEvent
+     * @return MessageBag
+     */
+    public function decorateEvent($customEvent): MessageBag
+    {
+        // TODO: Implement decorateEvent() method.
+    }
+
+    /**
+     * @param string $aggregateIdPayloadKey
+     * @param mixed $command
+     * @return string
+     */
+    public function getAggregateIdFromCommand(string $aggregateIdPayloadKey, $command): string
+    {
+        // TODO: Implement getAggregateIdFromCommand() method.
+    }
+
+    /**
+     * @param mixed $customCommand
+     * @param mixed $preProcessor Custom preprocessor
+     * @return mixed Custom message
+     */
+    public function callCommandPreProcessor($customCommand, $preProcessor)
+    {
+        // TODO: Implement callCommandPreProcessor() method.
+    }
+
+    /**
+     * @param mixed $customCommand
+     * @param mixed $contextProvider
+     * @return mixed
+     */
+    public function callContextProvider($customCommand, $contextProvider)
+    {
+        // TODO: Implement callContextProvider() method.
+    }
+}
+
+</code></pre>
+<p>We'll implement the interface step by step and define a mapping strategy along the way.</p>
+<h2 id="2-11-3">Deserialize</h2>
+<p>First method is <code>deserialize</code>:</p>
+<pre><code class="language-php">/**
+ * @param Message $message
+ * @return mixed The custom message
+ */
+public function deserialize(Message $message)
+{
+    // TODO: Implement deserialize() method.
+}
+</code></pre>
+<p>An Event Machine message is passed as argument and the method should return a custom message. The first important decision is required:</p>
+<p class="alert alert-info"><strong>Which serialization technique do we want to use?</strong> Some people prefer handcrafted serialization, while others prefer conventions or serializers.
+The good news is, every technique can be used! It just needs to be implemented in the Port.</p>
+<p>To keep the tutorial simple, we're going to use the tools shipped with Event Machine.
+That said, our messages become <code>ImmutableRecord</code>s and use the build-in serialization technique provided by <code>ImmutableRecordLogic</code>.</p>
+<p class="alert alert-warning">The fact that messages are still coupled with the framework is not important here. It's our decision as developers to do it, but nothing required by Event Machine.
+We could also write our own serialization mechanism or use a third-party tool like <a class="alert-link" href="https://github.com/prolic/fpp">FPP</a>.</p>
+<p>Let's create some types and messages first:</p>
+<p><code>src/Model/Building/BuildingId.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building;
+
+use Ramsey\Uuid\Uuid;
+use Ramsey\Uuid\UuidInterface;
+
+final class BuildingId
+{
+    private $buildingId;
+
+    public static function generate(): self
+    {
+        return new self(Uuid::uuid4());
+    }
+
+    public static function fromString(string $buildingId): self
+    {
+        return new self(Uuid::fromString($buildingId));
+    }
+
+    private function __construct(UuidInterface $buildingId)
+    {
+        $this-&gt;buildingId = $buildingId;
+    }
+
+    public function toString(): string
+    {
+        return $this-&gt;buildingId-&gt;toString();
+    }
+
+    public function equals($other): bool
+    {
+        if (!$other instanceof self) {
+            return false;
+        }
+
+        return $this-&gt;buildingId-&gt;equals($other-&gt;buildingId);
+    }
+
+    public function __toString(): string
+    {
+        return $this-&gt;buildingId-&gt;toString();
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/BuildingName.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building;
+
+final class BuildingName
+{
+    private $name;
+
+    public static function fromString(string $name): self
+    {
+        return new self($name);
+    }
+
+    private function __construct(string $name)
+    {
+        $this-&gt;name = $name;
+    }
+
+    public function toString(): string
+    {
+        return $this-&gt;name;
+    }
+
+    public function equals($other): bool
+    {
+        if(!$other instanceof self) {
+            return false;
+        }
+
+        return $this-&gt;name === $other-&gt;name;
+    }
+
+    public function __toString(): string
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/Username.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building;
+
+final class Username
+{
+    private $name;
+
+    public static function fromString(string $name): self
+    {
+        return new self($name);
+    }
+
+    private function __construct(string $name)
+    {
+        $this-&gt;name = $name;
+    }
+
+    public function toString(): string
+    {
+        return $this-&gt;name;
+    }
+
+    public function equals($other): bool
+    {
+        if(!$other instanceof self) {
+            return false;
+        }
+
+        return $this-&gt;name === $other-&gt;name;
+    }
+
+    public function __toString(): string
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/Command/AddBuilding.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Command;
+
+use App\Model\Building\BuildingId;
+use App\Model\Building\BuildingName;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class AddBuilding implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var BuildingName
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return BuildingName
+     */
+    public function name(): BuildingName
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/Command/CheckInUser.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Command;
+
+use App\Model\Building\BuildingId;
+use App\Model\Building\Username;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class CheckInUser implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var Username
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return Username
+     */
+    public function name(): Username
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/Command/CheckOutUser.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Command;
+
+use App\Model\Building\BuildingId;
+use App\Model\Building\Username;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class CheckOutUser implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var Username
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return Username
+     */
+    public function name(): Username
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p>Ok, much more classes now. Each property has its own value object like <code>BuildingId</code>, <code>BuildingName</code> and <code>Username</code>. Again, that's not a requirement but it adds type safety to
+the implementation and serves as documentation. Don't worry about the amount of code. Most of it can be generated using PHPStorm templates. Event Machine docs contain useful tips.
+Another possibility is the already mentioned library <a href="https://github.com/prolic/fpp">FPP</a>.</p>
+<p>With the value objects in place we've added a class for each command and implemented them as immutable records. Now we need a factory to instantiate a command with information
+taken from Event Machine messages. <code>App\Api\Command</code> already contains command specific information. Let's add the factory there.</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Api;
+
+use App\Model\Building\Command\AddBuilding;
+use App\Model\Building\Command\CheckInUser;
+use App\Model\Building\Command\CheckOutUser;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+
+class Command implements EventMachineDescription
+{
+    const ADD_BUILDING = 'AddBuilding';
+    const CHECK_IN_USER = 'CheckInUser';
+    const CHECK_OUT_USER = 'CheckOutUser';
+
+    const CLASS_MAP = [
+        self::ADD_BUILDING =&gt; AddBuilding::class,
+        self::CHECK_IN_USER =&gt; CheckInUser::class,
+        self::CHECK_OUT_USER =&gt; CheckOutUser::class,
+    ];
+
+    public static function createFromNameAndPayload(string $commandName, array $payload)
+    {
+        $class = self::CLASS_MAP[$commandName] ?? false;
+
+        if($class === false) {
+            throw new \InvalidArgumentException("Unknown command name: $commandName");
+        }
+
+        //Commands use ImmutableRecordLogic and therefor have a fromArray method
+        return $class::fromArray($payload);
+    }
+
+    public static function nameOf($command): string
+    {
+        $name = array_search(\get_class($command), self::CLASS_MAP);
+
+        if($name === false) {
+            throw new \InvalidArgumentException("Unknown command. Cannot find a name for class: " . \get_class($command));
+        }
+
+        return $name;
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p>Finally, the factory can be used in the Port:</p>
+<p><code>src/Infrastructure/Flavour/AppMssagePort.php</code></p>
+<pre><code class="language-php">/**
+ * @param Message $message
+ * @return mixed The custom message
+ */
+public function deserialize(Message $message)
+{
+    switch ($message-&gt;messageType()) {
+        case Message::TYPE_COMMAND:
+            return Command::createFromNameAndPayload($message-&gt;messageName(), $message-&gt;payload());
+            break;
+    }
+}
+</code></pre>
+<p>A similar implementation is required for events and queries:</p>
+<p><code>src/Model/Building/Event/BuildingAdded.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Event;
+
+use App\Model\Building\BuildingId;
+use App\Model\Building\BuildingName;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class BuildingAdded implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var BuildingName
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return BuildingName
+     */
+    public function name(): BuildingName
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/Event/UserCheckedIn.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Event;
+
+use App\Model\Building\BuildingId;
+use App\Model\Building\Username;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class UserCheckedIn implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var Username
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return Username
+     */
+    public function name(): Username
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/Event/DoubleCheckInDetected.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Event;
+
+use App\Model\Building\BuildingId;
+use App\Model\Building\Username;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class DoubleCheckInDetected implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var Username
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return Username
+     */
+    public function name(): Username
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/Event/UserCheckedOut.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Event;
+
+use App\Model\Building\BuildingId;
+use App\Model\Building\Username;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class UserCheckedOut implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var Username
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return Username
+     */
+    public function name(): Username
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Model/Building/Event/DoubleCheckOutDetected.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Event;
+
+use App\Model\Building\BuildingId;
+use App\Model\Building\Username;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class DoubleCheckOutDetected implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var Username
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return Username
+     */
+    public function name(): Username
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Api/Event.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Api;
+
+
+use App\Model\Building\Event\BuildingAdded;
+use App\Model\Building\Event\DoubleCheckInDetected;
+use App\Model\Building\Event\DoubleCheckOutDetected;
+use App\Model\Building\Event\UserCheckedIn;
+use App\Model\Building\Event\UserCheckedOut;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+
+class Event implements EventMachineDescription
+{
+    const BUILDING_ADDED = 'BuildingAdded';
+    const USER_CHECKED_IN = 'UserCheckedIn';
+    const USER_CHECKED_OUT = 'UserCheckedOut';
+    const DOUBLE_CHECK_IN_DETECTED = 'DoubleCheckInDetected';
+    const DOUBLE_CHECK_OUT_DETECTED = 'DoubleCheckOutDetected';
+
+    const CLASS_MAP = [
+        self::BUILDING_ADDED =&gt; BuildingAdded::class,
+        self::USER_CHECKED_IN =&gt; UserCheckedIn::class,
+        self::USER_CHECKED_OUT =&gt; UserCheckedOut::class,
+        self::DOUBLE_CHECK_IN_DETECTED =&gt; DoubleCheckInDetected::class,
+        self::DOUBLE_CHECK_OUT_DETECTED =&gt; DoubleCheckOutDetected::class,
+    ];
+
+    public static function createFromNameAndPayload(string $eventName, array $payload)
+    {
+        $class = self::CLASS_MAP[$eventName] ?? false;
+
+        if($class === false) {
+            throw new \InvalidArgumentException("Unknown event name: $eventName");
+        }
+
+        //Commands use ImmutableRecordLogic and therefor have a fromArray method
+        return $class::fromArray($payload);
+    }
+
+    public static function nameOf($event): string
+    {
+        $name = array_search(\get_class($event), self::CLASS_MAP);
+
+        if($name === false) {
+            throw new \InvalidArgumentException("Unknown event. Cannot find a name for class: " . \get_class($event));
+        }
+
+        return $name;
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p><code>src/Infrastructure/Finder/Query/GetBuilding.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Finder\Query;
+
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class GetBuilding implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var string
+     */
+    private $buildingId;
+
+    /**
+     * @return string
+     */
+    public function buildingId(): string
+    {
+        return $this-&gt;buildingId;
+    }
+}
+
+</code></pre>
+<p><code>src/Infrastructure/Finder/Query/GetBuildings.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Finder\Query;
+
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class GetBuildings implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var string|null
+     */
+    private $name;
+
+    /**
+     * @return null|string
+     */
+    public function name(): ?string
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Infrastructure/Finder/Query/GetUserBuildingList.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Finder\Query;
+
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class GetUserBuildingList implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var string
+     */
+    private $name;
+
+    /**
+     * @return string
+     */
+    public function name(): string
+    {
+        return $this-&gt;name;
+    }
+}
+
+</code></pre>
+<p><code>src/Api/Query.php</code></p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Api;
+
+use App\Infrastructure\Finder\BuildingFinder;
+use App\Infrastructure\Finder\Query\GetBuilding;
+use App\Infrastructure\Finder\Query\GetBuildings;
+use App\Infrastructure\Finder\Query\GetUserBuildingList;
+use App\Infrastructure\Finder\UserBuildingFinder;
+use App\Infrastructure\System\HealthCheckResolver;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use Prooph\EventMachine\JsonSchema\JsonSchema;
+
+class Query implements EventMachineDescription
+{
+    /**
+     * Default Query, used to perform health checks using messagebox endpoint
+     */
+    const HEALTH_CHECK = 'HealthCheck';
+    const BUILDING = 'Building';
+    const BUILDINGS = 'Buildings';
+    const USER_BUILDING = 'UserBuilding';
+
+    const CLASS_MAP = [
+        self::BUILDING =&gt; GetBuilding::class,
+        self::BUILDINGS =&gt; GetBuildings::class,
+        self::USER_BUILDING =&gt; GetUserBuildingList::class,
+    ];
+
+    public static function createFromNameAndPayload(string $queryName, array $payload)
+    {
+        if($queryName === self::HEALTH_CHECK) {
+            return new MessageBag(
+                self::HEALTH_CHECK,
+                MessageBag::TYPE_QUERY,
+                []
+            );
+        }
+
+        $class = self::CLASS_MAP[$queryName] ?? false;
+
+        if($class === false) {
+            throw new \InvalidArgumentException("Unknown query name: $queryName");
+        }
+
+        //Commands use ImmutableRecordLogic and therefor have a fromArray method
+        return $class::fromArray($payload);
+    }
+
+    public static function nameOf($query): string
+    {
+        if($query instanceof MessageBag) {
+            return $query-&gt;messageName();
+        }
+
+        $name = array_search(\get_class($query), self::CLASS_MAP);
+
+        if($name === false) {
+            throw new \InvalidArgumentException("Unknown query. Cannot find a name for class: " . \get_class($query));
+        }
+
+        return $name;
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p><code>src/Infrastructure/Flavour/AppMssagePort.php</code></p>
+<pre><code class="language-php">/**
+ * @param Message $message
+ * @return mixed The custom message
+ */
+public function deserialize(Message $message)
+{
+    switch ($message-&gt;messageType()) {
+        case Message::TYPE_COMMAND:
+            return Command::createFromNameAndPayload($message-&gt;messageName(), $message-&gt;payload());
+        case Message::TYPE_EVENT:
+            return Event::createFromNameAndPayload($message-&gt;messageName(), $message-&gt;payload());
+        case Message::TYPE_QUERY:
+            return Query::createFromNameAndPayload($message-&gt;messageName(), $message-&gt;payload());
+    }
+}
+
+</code></pre>
+<h2 id="2-11-4">Serialize Payload</h2>
+<p>To convert our own message types to Event Machine messages we have to implement the <code>serializePayload</code> method:</p>
+<p><code>src/Infrastructure/Flavour/AppMssagePort.php</code></p>
+<pre><code class="language-php">/**
+ * @param mixed $customMessage
+ * @return array
+ */
+public function serializePayload($customMessage): array
+{
+    if(is_array($customMessage)) {
+        return $customMessage;
+    }
+
+    if(!$customMessage instanceof ImmutableRecord) {
+        throw new \RuntimeException(
+            "Invalid message passed to " . __METHOD__
+            . ". Should be an immutable record, but got "
+            . (\is_object($customMessage)? \get_class($customMessage) : \gettype($customMessage)));
+    }
+
+    return $customMessage-&gt;toArray();
+}
+
+</code></pre>
+<h2 id="2-11-5">Decorate Event</h2>
+<p><code>decorateEvent</code> is a special method called for each event yielded by an aggregate function.
+The expected return type is <code>Prooph\EventMachine\Messaging\MessageBag</code>. You can think of it as an envelop
+for custom messages. The MessageBag can be used to add metadata information to events. Event Machine
+adds information like aggregate id, aggregate type, aggregate version, causation id (command id) and causation name (command name)
+by default. If you want to add additional metadata, just pass it to the MessageBag constructor (optional argument).</p>
+<p class="alert alert-light">Decorating a custom event with a MessageBas has the advantage that a custom message can be carried through the Event Machine layer
+without serialization. Event Machine assumes a normal message and adds aggregate specific metadata like described above.
+The MessageBag is then passed back to the configured flavour to call a corresponding apply function. The flavour can access
+the decorated event and pass it to the function. All without serialization in between.</p>
+<p><code>src/Infrastructure/Flavour/AppMssagePort.php</code></p>
+<pre><code class="language-php">/**
+ * @param mixed $customEvent
+ * @return MessageBag
+ */
+public function decorateEvent($customEvent): MessageBag
+{
+    return new MessageBag(
+        Event::nameOf($customEvent),
+        MessageBag::TYPE_EVENT,
+        $customEvent
+        //, [] &lt;- you could add additional metadata here
+    );
+}
+</code></pre>
+<h3 id="2-11-5-1">Get Aggregate ID from Command</h3>
+<p>Event Machine has a built-in way to locate existing aggregates using a generic command handler and repository. But it needs the correct aggregateId.
+Each command should contain the same aggregateId property. Remember that this information is part of an Event Machine description:</p>
+<p><code>src/Api/Aggregate</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Api;
+
+use App\Model\Building;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+
+class Aggregate implements EventMachineDescription
+{
+    const BUILDING = 'Building';
+
+    /**
+     * @param EventMachine $eventMachine
+     */
+    public static function describe(EventMachine $eventMachine): void
+    {
+        $eventMachine-&gt;process(Command::ADD_BUILDING)
+            -&gt;withNew(self::BUILDING)
+            -&gt;identifiedBy(Payload::BUILDING_ID) //&lt;-- AggregateId payload property
+            -&gt;handle([Building::class, 'add'])
+            -&gt;recordThat(Event::BUILDING_ADDED)
+            -&gt;apply([Building::class, 'whenBuildingAdded']);
+
+        /* ... */
+    }
+}
+
+</code></pre>
+<p>Each <code>Building</code> command should have a <code>builidngId</code> property. Our newly created commands have <code>buildingId()</code> methods that we could call.
+An explicit implementation looks like this:</p>
+<pre><code class="language-php">/**
+ * @param string $aggregateIdPayloadKey
+ * @param mixed $command
+ * @return string
+ */
+public function getAggregateIdFromCommand(string $aggregateIdPayloadKey, $command): string
+{
+    if($command instanceof AddBuilding
+        || $command instanceof CheckInUser
+        || $command instanceof CheckOutUser) {
+        return $command-&gt;buildingId()-&gt;toString();
+    }
+
+    throw new \RuntimeException("Unknown command. Cannot get aggregate id from it. Got " . get_class($command));
+}
+</code></pre>
+<p>But we would need to remember adding a new command here each time we add a new one to the system. That's annoying and interrupts the flow.
+Instead we can define an <code>AggregateCommand</code> interface that each command should implement.</p>
+<p><code>src/Model/Base/AggregateCommand.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Base;
+
+interface AggregateCommand
+{
+    public function aggregateId(): string;
+}
+
+</code></pre>
+<p><code>src/Model/Building/Command/AddBuilding.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building\Command;
+
+use App\Model\Base\AggregateCommand;
+use App\Model\Building\BuildingId;
+use App\Model\Building\BuildingName;
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class AddBuilding implements ImmutableRecord, AggregateCommand //&lt;-- Implement new interface
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var BuildingName
+     */
+    private $name;
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return BuildingName
+     */
+    public function name(): BuildingName
+    {
+        return $this-&gt;name;
+    }
+
+    public function aggregateId(): string //&lt;-- new method
+    {
+        return $this-&gt;buildingId-&gt;toString();
+    }
+}
+
+</code></pre>
+<p>Do the same for <code>CheckInUser</code> and <code>CheckOutUser</code>!</p>
+<p>Done? Great! Then we can change the Port to handle any <code>AggregateCommand</code>:</p>
+<p><code>src/Infrastructure/Flavour/AppMssagePort.php</code></p>
+<pre><code class="language-php">/**
+ * @param string $aggregateIdPayloadKey
+ * @param mixed $command
+ * @return string
+ */
+public function getAggregateIdFromCommand(string $aggregateIdPayloadKey, $command): string
+{
+    if($command instanceof AggregateCommand) {
+        return $command-&gt;aggregateId();
+    }
+
+    throw new \RuntimeException("Unknown command. Cannot get aggregate id from it. Got " . get_class($command));
+}
+
+</code></pre>
+<h2 id="2-11-6">Call Command Preprocessor</h2>
+<p>We don't know command preprocessors yet. In short: a command preprocessor can be called before a command
+is passed to an aggregate function. This can be useful in cases where you want to enrich a command with additional information or
+perform advanced validation that is not covered by Json Schema. Read more about command preprocessors in the docs.</p>
+<p>Since we don't use one in the building application, we don't really need to implement the method. Let's assume that
+our future command preprocessors will be simple callables:</p>
+<p><code>src/Infrastructure/Flavour/AppMssagePort.php</code></p>
+<pre><code class="language-php">/**
+ * @param mixed $customCommand
+ * @param mixed $preProcessor Custom preprocessor
+ * @return mixed Custom message
+ */
+public function callCommandPreProcessor($customCommand, $preProcessor)
+{
+    if(is_callable($preProcessor)) {
+        return $preProcessor($customCommand);
+    }
+
+    throw new \RuntimeException("Cannot call preprocessor. Got "
+        . (is_object($preProcessor)? get_class($preProcessor) : gettype($preProcessor))
+    );
+}
+
+</code></pre>
+<h2 id="2-11-7">Call Context Provider</h2>
+<p>Another concept that we don't know yet. A context provider can be used to inject context into aggregate functions.
+Again, read more about context providers in the docs.</p>
+<p>We're implementing a functional Flavour, so we expect a callable context provider passed to the port:</p>
+<p><code>src/Infrastructure/Flavour/AppMssagePort.php</code></p>
+<pre><code class="language-php">/**
+ * @param mixed $customCommand
+ * @param mixed $contextProvider
+ * @return mixed
+ */
+public function callContextProvider($customCommand, $contextProvider)
+{
+    if(is_callable($contextProvider)) {
+        return $contextProvider($customCommand);
+    }
+
+    throw new \RuntimeException("Cannot call context provider. Got "
+        . (is_object($contextProvider)? get_class($contextProvider) : gettype($contextProvider))
+    );
+}
+
+</code></pre>
+<p>All methods of the <code>Functional\Port</code> are implemented. Good job! But we're not done yet.</p>
+<h2 id="2-11-8">Switching The Flavour</h2>
+<p>Event Machine is looking for a Flavour in the app container passed to <code>EventMachine::initialize()</code>.
+With a new <code>flavour</code> method in the <code>ServiceFactory</code> we can provide one.</p>
+<p><code>src/Service/ServiceFactory.php</code></p>
+<pre><code class="language-php">&lt;?php
+namespace App\Service;
+
+use App\Infrastructure\Flavour\AppMessagePort;
+use Prooph\EventMachine\Runtime\Flavour;
+use Prooph\EventMachine\Runtime\FunctionalFlavour;
+/* ... */
+
+final class ServiceFactory
+{
+    use ServiceRegistry;
+
+    /**
+     * @var ArrayReader
+     */
+    private $config;
+
+    /**
+     * @var ContainerInterface
+     */
+    private $container;
+
+    public function __construct(array $appConfig)
+    {
+        $this-&gt;config = new ArrayReader($appConfig);
+    }
+
+    public function setContainer(ContainerInterface $container): void
+    {
+        $this-&gt;container = $container;
+    }
+
+    //Flavour
+    public function flavour(): Flavour
+    {
+        return $this-&gt;makeSingleton(Flavour::class, function () {
+            return new FunctionalFlavour(
+                new AppMessagePort()
+                /*
+                 * Additionally, inject a custom Prooph\EventMachine\Data\DataConverter
+                 * if aggregate state does not implement ImmutableRecord!
+                 */
+            );
+        });
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p>Additionally, a service alias is required because Event Machine uses <code>EventMachine::SERVICE_ID_FLAVOUR</code> for look ups.
+Such an alias can be defined in <code>config/container.php</code> (using the Event Machine Skeleton app):</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types = 1);
+
+$config = include 'config.php';
+
+$serviceFactory = new \App\Service\ServiceFactory($config);
+
+//@TODO use cached serviceFactoryMap for production
+$container = new \Prooph\EventMachine\Container\ReflectionBasedContainer(
+    $serviceFactory,
+    [
+        \Prooph\EventMachine\EventMachine::SERVICE_ID_EVENT_STORE =&gt; \Prooph\EventStore\EventStore::class,
+        \Prooph\EventMachine\EventMachine::SERVICE_ID_PROJECTION_MANAGER =&gt; \Prooph\EventStore\Projection\ProjectionManager::class,
+        \Prooph\EventMachine\EventMachine::SERVICE_ID_COMMAND_BUS =&gt; \App\Infrastructure\ServiceBus\CommandBus::class,
+        \Prooph\EventMachine\EventMachine::SERVICE_ID_EVENT_BUS =&gt; \App\Infrastructure\ServiceBus\EventBus::class,
+        \Prooph\EventMachine\EventMachine::SERVICE_ID_QUERY_BUS =&gt; \App\Infrastructure\ServiceBus\QueryBus::class,
+        \Prooph\EventMachine\EventMachine::SERVICE_ID_DOCUMENT_STORE =&gt; \Prooph\EventMachine\Persistence\DocumentStore::class,
+        //Flavour alias
+        \Prooph\EventMachine\EventMachine::SERVICE_ID_FLAVOUR =&gt; \Prooph\EventMachine\Runtime\Flavour::class,
+    ]
+);
+
+$serviceFactory-&gt;setContainer($container);
+
+return $container;
+
+</code></pre>
+<p>Everything set up 🎉. Refactoring can start!</p>
+<h2 id="2-11-9">Refactoring</h2>
+<p>Switching the Flavour means all generic messages have to be replaced with their concrete implementations.</p>
+<p class="alert alert-info">In a larger project we might want to switch to another Flavour step by step. In that case a "Proxy Flavour" is required that
+uses <strong>PrototypingFlavour</strong> and <strong>FunctionalFlavour</strong> (or OopFlavour) internally together with a mapping of already migrated parts of
+the application.</p>
+<p><code>src/Model/Building.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model;
+
+use App\Model\Building\Command\AddBuilding;
+use App\Model\Building\Command\CheckInUser;
+use App\Model\Building\Command\CheckOutUser;
+use App\Model\Building\Event\BuildingAdded;
+use App\Model\Building\Event\DoubleCheckInDetected;
+use App\Model\Building\Event\DoubleCheckOutDetected;
+use App\Model\Building\Event\UserCheckedIn;
+use App\Model\Building\Event\UserCheckedOut;
+
+final class Building
+{
+    public static function add(AddBuilding $addBuilding): \Generator
+    {
+        yield BuildingAdded::fromArray($addBuilding-&gt;toArray());
+    }
+
+    public static function whenBuildingAdded(BuildingAdded $buildingAdded): Building\State
+    {
+        return Building\State::fromArray($buildingAdded-&gt;toArray());
+    }
+
+    public static function checkInUser(Building\State $state, CheckInUser $checkInUser): \Generator
+    {
+        if($state-&gt;isUserCheckedIn($checkInUser-&gt;name())) {
+            yield DoubleCheckInDetected::fromArray($checkInUser-&gt;toArray());
+            return;
+        }
+
+        yield UserCheckedIn::fromArray($checkInUser-&gt;toArray());
+    }
+
+    public static function whenUserCheckedIn(Building\State $state, UserCheckedIn $userCheckedIn): Building\State
+    {
+        return $state-&gt;withCheckedInUser($userCheckedIn-&gt;name());
+    }
+
+    public static function whenDoubleCheckInDetected(Building\State $state, DoubleCheckInDetected $event): Building\State
+    {
+        //No state change required, simply return current state
+        return $state;
+    }
+
+    public static function checkOutUser(Building\State $state, CheckOutUser $checkOutUser): \Generator
+    {
+        if(!$state-&gt;isUserCheckedIn($checkOutUser-&gt;name())) {
+            yield DoubleCheckOutDetected::fromArray($checkOutUser-&gt;toArray());
+            return;
+        }
+
+        yield UserCheckedOut::fromArray($checkOutUser-&gt;toArray());
+    }
+
+    public static function whenUserCheckedOut(Building\State $state, UserCheckedOut $userCheckedOut): Building\State
+    {
+        return $state-&gt;withCheckedOutUser($userCheckedOut-&gt;name());
+    }
+
+    public static function whenDoubleCheckOutDetected(Building\State $state, DoubleCheckOutDetected $event): Building\State
+    {
+        //No state change required, simply return current state
+        return $state;
+    }
+}
+
+
+</code></pre>
+<p><code>Building\State</code> should make use of the new data types as well:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Model\Building;
+
+use Prooph\EventMachine\Data\ImmutableRecord;
+use Prooph\EventMachine\Data\ImmutableRecordLogic;
+
+final class State implements ImmutableRecord
+{
+    use ImmutableRecordLogic;
+
+    /**
+     * @var BuildingId
+     */
+    private $buildingId;
+
+    /**
+     * @var BuildingName
+     */
+    private $name;
+
+    /**
+     * @var Username[]
+     */
+    private $users = [];
+
+    private static function arrayPropItemTypeMap(): array
+    {
+        return ['users' =&gt; Username::class];
+    }
+
+    /**
+     * Called in constructor after setting props but before not null assertion
+     *
+     * Override to set default props after construction
+     */
+    private function init(): void
+    {
+        //Build internal users map
+        $users = [];
+        foreach ($this-&gt;users as $username) {
+            $users[$username-&gt;toString()] = null;
+        }
+        $this-&gt;users = $users;
+    }
+
+    /**
+     * @return BuildingId
+     */
+    public function buildingId(): BuildingId
+    {
+        return $this-&gt;buildingId;
+    }
+
+    /**
+     * @return BuildingName
+     */
+    public function name(): BuildingName
+    {
+        return $this-&gt;name;
+    }
+
+    /**
+     * @return Username[]
+     */
+    public function users(): array
+    {
+        return array_map(function (string $username) {
+            return Username::fromString($username);
+        }, array_keys($this-&gt;users));
+    }
+
+    public function withCheckedInUser(Username $username): State
+    {
+        $copy = clone $this;
+        $copy-&gt;users[$username-&gt;toString()] = null;
+        return $copy;
+    }
+
+    public function withCheckedOutUser(Username $username): State
+    {
+        if(!$this-&gt;isUserCheckedIn($username)) {
+            return $this;
+        }
+
+        $copy = clone $this;
+        unset($copy-&gt;users[$username-&gt;toString()]);
+        return $copy;
+    }
+
+    public function isUserCheckedIn(Username $username): bool
+    {
+        return array_key_exists($username-&gt;toString(), $this-&gt;users);
+    }
+}
+
+</code></pre>
+<p><code>UserBuildingList</code> projector now needs to implement the interface <code>Prooph\EventMachine\Projecting\CustomEventProjector</code>
+instead of <code>Prooph\EventMachine\Projecting\Projector</code>:</p>
+<p><code>src/Infrastructure/Projector/UserBuildingList.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Projector;
+
+use App\Api\Event;
+use App\Api\Payload;
+use App\Model\Building\Event\UserCheckedIn;
+use App\Model\Building\Event\UserCheckedOut;
+use Prooph\EventMachine\Persistence\DocumentStore;
+use Prooph\EventMachine\Projecting\AggregateProjector;
+use Prooph\EventMachine\Projecting\CustomEventProjector;
+
+final class UserBuildingList implements CustomEventProjector
+{
+    /**
+     * @var DocumentStore
+     */
+    private $documentStore;
+
+    public function __construct(DocumentStore $documentStore)
+    {
+        $this-&gt;documentStore = $documentStore;
+    }
+
+    public function prepareForRun(string $appVersion, string $projectionName): void
+    {
+        if(!$this-&gt;documentStore-&gt;hasCollection($this-&gt;generateCollectionName($appVersion, $projectionName))) {
+            $this-&gt;documentStore-&gt;addCollection(
+                $this-&gt;generateCollectionName($appVersion, $projectionName)
+            /* Note: we could pass index configuration as a second argument, see docs for details */
+            );
+        }
+    }
+
+    public function handle(string $appVersion, string $projectionName, $event): void
+    {
+        $collection = $this-&gt;generateCollectionName($appVersion, $projectionName);
+
+        switch (\get_class($event)) {
+            case UserCheckedIn::class:
+                /** @var $event UserCheckedIn */
+                $this-&gt;documentStore-&gt;addDoc(
+                    $collection,
+                    $event-&gt;name()-&gt;toString(), //Use username as doc id
+                    [Payload::BUILDING_ID =&gt; $event-&gt;buildingId()-&gt;toString()]
+                );
+                break;
+            case UserCheckedOut::class:
+                /** @var $event UserCheckedOut */
+                $this-&gt;documentStore-&gt;deleteDoc($collection, $event-&gt;name()-&gt;toString());
+                break;
+            default:
+                //Ignore unknown events
+        }
+    }
+
+    public function deleteReadModel(string $appVersion, string $projectionName): void
+    {
+        $this-&gt;documentStore-&gt;dropCollection($this-&gt;generateCollectionName($appVersion, $projectionName));
+    }
+
+    private function generateCollectionName(string $appVersion, string $projectionName): string
+    {
+        //We can use the naming strategy of the aggregate projector for our custom projection, too
+        return AggregateProjector::generateCollectionName($appVersion, $projectionName);
+    }
+}
+
+</code></pre>
+<p>The <code>UiExchange</code> event listener included in the skeleton application needs to b aligned, too.
+First, the corresponding interface should handle any type of event:</p>
+<p><code>src/Infrastructure/ServiceBus/UiExchange.php</code></p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace App\Infrastructure\ServiceBus;
+
+use Prooph\EventMachine\Messaging\Message;
+
+/**
+ * Marker Interface UiExchange
+ *
+ * @package App\Infrastructure\ServiceBus
+ */
+interface UiExchange
+{
+    public function __invoke($event): void;
+}
+</code></pre>
+<p>Second, an implementation of the interface should handle our event objects. The skeleton simply uses an anonymous class
+to implement the interface. It can be found and changed in the <code>ServiceFactory</code>.</p>
+<p class="alert alert-warning">It's an anonymous class because the UiExchange is only included in the skeleton to demonstrate how events can be pushed
+to a message queue and consumed by a UI. The implementation is not meant to be used in production. You can get some inspiration
+from it, but please work out a production grade solution yourself.</p>
+<p><code>src/Service/ServiceFactory.php</code></p>
+<pre><code class="language-php">&lt;?php
+namespace App\Service;
+
+/* ... */
+
+final class ServiceFactory
+{
+    /* ... */
+
+    public function uiExchange(): UiExchange
+    {
+        return $this-&gt;makeSingleton(UiExchange::class, function () {
+           $this-&gt;assertMandatoryConfigExists('rabbit.connection');
+
+            $connection = new \Humus\Amqp\Driver\AmqpExtension\Connection(
+                $this-&gt;config-&gt;arrayValue('rabbit.connection')
+            );
+
+            $connection-&gt;connect();
+
+            $channel = $connection-&gt;newChannel();
+
+            $exchange = $channel-&gt;newExchange();
+
+            $exchange-&gt;setName($this-&gt;config-&gt;stringValue('rabbit.ui_exchange', 'ui-exchange'));
+
+            $exchange-&gt;setType('fanout');
+
+            $humusProducer = new \Humus\Amqp\JsonProducer($exchange);
+
+            $messageProducer = new \Prooph\ServiceBus\Message\HumusAmqp\AmqpMessageProducer(
+                $humusProducer,
+                new class implements MessageConverter {
+                    public function convertToArray(\Prooph\Common\Messaging\Message $domainMessage): array
+                    {
+                        return [
+                            'uuid' =&gt; $domainMessage-&gt;uuid()-&gt;toString(),
+                            'message_name' =&gt; $domainMessage-&gt;messageName(),
+                            'payload' =&gt; $domainMessage-&gt;payload(),
+                            'metadata' =&gt; $domainMessage-&gt;metadata(),
+                            'created_at' =&gt; $domainMessage-&gt;createdAt()
+                        ];
+                    }
+                }
+            );
+
+            $flavour = $this-&gt;flavour();
+
+            return new class($messageProducer, $flavour) implements UiExchange {
+                private $producer;
+                private $flavour;
+                public function __construct(AmqpMessageProducer $messageProducer, Flavour $flavour)
+                {
+                    $this-&gt;producer = $messageProducer;
+                    $this-&gt;flavour = $flavour;
+                }
+
+                public function __invoke($event): void
+                {
+                    $messageBag = new MessageBag(
+                        Event::nameOf($event),
+                        MessageBag::TYPE_EVENT,
+                        $event
+                    );
+
+                    $this-&gt;producer-&gt;__invoke($this-&gt;flavour-&gt;prepareNetworkTransmission($messageBag));
+                }
+            };
+        });
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p>Finally, the two query resolvers should use typed queries:</p>
+<p><code>src/Infrastructure/Finder/BuildingFinder.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Finder;
+
+use App\Api\Payload;
+use App\Infrastructure\Finder\Query\GetBuilding;
+use App\Infrastructure\Finder\Query\GetBuildings;
+use Prooph\EventMachine\Persistence\DocumentStore;
+use React\Promise\Deferred;
+
+final class BuildingFinder
+{
+    /**
+     * @var DocumentStore
+     */
+    private $documentStore;
+
+    /**
+     * @var string
+     */
+    private $collectionName;
+
+    public function __construct(string $collectionName, DocumentStore $documentStore)
+    {
+        $this-&gt;collectionName = $collectionName;
+        $this-&gt;documentStore = $documentStore;
+    }
+
+    public function __invoke($buildingQuery, Deferred $deferred): void
+    {
+        switch (\get_class($buildingQuery)) {
+            case GetBuilding::class:
+                /** @var $buildingQuery GetBuilding */
+                $this-&gt;resolveBuilding($deferred, $buildingQuery-&gt;buildingId());
+                break;
+            case GetBuildings::class:
+                /** @var $buildingQuery GetBuildings */
+                $this-&gt;resolveBuildings($deferred, $buildingQuery-&gt;name());
+                break;
+            default:
+                throw new \InvalidArgumentException("Unknown query. Got "
+                    . (is_object($buildingQuery)? get_class($buildingQuery) : gettype($buildingQuery))
+                );
+        }
+    }
+
+    private function resolveBuilding(Deferred $deferred, string $buildingId): void
+    {
+        $buildingDoc = $this-&gt;documentStore-&gt;getDoc($this-&gt;collectionName, $buildingId);
+
+        if(!$buildingDoc) {
+            $deferred-&gt;reject(new \RuntimeException('Building not found', 404));
+            return;
+        }
+
+        $deferred-&gt;resolve($buildingDoc);
+    }
+
+    private function resolveBuildings(Deferred $deferred, string $nameFilter = null): array
+    {
+        $filter = $nameFilter?
+            new DocumentStore\Filter\LikeFilter(Payload::NAME, "%$nameFilter%")
+            : new DocumentStore\Filter\AnyFilter();
+
+        $cursor = $this-&gt;documentStore-&gt;filterDocs($this-&gt;collectionName, $filter);
+
+        $deferred-&gt;resolve(iterator_to_array($cursor));
+    }
+}
+
+</code></pre>
+<p class="alert alert-info">You might have noticed that the queries don't use value objects like commands or events. That's because we don't want to couple
+the read model with the write model that much. Simple scalar types are usually enough for queries. Validation is done by Json Schema anyway.</p>
+<p><code>src/Infrastructure/Finder/UserBuildingFinder.phhp</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace App\Infrastructure\Finder;
+
+use App\Api\Payload;
+use App\Infrastructure\Finder\Query\GetUserBuildingList;
+use Prooph\EventMachine\Persistence\DocumentStore;
+use React\Promise\Deferred;
+
+final class UserBuildingFinder
+{
+    /**
+     * @var DocumentStore
+     */
+    private $documentStore;
+
+    /**
+     * @var string
+     */
+    private $userBuildingCollection;
+
+    /**
+     * @var string
+     */
+    private $buildingCollection;
+
+    public function __construct(DocumentStore $documentStore, string $userBuildingCol, string $buildingCol)
+    {
+        $this-&gt;documentStore = $documentStore;
+        $this-&gt;userBuildingCollection = $userBuildingCol;
+        $this-&gt;buildingCollection = $buildingCol;
+    }
+
+    public function __invoke(GetUserBuildingList $query, Deferred $deferred): void
+    {
+        $userBuilding = $this-&gt;documentStore-&gt;getDoc(
+            $this-&gt;userBuildingCollection,
+            $query-&gt;name()
+        );
+
+        if(!$userBuilding) {
+            $deferred-&gt;resolve([
+                'user' =&gt; $query-&gt;name(),
+                'building' =&gt; null
+            ]);
+            return;
+        }
+
+        $building = $this-&gt;documentStore-&gt;getDoc(
+            $this-&gt;buildingCollection,
+            $userBuilding['buildingId']
+        );
+
+        if(!$building) {
+            $deferred-&gt;resolve([
+                'user' =&gt; $query-&gt;name(),
+                'building' =&gt; null
+            ]);
+            return;
+        }
+
+        $deferred-&gt;resolve([
+            'user' =&gt; $query-&gt;name(),
+            'building' =&gt; $building
+        ]);
+        return;
+    }
+}
+
+</code></pre>
+<p>That's it! You can use the <a href="http://localhost:8080/swagger/index.html#/">Swagger UI</a> to test changes.</p>
+<p>Or wait! We did not run the tests!</p>
+<pre><code class="language-bash">docker-compose run php php vendor/bin/phpunit
+</code></pre>
+<p>Doesn't look good, right? Let's fix them!</p>
+<p>The skeleton provides a <code>BaseTestCase</code> and in its <code>setUp</code> method we can change the Flavour used during testing.</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace AppTest;
+
+use App\Infrastructure\Flavour\AppMessagePort;
+use PHPUnit\Framework\TestCase;
+use Prooph\EventMachine\Container\ContainerChain;
+use Prooph\EventMachine\Container\EventMachineContainer;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Runtime\FunctionalFlavour;
+
+class BaseTestCase extends TestCase
+{
+    /**
+     * @var EventMachine
+     */
+    protected $eventMachine;
+
+    /**
+     * @var Flavour
+     */
+    protected $flavour;
+
+    protected function setUp()
+    {
+        $this-&gt;eventMachine = new EventMachine();
+        $this-&gt;flavour = new FunctionalFlavour(new AppMessagePort());
+
+        $config = include __DIR__ . '/../config/autoload/global.php';
+
+        foreach ($config['event_machine']['descriptions'] as $description) {
+            $this-&gt;eventMachine-&gt;load($description);
+        }
+
+        $this-&gt;eventMachine-&gt;initialize(
+            new ContainerChain(
+                new FlavourContainer($this-&gt;flavour),
+                new EventMachineContainer($this-&gt;eventMachine)
+            )
+        );
+    }
+
+    /* ... */
+}
+
+</code></pre>
+<p>The <code>assertRecordedEvent</code> method needs an adjustment, too:</p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace AppTest;
+
+use App\Infrastructure\Flavour\AppMessagePort;
+use PHPUnit\Framework\TestCase;
+use Prooph\EventMachine\Container\ContainerChain;
+use Prooph\EventMachine\Container\EventMachineContainer;
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\Messaging\Message;
+use Prooph\EventMachine\Runtime\FunctionalFlavour;
+
+class BaseTestCase extends TestCase
+{
+    /**
+     * @var EventMachine
+     */
+    protected $eventMachine;
+
+    /**
+     * @var Flavour
+     */
+    protected $flavour;
+
+    /* ... */
+
+    protected function assertRecordedEvent(string $eventName, array $payload, array $events, $assertNotRecorded = false): void
+    {
+        $isRecorded = false;
+
+        foreach ($events as $evt) {
+            if($evt === null) {
+                continue;
+            }
+
+            //Convert domain events to raw data
+            $evtName = Event::nameOf($evt);
+            $evtPayload = $evt-&gt;toArray();
+
+            if($eventName === $evtName) {
+                $isRecorded = true;
+
+                if(!$assertNotRecorded) {
+                    $this-&gt;assertEquals($payload, $evtPayload, "Payload of recorded event $evtName does not match with expected payload.");
+                }
+            }
+        }
+
+        if($assertNotRecorded) {
+            $this-&gt;assertFalse($isRecorded, "Event $eventName is recorded");
+        } else {
+            $this-&gt;assertTrue($isRecorded, "Event $eventName is not recorded");
+        }
+    }
+}
+
+</code></pre>
+<p><code>NotifySecurityTest</code> contains a mocked <code>UiExchange</code>. We changed the interface earlier, but did not change the mock.
+The test itself needs minor adjustments, too.</p>
+<p><code>tests/Integration/NotifySecurityTest.php</code></p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace AppTest\Integration;
+
+use App\Api\Command;
+use App\Api\Event;
+use App\Api\Payload;
+use App\Infrastructure\ServiceBus\UiExchange;
+use AppTest\BaseTestCase;
+
+final class NotifySecurityTest extends BaseTestCase
+{
+    const BUILDING_ID = '7c5f0c8a-54f2-4969-9596-b5bddc1e9421';
+    const BUILDING_NAME = 'Acme Headquarters';
+    const USERNAME = 'John';
+
+    private $uiExchange;
+
+    protected function setUp()
+    {
+        //The BaseTestCase loads all Event Machine descriptions configured in config/autoload/global.php
+        parent::setUp();
+
+        //Mock UiExchange with an anonymous class that keeps track of the last received message
+        $this-&gt;uiExchange = new class implements UiExchange {
+
+            private $lastReceivedMessage;
+
+            public function __invoke($event): void
+            {
+                $this-&gt;lastReceivedMessage = $event;
+            }
+
+            public function lastReceivedMessage()
+            {
+                return $this-&gt;lastReceivedMessage;
+            }
+        };
+    }
+
+    /**
+     * @test
+     */
+    public function it_detects_double_check_in_and_notifies_security()
+    {
+        $this-&gt;eventMachine-&gt;bootstrapInTestMode(
+        //Add history events that should have been recorded before current test scenario
+            [
+                $this-&gt;message(Event::BUILDING_ADDED, [
+                    Payload::BUILDING_ID =&gt; self::BUILDING_ID,
+                    Payload::NAME =&gt; self::BUILDING_NAME
+                ]),
+                $this-&gt;message(Event::USER_CHECKED_IN, [
+                    Payload::BUILDING_ID =&gt; self::BUILDING_ID,
+                    Payload::NAME =&gt; self::USERNAME
+                ]),
+            ],
+            //Provide mocked services used in current test scenario, if you forget one the test will throw an exception
+            //You don't have to mock the event store and document store, that is done internally
+            [
+                //Remember, UiExchange is our process manager that pushes events to rabbit
+                //Event Machine is configured to push DoubleCheckInDetected events on to UiExchange (src/Api/Listener.php)
+                UiExchange::class =&gt; $this-&gt;uiExchange
+            ]
+        );
+
+        //Try to check in John twice
+        $checkInJohn = $this-&gt;message(Command::CHECK_IN_USER, [
+            Payload::BUILDING_ID =&gt; self::BUILDING_ID,
+            Payload::NAME =&gt; self::USERNAME
+        ]);
+
+        $this-&gt;eventMachine-&gt;dispatch($checkInJohn);
+
+        //After dispatch $this-&gt;lastPublishedEvent points to the event received by UiExchange mock
+        $this-&gt;assertNotNull($this-&gt;uiExchange-&gt;lastReceivedMessage());
+
+        $this-&gt;assertEquals(Event::DOUBLE_CHECK_IN_DETECTED, Event::nameOf($this-&gt;uiExchange-&gt;lastReceivedMessage()));
+
+        $this-&gt;assertEquals([
+            Payload::BUILDING_ID =&gt; self::BUILDING_ID,
+            Payload::NAME =&gt; self::USERNAME
+        ], $this-&gt;uiExchange-&gt;lastReceivedMessage()-&gt;toArray());
+    }
+}
+</code></pre>
+<p>Next on the list is <code>BuildingTest</code>. It breaks because we introduced types for building state properties.
+That's going to be an easy fix.</p>
+<p><code>tests/Model/BuildingTest.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace AppTest\Model;
+
+use App\Api\Event;
+use App\Api\Payload;
+use AppTest\BaseTestCase;
+use Ramsey\Uuid\Uuid;
+use App\Model\Building;
+
+class BuildingTest extends BaseTestCase
+{
+    /* ... */
+
+    /**
+     * @test
+     */
+    public function it_detects_double_check_in()
+    {
+        /* ... */
+
+        $state = $state-&gt;withCheckedInUser(Building\Username::fromString($this-&gt;username));
+
+        /* ... */
+    }
+}
+
+</code></pre>
+<p>And last adjustments in <code>UserBuildingListTest::it_manages_list_of_users_with_building_reference()</code>.
+The projector expects dedicated event objects now.</p>
+<p><code>tests/Infrastructure/Projector/UserBuildingListTest.php</code></p>
+<pre><code class="language-php">&lt;?php
+declare(strict_types=1);
+
+namespace AppTest\Infrastructure\Projector;
+
+use App\Api\Payload;
+use App\Infrastructure\Projector\UserBuildingList;
+use App\Model\Building\Event\UserCheckedIn;
+use App\Model\Building\Event\UserCheckedOut;
+use AppTest\BaseTestCase;
+use Prooph\EventMachine\Persistence\DocumentStore;
+use Prooph\EventMachine\Persistence\InMemoryConnection;
+use Prooph\EventMachine\Projecting\AggregateProjector;
+
+final class UserBuildingListTest extends BaseTestCase
+{
+    const APP_VERSION = '0.1.0';
+    const PROJECTION_NAME = 'user_building_list';
+    const BUILDING_ID = '7c5f0c8a-54f2-4969-9596-b5bddc1e9421';
+    const USERNAME1 = 'John';
+    const USERNAME2 = 'Jane';
+
+    /**
+     * @var DocumentStore
+     */
+    private $documentStore;
+
+    /**
+     * @var UserBuildingList
+     */
+    private $projector;
+
+    protected function setUp()
+    {
+        parent::setUp();
+
+        $this-&gt;documentStore = new DocumentStore\InMemoryDocumentStore(new InMemoryConnection());
+        $this-&gt;projector = new UserBuildingList($this-&gt;documentStore);
+        $this-&gt;projector-&gt;prepareForRun(self::APP_VERSION, self::PROJECTION_NAME);
+    }
+
+    /**
+     * @test
+     */
+    public function it_manages_list_of_users_with_building_reference()
+    {
+        $collection = AggregateProjector::generateCollectionName(self::APP_VERSION, self::PROJECTION_NAME);
+
+        $johnCheckedIn = UserCheckedIn::fromArray([
+            Payload::BUILDING_ID =&gt; self::BUILDING_ID,
+            Payload::NAME =&gt; self::USERNAME1
+        ]);
+
+        $this-&gt;projector-&gt;handle(self::APP_VERSION, self::PROJECTION_NAME, $johnCheckedIn);
+
+        $users = iterator_to_array($this-&gt;documentStore-&gt;filterDocs($collection, new DocumentStore\Filter\AnyFilter()));
+
+        $this-&gt;assertEquals($users, [
+            'John' =&gt; ['buildingId' =&gt; self::BUILDING_ID]
+        ]);
+
+        $janeCheckedIn = UserCheckedIn::fromArray([
+            Payload::BUILDING_ID =&gt; self::BUILDING_ID,
+            Payload::NAME =&gt; self::USERNAME2
+        ]);
+
+        $this-&gt;projector-&gt;handle(self::APP_VERSION, self::PROJECTION_NAME, $janeCheckedIn);
+
+        $users = iterator_to_array($this-&gt;documentStore-&gt;filterDocs($collection, new DocumentStore\Filter\AnyFilter()));
+
+        $this-&gt;assertEquals($users, [
+            'John' =&gt; ['buildingId' =&gt; self::BUILDING_ID],
+            'Jane' =&gt; ['buildingId' =&gt; self::BUILDING_ID],
+        ]);
+
+        $johnCheckedOut = UserCheckedOut::fromArray([
+            Payload::BUILDING_ID =&gt; self::BUILDING_ID,
+            Payload::NAME =&gt; self::USERNAME1
+        ]);
+
+        $this-&gt;projector-&gt;handle(self::APP_VERSION, self::PROJECTION_NAME, $johnCheckedOut);
+
+        $users = iterator_to_array($this-&gt;documentStore-&gt;filterDocs($collection, new DocumentStore\Filter\AnyFilter()));
+
+        $this-&gt;assertEquals($users, [
+            'Jane' =&gt; ['buildingId' =&gt; self::BUILDING_ID],
+        ]);
+    }
+}
+
+</code></pre>
+<p class="alert alert-success"><strong>Tests are green again. Refactoring finished successfully. Was it worth the effort?</strong>
+Switching the Flavour is quite some workt to do, isn't it? Depending on the amount of already written code and tests this task can take some days and you need to make sure
+that you don't break existing functionality. On the other hand you get a fully decoupled domain model.
+Of course, it's also possible to use another Flavour right from the beginning. But keep in mind, that the PrototypingFlavour saves a lot of time in the early days
+of a project. You don't know if the first app version really meets business and user needs. You can only try and experiment. The faster you have a working
+app, the faster you can get feedback from users and stakeholders. A lean implementation and simple infrastructure gives you a lot of flexibility at the beginning.
+Starting with a MVP is not a new concept. Event Machine just gives you a nice tool to build one and
+reuse parts of your experiments in later project phases. Also using CQRS / ES from day one gives you full advantage of a reactive system.</p>
+<p>Still curious to see what the <strong>OopFlavour</strong> can do? The last bonus part sheds light on it.</p>
+</div>        </div>
+    </div>
+</div>
+
+<footer>
+    <div class="links">
+        <div class="container">
+            <div class="row">
+                <div class="prev col-xs-6">
+                                            <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Previous</a>                                    </div>
+                <div class="next col-xs-6">
+                                            <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Next</a>                                    </div>
+            </div>
+        </div>
+    </div>
+    <div id="copyright">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-12">
+                    <p><a href="http://prooph-software.de/about.html">Imprint</a> | Powered by <a href="https://github.com/tobiju/bookdown-bootswatch-templates" title="Visit project to generate your own docs">Bookdown Bootswatch Templates</a>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</footer>
+</div>
+<span id="forkongithub"><a href="https://github.com/proophsoftware/event-machine-docs">Fork me on GitHub</a></span><script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"
+        integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS"
+        crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lunr.js/0.6.0/lunr.min.js"></script>
+<script src="http://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+<script src="https://tobiju.github.io/share/prismjs/main.js"></script>
+<script src="https://tobiju.github.io/share/prismjs/prism.js"></script>
+<script type="text/javascript">
+
+    function Search() {
+        this.store = {};
+        this.index = lunr(function () {
+            this.ref('id');
+            this.field('title', {boost: 10});
+            this.field('content');
+        });
+        this.searchResults = $('.js-search-results').addClass('list-search-results');
+    }
+
+    Search.prototype = {
+        constructor: Search,
+        init: function () {
+            this.createIndex();
+            this.bindEvents();
+        },
+        createIndex: function () {
+            var $this = this,
+                indexFilePath = $('.js-search-input').data('roothref') + 'index.json';
+
+            $.getJSON(indexFilePath, function (data) {
+                $.each(data, function (key, item) {
+                    $this.index.add({
+                        id: item.id,
+                        title: item.title,
+                        content: item.content
+                    });
+
+                    $this.store[item.id] = {
+                        href: item.id,
+                        title: item.title,
+                        content: item.content
+                    }
+                });
+            });
+        },
+        bindEvents: function () {
+            var $this = this;
+
+            $('html')
+                .on('click', function (event) {
+                    $this.close($(this), event);
+                });
+
+            $('.js-search-input, .js-search-results')
+                .on('click', function (event) {
+                    $this.click($(this), event);
+                });
+
+            $('.js-search-input')
+                .on('focus', function (event) {
+                    $this.focus($(this), event);
+                })
+                .on('keyup', function (event) {
+                    $this.search($(this), event)
+                })
+                .on('keydown', function (event) {
+                    if ($('.js-search-results ul').is(':visible')){
+                        $this.navigation($(this), event)
+                    }
+                })
+        },
+        click: function (element, event) {
+            event.stopPropagation();
+        },
+        focus: function (element, event) {
+            this.searchInputWidth = element.css('width');
+            element.animate({
+                'width': 600
+            }, 500);
+            $('#js-navbar-collapse > ul').fadeOut();
+        },
+        close: function (element, event) {
+            var $this = this;
+
+            $('.js-search-results').hide();
+            $('.js-search-input').animate({
+                'width': $this.searchInputWidth
+            }, 500);
+            $('#js-navbar-collapse > ul').fadeIn();
+        },
+        search: function (element, event) {
+            var $this = this;
+
+            if (event.keyCode == 13 || event.keyCode == 38 || event.keyCode == 40) {
+                return;
+            }
+
+            var query = element.val(),
+                results = $this.index.search(query);
+
+            if (!results.length) {
+                $this.searchResults.empty();
+                return;
+            }
+
+            var resultsList = results.reduce(function (ul, result) {
+                var item = $this.store[result.ref];
+                var title = $('<b>').text(item.title);
+
+                var cropText = $this.cropText(item.content, query);
+                if (cropText.length === 0) {
+                    cropText = $('<p>').html(item.content.substring(0, 120) + "...");
+                }
+                var content = content = $('<p>').html(cropText);
+
+                var div = $('<div>')
+                    .append(title)
+                    .append(content);
+                var a = $('<a>').attr('href', item.href)
+                    .append(div);
+                var li = $('<li>')
+                    .append(a);
+                ul.append(li);
+
+                return ul;
+            }, $('<ul>'));
+
+            this.searchResults.html(resultsList);
+
+            $('.js-search-results').show();
+            $(".js-search-results li:first-child").addClass('selected');
+        },
+        cropText: function (content, query) {
+            var cropedText = '',
+                re = new RegExp("\\s?(.{0,30})?" + query + ".*?\\b(.{0,30}.)?\\s?", "gi");
+
+            $.each(content.match(re), function (key, value) {
+                cropedText += '...' + value + '...';
+            });
+
+            return cropedText;
+        },
+        navigation: function (element, event) {
+            var selected = null,
+                listSelector = ".js-search-results ul",
+                listItemSelector = listSelector + " li",
+                selectedListItemSelector = listItemSelector + ".selected",
+                selectedListItemSelectorAnchor = listItemSelector + ".selected a";
+
+            // enter
+            if (event.keyCode == 13) {
+                event.preventDefault();
+                this.close();
+                window.location.replace($(selectedListItemSelectorAnchor).attr('href'));
+            }
+
+            // up
+            if (event.keyCode == 38) {
+                selected = $(selectedListItemSelector);
+                $(listItemSelector).removeClass("selected");
+
+                if (selected.prev().length == 0) {
+                    selected.siblings().last().addClass("selected");
+                } else {
+                    selected.prev().addClass("selected");
+                }
+
+                selected = $(selectedListItemSelector);
+                this.scrollListUp(selected);
+            }
+
+            // down
+            if (event.keyCode == 40) {
+                selected = $(selectedListItemSelector);
+                $(listItemSelector).removeClass("selected");
+
+                if (selected.next().length == 0) {
+                    selected.siblings().first().addClass("selected");
+                } else {
+                    selected.next().addClass("selected");
+                }
+
+                selected = $(selectedListItemSelector);
+                this.scrollListDown(selected);
+            }
+        },
+        scrollListDown: function (element) {
+            var ul = element.parent(),
+                ulHeight = ul.height(),
+                ulBottomPosition = ulHeight + ul.scrollTop(),
+                liBottomPosition = element.position().top + element.height();
+
+            if (liBottomPosition > ulBottomPosition) {
+                ul.scrollTop(liBottomPosition - ulHeight);
+            }
+
+            if (element.is(':first-child')) {
+                ul.scrollTop(0);
+            }
+        },
+        scrollListUp: function (element) {
+            var ul = element.parent(),
+                ulTopPosition = ul.scrollTop(),
+                liTopPosition = element.position().top;
+
+            if (liTopPosition < ulTopPosition) {
+                ul.scrollTop(element.position().top);
+            }
+
+            if (element.is(':last-child')) {
+                ul.scrollTop(element.position().top - element.height());
+            }
+        }
+    };
+
+    $(function () {
+        var search = new Search();
+        search.init();
+    });
+</script>
+<script src="https://bartaz.github.io/sandbox.js/jquery.highlight.js"></script>
+</body></html>
