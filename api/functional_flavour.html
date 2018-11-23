@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
 <meta name="HandheldFriendly" content="True"/>
-<title>About Event Machine</title>
+<title>Functional Flavour</title>
 <link rel="shortcut icon" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/prooph-logo@0.5x.png">
 <link rel="apple-touch-icon-precomposed" sizes="144x144" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-144-precomposed.png">
 <link rel="apple-touch-icon-precomposed" sizes="114x114" href="https://raw.githubusercontent.com/prooph/proophessor/gh-pages/images/ico/apple-touch-icon-114-precomposed.png">
@@ -811,8 +811,8 @@
 <div class="container">
     <ol class="breadcrumb">
                         <li><a href="https://proophsoftware.github.io/event-machine/">Event Machine Docs</a></li>
-                                <li><a href="https://proophsoftware.github.io/event-machine/intro/">Introduction</a></li>
-                                <li class="active">About Event Machine</li>
+                                <li><a href="https://proophsoftware.github.io/event-machine/api/">API</a></li>
+                                <li class="active">Functional Flavour</li>
             </ol>
     <div class="row">
 
@@ -820,46 +820,622 @@
             <nav class="nav-left hidden-xs hidden-sm" id="sideNav">
     <ul class="nav nav-stacked" data-spy="affix" data-offset-top="59" role="tablist">
                                 <li>
-                <a href="#1-1" title="About&#x20;Event&#x20;Machine">About Event Machine</a>
+                <a href="#3-3" title="Functional&#x20;Flavour">Functional Flavour</a>
             </li>
                                 <li>
-                <a href="#1-1-1" title="Origin">Origin</a>
+                <a href="#3-3-1" title="Functions&#x20;vs.&#x20;Objects">Functions vs. Objects</a>
+            </li>
+                                <li>
+                <a href="#3-3-2" title="1.&#x20;Pure&#x20;Functions">1. Pure Functions</a>
             </li>
                                                         <li>
-                <a href="#1-1-2" title="Event&#x20;Machine&#x20;Flavours">Event Machine Flavours</a>
+                <a href="#3-3-3" title="2.&#x20;Stateless&#x20;Functions">2. Stateless Functions</a>
+            </li>
+                                                                                <li>
+                <a href="#3-3-4" title="3.&#x20;Side-Effect&#x20;Free&#x20;Functions">3. Side-Effect Free Func...</a>
             </li>
                                 <li>
-                <a href="#1-1-3" title="Powered&#x20;By">Powered By</a>
+                <a href="#3-3-5" title="Read&#x20;I&#x2F;O">Read I/O</a>
+            </li>
+                                <li>
+                <a href="#3-3-6" title="Write&#x20;I&#x2F;O">Write I/O</a>
+            </li>
+                                <li>
+                <a href="#3-3-7" title="Aggregate&#x20;Lifecycle">Aggregate Lifecycle</a>
+            </li>
+                                <li>
+                <a href="#3-3-8" title="RecordThat">RecordThat</a>
             </li>
             </ul>
 </nav>
         </div>
                 <div class="col-md-9">
-<div id="section-main"><h1 id="1-1">About Event Machine</h1>
-<p>prooph software Event Machine takes away all the boring, time consuming parts of event sourcing to speed up
-development of event sourced applications and increase the fun. It can be used for prototypes as well as full featured applications.</p>
-<h2 id="1-1-1">Origin</h2>
-<p>Event Machine was originally designed as a "workshop framework" for CQRS and Event Sourcing and is inspired by the <strong>Dreyfus model</strong>.</p>
-<h3 id="1-1-1-1">Beginner friendly</h3>
+<div id="section-main"><h1 id="3-3">Functional Flavour</h1>
 <blockquote>
-<p>The Dreyfus model distinguishes five levels of competence, from novice to mastery. At the absolute beginner level people execute tasks based on “rigid adherence to taught rules or plans”. Beginners need recipes. They don’t need a list of parts, or a dozen different ways to do the same thing. Instead what works are step by step instructions that they can internalize. As they practice them over time they learn the reasoning behind them, and learn to deviate from them and improvise, but they first need to feel like they’re doing something.</p>
+<p>Event Sourced Aggregates are Domain-Driven Aggregates, representing a unit of consistency.
+They protect invariants. This basically means that an aggregate makes sure that it can transition to a new state.
+Different business rules can permit or prevent state transitions, and the aggregate has to enforce these business rules.</p>
 </blockquote>
-<p>(source: <a href="https://lambdaisland.com/blog/25-05-2017-simple-and-happy-is-clojure-dying-and-what-has-ruby-got-to-do-with-it">https://lambdaisland.com/blog/25-05-2017-simple-and-happy-is-clojure-dying-and-what-has-ruby-got-to-do-with-it</a>)</p>
-<h3 id="1-1-1-2">Rapid Application Development</h3>
-<p>It turned out that Event Machine is not only a very good CQRS and Event Sourcing learning framework but that the same concept
-can be used for rapid application development (RAD). RAD frameworks focus on developer happiness and coding speed.
-Both can be achieved by using conventions, which allow the framework to do a lot of work "under the hood"
-Developers can focus on the important part: <strong>developing the application</strong>.</p>
-<h2 id="1-1-2">Event Machine Flavours</h2>
-<p>Event Machine Flavours make it possible to turn a rapidly developed prototype into a rock solid application.
-You can switch from the default <strong>PrototypingFlavour</strong> to either the <strong>FunctionalFlavour</strong> or <strong>OopFlavour</strong>. Finally, you can implement your own
-Flavour to build your very own CQRS / ES framework.</p>
-<p><a href="https://proophsoftware.github.io/event-machine/tutorial/">Learn More</a></p>
-<h2 id="1-1-3">Powered By</h2>
-<p><a href="http://prooph.de"><img src="https://github.com/codeliner/php-ddd-cargo-sample/raw/master/docs/assets/prooph-software-logo.png" alt="prooph software"></a></p>
-<p>Event Machine is maintained by the <a href="http://prooph-software.de/">prooph software team</a>.
-Prooph software offers commercial support and workshops for Event Machine as well as for the <a href="http://getprooph.org/">prooph components</a>.</p>
-<p>If you are interested please <a href="http://getprooph.org/#get-in-touch">get in touch</a></p>
+<p><em>Source: http://docs.getprooph.org/tutorial/event_sourcing_basics.html#1-3-3</em></p>
+<h2 id="3-3-1">Functions vs. Objects</h2>
+<p>Event Machine supports three programming styles out-of-the-box: <strong>OopFlavour, PrototypingFlavour and FunctionalFlavour</strong>.</p>
+<p>On this page we focus on the Prototyping and Functional Flavour. Both follow the same idea of a <strong>functional core</strong>.
+vent Sourcing is heavily based on functional patterns:
+<em>immutable events</em>, <em>append-only streams</em>, <em>left fold of past events to calculate current state</em>, ...</p>
+<p class="alert alert-info">The difference between Prototyping and Functional is that the <strong>PrototypingFlavour</strong> uses generic Event Machine messages while the
+<strong>FunctionalFlavour</strong> is 100% decoupled from Event Machine. Code examples shown here are based on the PrototypingFlavour.
+If you're curious how you can switch to another Flavour, then check out the Event Machine tutorial. It covers all three
+Flavours in detail.</p>
+<p><strong>Event Machine grows with your application from prototype to MVP up to a rock solid production system</strong>.
+And it is able to reduce boilerplate code to a bare minimum because of a few "simple" rules:</p>
+<h2 id="3-3-2">1. Pure Functions</h2>
+<p>Given the same input a pure function will <strong>always</strong> produce the same result.</p>
+<p>Here is the simplest form of a pure aggregate function in Event Machine:</p>
+<h3 id="3-3-2-1">prooph/micro style</h3>
+<pre><code class="language-php">//some_business_process.php
+
+declare(strict_types=1);
+
+Namespace Acme\Model\SomeBusinessProcess;
+
+use Prooph\EventMachine\Messaging\Message;
+use Acme\Api\Event;
+
+const startProcess = '\Acme\SomeBusinessProcess\startProcess';
+
+function startProcess(Message $startProcess): \Generator {
+    yield [Event::SOME_PROCESS_STARTED, $startProcess-&gt;payload()];
+}
+
+//More functions ....
+
+</code></pre>
+<h3 id="3-3-2-2">Static method style</h3>
+<pre><code class="language-php">//SomeBusinessProcess.php
+
+declare(strict_types=1);
+
+Namespace Acme\Model;
+
+use Prooph\EventMachine\Messaging\Message;
+use Acme\Api\Event;
+
+final class SomeBusinessProcess
+{
+    public static function startProcess(Message $startProcess): \Generator
+    {
+        yield [Event::SOME_PROCESS_STARTED, $startProcess-&gt;payload()];
+    }
+
+    //more methods ....
+}
+
+</code></pre>
+<p>As you can see both approaches are very similar. The <em>prooph/micro</em> style looks more functional and underlines the intention of the code whereby the
+<em>static method</em> approach plays nice together with a modern IDE and PHP's autoloader. We'll stick to the static method approach in the examples because this is
+the recommended style when working with Event Machine. But <em>prooph/micro</em> style can be used, too!</p>
+<p>Back to the <strong>pure</strong> nature of both approaches. No matter how often you call the function as long as the input message payload does not change, the yielded
+event won't change, too.</p>
+<p class="alert alert-info">This property makes testing the function a breeze. You don't need mocks. You don't need heavy fixture setup. Just create the appropriate message, call the function and
+test against an expected event.</p>
+<h2 id="3-3-3">2. Stateless Functions</h2>
+<p>No object, no internal state and therefor a much simpler business logic implementation, which is easy to test, refactor and maintain!</p>
+<p>But even if we use functions, we have to be careful to not fall into the trap of modifying state:</p>
+<h3 class="alert alert-danger" id="3-3-3-1">Evil Global Variable</h3>
+<p>One way to break the rule with a function is by modifying global state.</p>
+<pre><code class="language-php">//SomeBusinessProcess.php
+
+declare(strict_types=1);
+
+Namespace Acme\Model;
+
+use Prooph\EventMachine\Messaging\Message;
+use Acme\Api\Event;
+
+$evilState = new EvilState();
+
+final class SomeBusinessProcess
+{
+    public static function startProcess(Message $startProcess): \Generator
+    {
+        global $evilState;
+
+        $evilState-&gt;burnStatelessApproach();
+
+        yield [Event::SOME_PROCESS_STARTED, $startProcess-&gt;payload()];
+    }
+
+    //more methods ....
+}
+
+</code></pre>
+<p><strong>Never ever do this!</strong> Don't even think about it!</p>
+<h3 class="alert alert-danger" id="3-3-3-2">Evil Static Property</h3>
+<p>Another way to break our stateless function:</p>
+<pre><code class="language-php">//SomeBusinessProcess.php
+
+declare(strict_types=1);
+
+Namespace Acme\Model;
+
+use Prooph\EventMachine\Messaging\Message;
+use Acme\Api\Event;
+
+final class SomeBusinessProcess
+{
+    private static $evilState;
+
+    public static function startProcess(Message $startProcess): \Generator
+    {
+        self::$evilState = new EvilState();
+
+        yield [Event::SOME_PROCESS_STARTED, $startProcess-&gt;payload()];
+    }
+
+    public static funcion continueProcess(Message $continue): \Generator
+    {
+        yield [Event::SOME_PROCESS_CONTINUED, self::$evilState-&gt;toArray()];
+    }
+
+    //more methods ....
+}
+
+</code></pre>
+<h3 class="alert alert-danger" id="3-3-3-3">Evil Static Local Variable</h3>
+<p>That's also a very bad idea:</p>
+<pre><code class="language-php">//SomeBusinessProcess.php
+
+declare(strict_types=1);
+
+Namespace Acme\Model;
+
+use Prooph\EventMachine\Messaging\Message;
+use Acme\Api\Event;
+
+final class SomeBusinessProcess
+{
+    public static function startProcess(Message $startProcess): \Generator
+    {
+        yield [Event::SOME_PROCESS_STARTED, $startProcess-&gt;payload()];
+    }
+
+    public static funcion continueProcess(Message $continue): \Generator
+    {
+        static $evilCounter;
+
+        if($evilCounter === null) {
+            $evilCounter = 0;
+        }
+
+        yield [Event::SOME_PROCESS_CONTINUED, ['counter' =&gt; ++$evilCounter]];
+    }
+
+    //more methods ....
+}
+
+</code></pre>
+<h3 class="alert alert-danger" id="3-3-3-4">Evil Mutable State Passed As Argument</h3>
+<p>Mutable state passed as an argument is probably the easiest way to break the stateless rule. Let's look at an evil example first and then we'll see how we
+can do better.</p>
+<pre><code class="language-php">//SomeBusinessProcess.php
+
+declare(strict_types=1);
+
+Namespace Acme\Model;
+
+use Prooph\EventMachine\Messaging\Message;
+use Acme\Api\Event;
+
+final class SomeBusinessProcess
+{
+    public static function startProcess(Message $startProcess): \Generator
+    {
+        yield [Event::SOME_PROCESS_STARTED, $startProcess-&gt;payload()];
+    }
+
+    public static funcion continueProcess(EvilMutableState $evilState, Message $continue): \Generator
+    {
+        $evilState-&gt;burnStatelessApproach();
+
+        yield [Event::SOME_PROCESS_CONTINUED, ['state' =&gt; $evilState-&gt;toArray()]];
+    }
+
+    //more methods ....
+}
+
+</code></pre>
+<p class="alert alert-success"><strong>Let's fight the evil!</strong></p>
+<pre><code class="language-php">//SomeBusinessProcess.php
+
+declare(strict_types=1);
+
+Namespace Acme\Model;
+
+use Prooph\EventMachine\Messaging\Message;
+use Acme\Api\Event;
+use Acme\Api\Payload;
+
+final class SomeBusinessProcess
+{
+    public static function startProcess(Message $startProcess): \Generator
+    {
+        yield [Event::SOME_PROCESS_STARTED, $startProcess-&gt;payload()];
+    }
+
+    public static function whenProcessStarted(Message $processStarted): ImmutableState
+    {
+        return new ImmutableState();
+    }
+
+    public static funcion continueProcess(ImmutableState $state, Message $continue): \Generator
+    {
+        if($state-&gt;wantsToBurnStatelessApproach()) {
+            yield [Event::STATE_MUTATION_BLOCKED, [Payload::ALTERNATIVE =&gt; $continue-&gt;get(Payload::ALTERNATIVE)]];
+        }
+    }
+
+    public static function whenStateMutationBlocked(ImmutableState $currentState, Message $stateMutationBlocked): ImmutableState
+    {
+        return $currentState-&gt;withAlternativeMutation($stateMutationBlocked-&gt;get(Payload::ALTERNATIVE));
+    }
+}
+
+</code></pre>
+<p>Ok, we see two new functions here. Both start with <code>when</code> followed by an event name.</p>
+<p class="alert alert-light">Note: The naming is only a recommendation.</p>
+<p>Those when functions do not take commands as input and do not yield events, but instead take yielded events as input and <strong>return</strong> (note the difference to yield)
+<code>ImmutableState</code>. The second when function even takes <code>ImmutableState</code> as an argument and returns it.</p>
+<p>To be able to understand the alternative to mutable state we have to jump into the method <code>withAlternativeMutation</code>:</p>
+<pre><code class="language-php">declare(strict_types=1);
+
+Namespace Acme\Model;
+
+final class ImmutableState
+{
+    private $alternative;
+
+    public function alternative(): ?string
+    {
+        return $this-&gt;alternative;
+    }
+
+    public function withAlternativeMutation(string $alternative): self
+    {
+        $copy = clone $this;
+        $copy-&gt;alternative = $alternative;
+        return $copy;
+    }
+}
+
+</code></pre>
+<p>This is how state of an immutable value object is changed. Instead of modifying internal state directly, the value object copies itself and modfies the copy
+instead.</p>
+<p class="alert alert-light">It works because visibility of properties and methods is defined on class level and not on instance level.</p>
+<p>Let's look at the effect with a unit test:</p>
+<pre><code class="language-php">declare(strict_types=1);
+
+Namespace AcmeTest\Model;
+
+use Acme\Api\Event;
+use Acme\Api\Payload;
+use Acme\Model\SomeBusinessProcess;
+use Acme\Model\ImmutableState;
+use AcmeTest\BaseTestCase; //&lt;-- extends PHPUnit\Framework\TestCase + provides message factory
+use Prooph\EventMachine\Messaging\Message;
+
+final class SomeBusinessProcessTest extends BaseTestCase
+{
+    /**
+     * @test
+     */
+     public function it_does_not_change_input_state()
+     {
+        $inputState = new ImmutableState();
+
+        $this-&gt;assertNull($inputState-&gt;alternative());
+
+        $event = $this-&gt;messageFactory()-&gt;createMessageFromArray(
+            Event::STATE_MUTATION_BLOCKED,
+            [
+                'payload' =&gt; [
+                    'alternative' =&gt; 'modify and return copy'
+                ]
+            ]
+        );
+
+        $outputState = SomeBusinessProcess::whenStateMutationBlocked(
+            $inputState,
+            $event
+        );
+
+        $this-&gt;assertNull($inputState-&gt;alternative());
+
+        $this-&gt;assertSame(
+            'modify and return copy',
+            $outputState-&gt;alternative()
+        );
+     }
+}
+
+</code></pre>
+<p class="alert alert-success">Working with <strong>immutable state</strong> avoids a whole bunch of silly and hidden errors. Function calls are predictable.
+You can harden the system With simple tests, pave the way for refactorings and keep velocity high.
+Event Machine also has an easy job. It does not need to care about state changes, because they are fully managed in userland code.
+This means, that you have full control. <strong>No object mapping layer required, no dirty state and no unit of work.</strong></p>
+<p class="alert alert-light">The "Immutable State" chapter provides a lot of tips and tricks to rapidly create and work with immutable value objects.</p>
+<h2 id="3-3-4">3. Side-Effect Free Functions</h2>
+<p>Modifying global state is one kind of side-effect, <code>I/O</code> is another. I/O is the short term for <code>Input/Output</code> and includes things like reading from or writing to a database,
+accessing the filesystem or calling a remote service. It describes any operation that might fail due to unavailability of the target system.
+If a function (or method) performs a database query but the database is down, the function will behave different than in normal cases. Hence, the result of the
+function call is not predictable.</p>
+<p class="alert alert-warning">Side-Effects make testing harder. Performing <strong>I/O</strong> usually requires mocking and you have to test against more scenarios.
+That's a bad situation specifically for business logic tests. When testing business logic you should focus on its behaviour and only on that!
+Mixing <strong>I/O</strong> into the game makes it difficult.</p>
+<p>If we must not query a database or call a remote service in aggregate functions, where do we do it then?
+Well, outside of the <strong>functional core</strong>. The following diagram illustrates that idea.</p>
+<p><img src="https://proophsoftware.github.io/event-machine/api/img/event_machine_functional_core.png" alt="Event Machine + Functional Core"></p>
+<p class="alert alert-light">The diagram shows three layers. The outermost layer is where <code>I/O</code> happens. Event Machine acts as a middleware between <code>I/O</code> layer and the <code>functional core</code>.</p>
+<h2 id="3-3-5">Read I/O</h2>
+<p>We can tell Event Machine to invoke a <code>ContextProvider</code> before invoking an aggregate function.
+That's the preferred way to perform read I/O to query data needed by the aggregate.</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace Prooph\EventMachine\Aggregate;
+
+use Prooph\EventMachine\Messaging\Message;
+
+interface ContextProvider
+{
+    /**
+     * @param Message $command
+     * @return mixed The context passed as last argument to aggregate functions
+     */
+    public function provide(Message $command);
+}
+
+</code></pre>
+<p class="alert alert-dark">Let's say we have a shopping cart aggregate that processes <strong>AddItem</strong> commands.
+The command payload only contains the <strong>itemId</strong> but we also need the <strong>price</strong> of the item
+to enable <strong>free shipping</strong> if a certain order sum is reached.</p>
+<p class="alert alert-light">Context Provider: uses a price finder to get item price from a <strong>database</strong> and sets up a free shipping policy with 40,- € (4000 Cent) as minimum order sum.</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace ProophExample\ContextProvider;
+
+use Prooph\EventMachine\Aggregate\ContextProvider;
+use Prooph\EventMachine\Messaging\Message;
+use ProophExample\ContextProvider\Api\Payload;
+use ProophExample\ContextProvider\Policy\FreeShipping;
+use ProophExample\ContextProvider\ShoppingCart\AddItemContext;
+
+final class AddItemContextProvider implements ContextProvider
+{
+    /**
+     * @var PriceFinder
+     */
+    private $priceFinder;
+
+    /**
+     * @param Message $command
+     * @return mixed The context passed as last argument to aggregate functions
+     */
+    public function provide(Message $command)
+    {
+        $itemId = ItemId::fromString($command-&gt;get(Payload::ITEM_ID));
+        $itemPrice = $this-&gt;priceFinder-&gt;findItemPrice($itemId);
+
+        $item = Item::withIdAndPrice($itemId, $itemPrice);
+        $freeShipping = FreeShipping::fromInt(4000);
+
+        return AddItemContext::fromRecordData(['item' =&gt; $item, 'freeShipping' =&gt; $freeShipping]);
+    }
+}
+
+</code></pre>
+<p class="alert alert-light">Command Processing Description: <strong>AddItemContextProvider service id</strong> (FQCN) is passed to provideContext.</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace ProophExample\ContextProvider\Api;
+
+use Prooph\EventMachine\EventMachine;
+use Prooph\EventMachine\EventMachineDescription;
+use ProophExample\ContextProvider\AddItemContextProvider;
+use ProophExample\ContextProvider\ShoppingCart;
+
+final class Aggregate implements EventMachineDescription
+{
+    const SHOPPING_CART = 'ShoppingCart';
+
+    public static function describe(EventMachine $eventMachine): void
+    {
+        //...
+        $eventMachine-&gt;process(Command::ADD_ITEM)
+            -&gt;withExisting(self::SHOPPING_CART)
+            -&gt;provideContext(AddItemContextProvider::class)
+            -&gt;handle([ShoppingCart::class, 'addItem'])
+            -&gt;recordThat(Event::ITEM_ADDED)
+            -&gt;apply([ShoppingCart::class, 'whenItemAdded'])
+            -&gt;andRecordThat(Event::FREE_SHIPPING_ENABLED)
+            -&gt;apply([ShoppingCart::class, 'whenFreeShippingEnabled']);
+    }
+}
+
+</code></pre>
+<p class="alert alert-light">Shopping Cart Aggregate: receives <strong>AddItemContext</strong> as third argument in the <strong>addItem</strong> function</p>
+<pre><code class="language-php">&lt;?php
+
+declare(strict_types=1);
+
+namespace ProophExample\ContextProvider;
+
+use Prooph\EventMachine\Messaging\Message;
+use ProophExample\ContextProvider\Api\Event;
+use ProophExample\ContextProvider\Api\Payload;
+use ProophExample\ContextProvider\ShoppingCart\AddItemContext;
+use ProophExample\ContextProvider\ShoppingCart\State;
+
+final class ShoppingCart
+{
+    //...
+
+    public static function addItem(State $cart, Message $addItem, AddItemContext $context): \Generator
+    {
+        yield [Event::ITEM_ADDED, [
+            Payload::SHOPPING_CART_ID =&gt; $addItem-&gt;get(Payload::SHOPPING_CART_ID),
+            Payload::ITEM =&gt; $context-&gt;item()-&gt;toArray(),
+        ]];
+
+        if(!$cart-&gt;freeShipping()) {
+            //Temporarily add item. We can safely do this, because $cart is immutable
+            $cart = $cart-&gt;withAddedItem($context-&gt;item());
+
+            if($context-&gt;freeShipping()-&gt;isFree($cart-&gt;orderSum())) {
+                yield [Event::FREE_SHIPPING_ENABLED, [
+                    Payload::SHOPPING_CART_ID =&gt; $addItem-&gt;get(Payload::SHOPPING_CART_ID),
+                ]];
+            }
+        }
+    }
+
+    public static function whenItemAdded(State $cart, Message $itemAdded): State
+    {
+        return $cart-&gt;withAddedItem(Item::fromArray($itemAdded-&gt;get(Payload::ITEM)));
+    }
+
+    public static function whenFreeShippingEnabled(State $cart, Message $freeShippingEnabled): State
+    {
+        return $cart-&gt;withFreeShippingEnabled();
+    }
+}
+
+</code></pre>
+<p class="alert alert-light"><em>Full example code can be found in the "examples/ContextProvider" dir of the event-machine-docs repository on Github.</em></p>
+<h2 id="3-3-6">Write I/O</h2>
+<p>Event Machine appends all yielded events to the <code>write model event stream</code>. You don't need to care about that.
+Read model updates are performed by projections (see "Projections" chapter) and all other Write I/O should happen in event listeners (see "Event Listeners" chapter).</p>
+<p class="alert alert-warning">Aggregate functions should NEVER perform any write operation directly but only yield events to trigger Write I/O in the outermost layer.</p>
+<h2 id="3-3-7">Aggregate Lifecycle</h2>
+<p class="alert alert-light">If an aggregate is composed of pure functions and those functions work with immutable state only, does the aggregate have a lifecycle?</p>
+<p>Yes! An aggregate has a lifecycle. It is just not implemented as an object that changes internal state over time.
+But an aggregate is still a domain concept - a business process.
+Each aggregate has a <strong>unique id</strong> and yielded events should contain that id (otherwise Event Machine throws an exception)
+so that the events can be added to the <strong>event stream</strong> of the aggregate.
+An event stream can be seen as a timeline. It tracks all important facts about the aggregate.</p>
+<p><img src="https://proophsoftware.github.io/event-machine/api/img/Aggregate_Stream.png" alt="Aggregate Stream"></p>
+<p class="alert alert-light">But how can Event Machine always pass the current state of an aggregate to the next function?</p>
+<p>It seems like aggregate state is magically passed to aggregate functions. But the mechanism used by Event Machine is relatively simple.
+It is best explained with our shopping cart example again.</p>
+<pre><code class="language-php">$eventMachine-&gt;process(Command::START_SHOPPING_SESSION)
+    -&gt;withNew(self::SHOPPING_CART)
+    -&gt;identifiedBy(Payload::SHOPPING_CART_ID)
+</code></pre>
+<p>Event Machine gets two important information here. The first one is that the lifecycle of our <code>ShoppingCart</code> aggregate
+begins with a <code>StartShoppingSession</code> command. And the second is that a <code>ShoppingCart</code> is identified by its <code>ShoppingCartId</code>.
+<strong>All</strong> commands addressing the shopping cart should contain the <code>ShoppingCartId</code> and <strong>all</strong> events yielded by the aggregate should contain the same
+id.</p>
+<pre><code class="language-php">$eventMachine-&gt;process(Command::START_SHOPPING_SESSION)
+        -&gt;withNew(self::SHOPPING_CART)
+        -&gt;identifiedBy(Payload::SHOPPING_CART_ID)
+    -&gt;handle([ShoppingCart::class, 'startShoppingSession'])
+</code></pre>
+<p>Given the information above, Event Machine knows that the aggregae function <code>ShoppingCart::startShoppingSession()</code>
+only takes a <code>StartShoppingSession</code> command as argument. Aggregate state doesn't exist at this time
+because it's the first command.</p>
+<pre><code class="language-php">&lt;?php
+
+//...
+
+final class ShoppingCart
+{
+    public static function startShoppingSession(Message $startShoppingSession): \Generator
+    {
+        yield [Event::SHOPPING_SESSION_STARTED, [
+            Payload::SHOPPING_CART_ID =&gt; $startShoppingSession-&gt;get(Payload::SHOPPING_CART_ID),
+        ]];
+    }
+
+    //...
+}
+</code></pre>
+<p>Event Machine will append the yielded <code>ShoppingSessionStarted</code> event to its <code>write model event stream</code>. This event will mark the beginning
+of a new shopping cart lifecycle.</p>
+<p>Every yielded event should have a corresponding <strong>apply function</strong>. Event Machine takes care of that rule.
+It's the last part of every <code>CommandProcessingDescription</code>.</p>
+<pre><code class="language-php">$eventMachine-&gt;process(Command::START_SHOPPING_SESSION)
+        -&gt;withNew(self::SHOPPING_CART)
+        -&gt;identifiedBy(Payload::SHOPPING_CART_ID)
+        -&gt;handle([ShoppingCart::class, 'startShoppingSession'])
+    -&gt;recordThat(Event::SHOPPING_SESSION_STARTED)
+    -&gt;apply([ShoppingCart::class, 'whenShoppingSessionStarted']);
+</code></pre>
+<p>A <code>recordThat</code> call should always be followed by an <code>apply</code> call. Obvousely, it's a mapping so that Event Machine knows which <code>apply</code> function to use.
+And because the entire description is bound to the command being processed, Event Machine knows again that <code>ShoppingCart::whenShoppingSessionStarted</code> is the first
+apply function and therefor does not take aggregate state as an argument. But the apply function should return the first <strong>immutable state</strong> derived from the first event.</p>
+<pre><code class="language-php">&lt;?php
+
+//...
+
+final class ShoppingCart
+{
+    //...
+
+    public static function whenShoppingSessionStarted(Message $shoppingSessionStarted): State
+    {
+        return State::newSession(ShoppingCartId::fromString(
+            $shoppingSessionStarted-&gt;get(Payload::SHOPPING_CART_ID)
+        ));
+    }
+}
+</code></pre>
+<p class="alert alert-info">All subsequent aggregate functions (command handling and event applying functions) receive the current aggregate state as the first argument.</p>
+<p>The following diagram illustrates how Event Machine calculates current state with the help of the <code>apply</code> functions.</p>
+<p><img src="https://proophsoftware.github.io/event-machine/api/img/Aggregate_Lifecycle.png" alt="Aggregate Lifecycle"></p>
+<h2 id="3-3-8">RecordThat</h2>
+<p>The <code>CommandProcessingDescription</code> defines two aliases for <code>recordThat</code>: <code>andRecordThat</code> and <code>orRecordThat</code>. You can use them when an aggregate function
+yields multiple events (andRecordThat) or different events depending on conditions (orRecordThat).</p>
+<p class="alert alert-warning">Event Machine doesn't really care about which variant you use, but if an aggregate function yields an unknown event (no recordThat-&gt;apply pair defined)
+Event Machine will throw an exception.</p>
+<pre><code class="language-php">$eventMachine-&gt;process(Command::ADD_ITEM)
+        -&gt;withExisting(self::SHOPPING_CART)
+        -&gt;provideContext(AddItemContextProvider::class)
+        -&gt;handle([ShoppingCart::class, 'addItem'])
+    -&gt;recordThat(Event::ITEM_ADDED)
+        -&gt;apply([ShoppingCart::class, 'whenItemAdded'])
+    -&gt;andRecordThat(Event::FREE_SHIPPING_ENABLED)
+        -&gt;apply([ShoppingCart::class, 'whenFreeShippingEnabled']);
+</code></pre>
+<p>It's not required that all events are yielded each time. The main thing is that Event Machine knows about them all.
+In some situations an aggregate function does not want to yield any new event. In such a case you can <code>yield null</code> and return from the function.</p>
+<pre><code class="language-php">&lt;?php
+
+//...
+
+final class ShoppingCart
+{
+    //...
+
+    public static function removeItem(State $cart, Message $removeItem): \Generator
+    {
+        $item = Item::fromArray($removeItem-&gt;get(Payload::ITEM));
+
+        if(!$cart-&gt;hasItem($item)) {
+            yield null;
+            return;
+        }
+
+        yield [Event::ITEM_REMOVED, $removeItem-&gt;payload()];
+    }
+}
+</code></pre>
+<p class="alert alert-info"><strong>Wrap UP:</strong> Aggregates in Event Machine are composed of pure functions and immutable state (when using Prototyping or Functional Flavour). Command Processing Descriptions tell Event Machine how the pieces fit
+together. This reduces boilerpate code and we can focus on the domain and avoid silly bugs that interrupt our model exploration.</p>
+<p>In the next chapter you'll learn how immutable value objects can be generated quickly.</p>
 </div>        </div>
     </div>
 </div>
@@ -869,9 +1445,9 @@ Prooph software offers commercial support and workshops for Event Machine as wel
         <div class="container">
             <div class="row">
                 <div class="prev col-xs-6">
-                                            <a href="https://proophsoftware.github.io/event-machine/intro/">Previous</a>                                    </div>
+                                            <a href="https://proophsoftware.github.io/event-machine/api/descriptions.html">Previous</a>                                    </div>
                 <div class="next col-xs-6">
-                                            <a href="https://proophsoftware.github.io/event-machine/intro/pros_and_cons.html">Next</a>                                    </div>
+                                            <a href="https://proophsoftware.github.io/event-machine/api/immutable_state.html">Next</a>                                    </div>
             </div>
         </div>
     </div>

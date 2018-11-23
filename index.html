@@ -15,8 +15,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@prooph_software">
 <meta name="twitter:title" content="Event Machine">
-<meta name="twitter:description" content="Event Sourced RAD - based on prooph components">
-<meta name="twitter:image" content="https://proophsoftware.github.io/event-machine/api/event_machine/img/Aggregate_Lifecycle.png">
+<meta name="twitter:description" content="Rapid CQRS / ES framework for PHP with a path to refactor towards a richer domain model as needed.">
+<meta name="twitter:image" content="https://proophsoftware.github.io/event-machine/img/Event_Machine_Intro.png">
     <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/lumen/bootstrap.min.css">
 <link rel="stylesheet"
@@ -404,6 +404,131 @@
         padding: 5px;
     }
 
+    .jumbotron {
+       background-color: #04A1B0;
+    }
+
+    .jumbotron .display-1 {
+        color: white;
+    }
+
+    .jumbotron .display-2 {
+        color: white;
+    }
+
+    .jumbotron pre {
+        display: block;
+        color: #f8f8f2;
+        font-size: 13px;
+        margin-top: 60px;
+        border-radius: 0;
+        border: none;
+        background: #272822;
+        padding: 1em;
+        padding-bottom: 0px;
+        overflow: auto;
+        text-shadow: 0 1px rgba(0,0,0,0.3);
+        font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        word-wrap: normal;
+        line-height: 1.5;
+        -moz-tab-size: 4;
+        -o-tab-size: 4;
+        tab-size: 4;
+        -webkit-hyphens: none;
+        -moz-hyphens: none;
+        -ms-hyphens: none;
+        hyphens: none;
+    }
+
+    .jumbotron pre.line-numbers {
+        position: relative;
+        padding-left: 3.8em;
+        counter-reset: linenumber;
+    }
+
+    .jumbotron pre code {
+        color: white;
+        margin-left: -80px;
+    }
+
+
+    h2.front {
+        text-align: center;
+        font-size: 56px;
+        margin-top: 50px;
+        padding: 20px;
+    }
+
+    .intro {
+        margin-top: 30px;
+        font-size: 24px;
+        font-weight: 200;
+    }
+
+    .intro.well {
+        margin-top: 15px;
+    }
+
+    .flavour {
+        height: 200px;
+    }
+
+    .flavour h3 {
+        color: white;
+        font-size: 30px;
+    }
+
+    .flavour h3 small {
+        color: #f2f2f2;
+        font-size: 20px;
+    }
+
+    .flavour.prototyping {
+        background-color: #CC3340;
+    }
+
+    .flavour.functional {
+        background-color: #EB6842;
+    }
+
+    .flavour.oop {
+        background-color: #715671;
+    }
+
+    .flavour.mixed {
+        background-color: #26896C;
+    }
+
+    .btn-get-started {
+        background-color: #04A1B0;
+        color: white;
+        padding: 20px 26px;
+        font-size: 35px;
+        border-radius: 8px;
+        width: 100%;
+        -webkit-transition-duration: 0.4s; /* Safari */
+        transition-duration: 0.4s;
+    }
+
+    .btn-get-started:hover {
+        background-color: #04c8d7;
+        color: white;
+        border-bottom-width: 4px;
+        margin-top: 0px;
+    }
+
+    .img-center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+    }
+
+
     #forkongithub a {
         background: #000;
         color: #fff;
@@ -464,6 +589,18 @@
             box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
         }
     }
+
+    @media screen and (max-width: 799px) {
+        .jumbotron {
+            margin-top: 60px;
+        }
+    }
+
+    @media screen and (max-width: 991px) {
+        .jumbotron pre {
+            display: none;
+        }
+    }
 </style>
 </head>
 <body data-spy="scroll" data-target="#sideNav" data-offset="50" class="bbt-theme-lumen">
@@ -491,7 +628,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="http://getprooph.org">
+            <a class="navbar-brand" href="https://proophsoftware.github.io/event-machine/">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="prooph-logo">
                     <defs>
                         <style>
@@ -622,7 +759,7 @@
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/aggregates.html">Aggregates</a>
+    <a href="https://proophsoftware.github.io/event-machine/api/functional_flavour.html">Functional Flavour</a>
 
     </li>
                         <li>
@@ -672,40 +809,118 @@
 </nav>
 </header>
 <div class="container">
-    <ol class="breadcrumb">
-                        <li class="active">Event Machine Docs</li>
-            </ol>
-    <div class="row">
-
-                <div class="col-md-12">
-
-<h1>Event Machine Docs</h1>
-
-<ul class="list-toc"><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">1.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/intro/">Introduction</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">2.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/tutorial/">Tutorial</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/">API</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">4.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/news/">News</a></div></div></li></ul><div id="section-main"></div>        </div>
-    </div>
-</div>
-
-<footer>
-    <div class="links">
+    <div class="jumbotron jumbotron-fluid">
         <div class="container">
-            <div class="row">
-                <div class="prev col-xs-6">
-                                    </div>
-                <div class="next col-xs-6">
-                                            <a href="https://proophsoftware.github.io/event-machine/intro/">Next</a>                                    </div>
-            </div>
+            <h1 class="display-1">Event Machine</h1>
+            <h2 class="display-2">The world's only <strong>CQRS / ES</strong> framework that lets you pick your <strong>Flavour</strong></h2>
+            <pre class="line-numbers language-bash">
+                <code class="language-bash">$ composer create-project proophsoftware/event-machine-skeleton event-machine</code>
+            </pre>
         </div>
     </div>
-    <div id="copyright">
-        <div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <p class="intro">
+                Event Machine is a CQRS / EventSourcing framework for PHP to help you rapidly develop
+                <strong>event sourced</strong> applications, while providing a path to
+                refactor towards a richer <strong>domain model</strong> as needed.
+            </p>
+        </div>
+    </div>
+    <h2 class="front">Choose Your Flavour</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <p class="intro text-center">
+                You can choose between different programming styles.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-3">
             <div class="row">
-                <div class="col-md-12">
-                    <p><a href="http://prooph-software.de/about.html">Imprint</a> | Powered by <a href="https://github.com/tobiju/bookdown-bootswatch-templates" title="Visit project to generate your own docs">Bookdown Bootswatch Templates</a>.</p>
+                <div class="col-md-10 col-md-offset-1 flavour prototyping">
+                    <h3>PROTOTYPING<br /><small>rapid development, maximized developer happiness</small></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1 flavour functional">
+                    <h3>FUNCTIONAL<br /><small>stateless and pure, with a funcional core</small></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1 flavour oop">
+                    <h3>OOP<br /><small>event sourced objects without dependencies</small></h3>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="row">
+                <div class="col-md-10 col-md-offset-1 flavour mixed">
+                    <h3>MIXED<br /><small>create your very own Flavour</small></h3>
                 </div>
             </div>
         </div>
     </div>
-</footer>
+    <h2 class="front cqrs">CQRS By Design</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <p class="intro">
+                Built-in PSR-7 Messagebox with JSON Schema and Swagger UI support. Focus on the domain model. Let Event Machine handle the rest.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <img src="img/cqrs_messagebox_swagger.png" class="img-responsive" />
+        </div>
+    </div>
+    <h2 class="front es">Event Sourcing Engine</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <p class="intro text-center">
+                Straightforward Event Sourcing without boilerplate. Rapid. Effective. Simple.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <img src="api/img/Aggregate_Lifecycle.png" />
+        </div>
+    </div>
+    <h2 class="front tutorial">Tutorial</h2>
+    <div class="row">
+        <div class="col-md-12">
+            <p class="intro text-center">
+                Learn CQRS / EventSourcing basics with Event Machine in a step by step tutorial.
+            </p>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <img src="img/tutorial_screen.png" />
+        </div>
+    </div>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <p>&nbsp;</p>
+    <div class="row">
+        <div class="col-md-12">
+            <a href="https://proophsoftware.github.io/event-machine/tutorial/" class="btn btn-large btn-get-started">Get Started</a>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <a href="http://prooph-software.de/about.html">Imprint</a> | Powered by <a href="https://github.com/tobiju/bookdown-bootswatch-templates" title="Visit project to generate your own docs">Bookdown Bootswatch Templates</a>.
+        </div>
+    </div>
+</div>
+
+
 </div>
 <span id="forkongithub"><a href="https://github.com/proophsoftware/event-machine-docs">Fork me on GitHub</a></span><script src="https://code.jquery.com/jquery-2.2.0.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"

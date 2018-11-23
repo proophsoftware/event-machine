@@ -404,6 +404,118 @@
         padding: 5px;
     }
 
+    .jumbotron {
+       background-color: #04A1B0;
+    }
+
+    .jumbotron .display-1 {
+        color: #EECA50;
+    }
+
+    .jumbotron .lead {
+        color: white;
+    }
+
+    .jumbotron pre {
+        display: block;
+        color: #f8f8f2;
+        font-size: 13px;
+        border-radius: 0;
+        border: none;
+        background: #272822;
+        padding: 1em;
+        padding-bottom: 0px;
+        margin: .5em 0;
+        overflow: auto;
+        text-shadow: 0 1px rgba(0,0,0,0.3);
+        font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        word-wrap: normal;
+        line-height: 1.5;
+        -moz-tab-size: 4;
+        -o-tab-size: 4;
+        tab-size: 4;
+        -webkit-hyphens: none;
+        -moz-hyphens: none;
+        -ms-hyphens: none;
+        hyphens: none;
+    }
+
+    h2.front {
+        text-align: center;
+        font-size: 30px;
+        margin-top: 30px;
+        margin-bottom: 30px;
+        padding: 20px;
+    }
+
+    h2.front.cqrs {
+        border-bottom: 2px solid #715671;
+    }
+
+    h2.front.es {
+        border-bottom: 2px solid #EB6842;
+    }
+
+    h2.front.prooph {
+        border-bottom: 2px solid #EECA50;
+    }
+
+    h2.front.tutorial {
+        border-bottom: 2px solid #04A1B0;
+    }
+
+    .jumbotron pre.line-numbers {
+        position: relative;
+        padding-left: 3.8em;
+        counter-reset: linenumber;
+    }
+
+    .jumbotron pre code {
+        color: white;
+        margin-left: -80px;
+    }
+
+    .intro {
+        margin-bottom: 15px;
+        font-size: 24px;
+        font-weight: 200;
+    }
+
+    .intro.well {
+        margin-top: 30px;
+    }
+
+    .intro.cqrs.well {
+        background-color: #715671;
+        color: white;
+    }
+
+    .intro.es.well {
+        background-color: #EB6842;
+        color: white;
+    }
+
+    .btn-get-started {
+        background-color: #04A1B0;
+        color: white;
+        padding: 20px 26px;
+        font-size: 35px;
+        border-radius: 8px;
+        width: 100%;
+    }
+
+    .img-center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+    }
+
+
     #forkongithub a {
         background: #000;
         color: #fff;
@@ -464,6 +576,12 @@
             box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
         }
     }
+
+    @media screen and (max-width: 799px) {
+        .jumbotron {
+            margin-top: 60px;
+        }
+    }
 </style>
 </head>
 <body data-spy="scroll" data-target="#sideNav" data-offset="50" class="bbt-theme-lumen">
@@ -477,7 +595,7 @@
                 <input type="text"
                        placeholder="Search"
                        class="js-search-input form-control"
-                       data-roothref="https://proophsoftware.github.io/event-machine/">
+                       data-roothref="/">
 
                 <div class="js-search-results"></div>
             </div>
@@ -491,7 +609,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="http://getprooph.org">
+            <a class="navbar-brand" href="/">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="prooph-logo">
                     <defs>
                         <style>
@@ -525,127 +643,127 @@
     
     <ul class="nav navbar-nav">
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/intro/">Introduction</a>
+    <a href="/intro/">Introduction</a>
     
     <ul class="dropdown-menu">
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/intro/about.html">About Event Machine</a>
+    <a href="/intro/about.html">About Event Machine</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/intro/pros_and_cons.html">Pros and cons</a>
+    <a href="/intro/pros_and_cons.html">Pros and cons</a>
 
     </li>
             </ul>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/">Tutorial</a>
+    <a href="/tutorial/">Tutorial</a>
     
     <ul class="dropdown-menu">
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/intro.html">Introduction</a>
+    <a href="/tutorial/intro.html">Introduction</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/partI.html">Part I - Add A Building</a>
+    <a href="/tutorial/partI.html">Part I - Add A Building</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/partII.html">Part II - The Building Aggregate</a>
+    <a href="/tutorial/partII.html">Part II - The Building Aggregate</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/partIII.html">Part III - Aggregate State</a>
+    <a href="/tutorial/partIII.html">Part III - Aggregate State</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/partIV.html">Part IV - Projections and Queries</a>
+    <a href="/tutorial/partIV.html">Part IV - Projections and Queries</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/partV.html">Part V - DRY</a>
+    <a href="/tutorial/partV.html">Part V - DRY</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/partVI.html">Part VI - Check in User</a>
+    <a href="/tutorial/partVI.html">Part VI - Check in User</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/partVII.html">Part VII - The Unhappy Path</a>
+    <a href="/tutorial/partVII.html">Part VII - The Unhappy Path</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusI.html">Bonus I - Custom Projection</a>
+    <a href="/tutorial/bonusI.html">Bonus I - Custom Projection</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
+    <a href="/tutorial/bonusII.html">Bonus II - Unit and Integration Tests</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
+    <a href="/tutorial/bonusIII.html">Bonus III - Functional Flavour</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
+    <a href="/tutorial/bonusIV.html">Bonus IV - OOP Flavour</a>
 
     </li>
             </ul>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/">API</a>
+    <a href="/api/">API</a>
     
     <ul class="dropdown-menu">
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/set_up/">Set Up</a>
+    <a href="/api/set_up/">Set Up</a>
     
     <ul class="dropdown-menu">
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/set_up/installation.html">Installation</a>
+    <a href="/api/set_up/installation.html">Installation</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/set_up/di.html">Dependency Injection</a>
+    <a href="/api/set_up/di.html">Dependency Injection</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/set_up/production_optimization.html">Optimize For Production</a>
+    <a href="/api/set_up/production_optimization.html">Optimize For Production</a>
 
     </li>
             </ul>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/descriptions.html">Event Machine Descriptions</a>
+    <a href="/api/descriptions.html">Event Machine Descriptions</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/aggregates.html">Aggregates</a>
+    <a href="/api/aggregates.html">Aggregates</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/immutable_state.html">Immutable State</a>
+    <a href="/api/immutable_state.html">Immutable State</a>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/document_store/">Document Store</a>
+    <a href="/api/document_store/">Document Store</a>
     
     <ul class="dropdown-menu">
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/document_store/set_up.html">Document Store</a>
+    <a href="/api/document_store/set_up.html">Document Store</a>
 
     </li>
             </ul>
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/projections/">Projections</a>
+    <a href="/api/projections/">Projections</a>
     
     <ul class="dropdown-menu">
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/projections/set_up.html">Custom Projections</a>
+    <a href="/api/projections/set_up.html">Custom Projections</a>
 
     </li>
             </ul>
@@ -655,11 +773,11 @@
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/news/">News</a>
+    <a href="/news/">News</a>
     
     <ul class="dropdown-menu">
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/news/2018-09-08-future.html">Future of Event Machine</a>
+    <a href="/news/2018-09-08-future.html">Future of Event Machine</a>
 
     </li>
             </ul>
@@ -673,8 +791,8 @@
 </header>
 <div class="container">
     <ol class="breadcrumb">
-                        <li><a href="https://proophsoftware.github.io/event-machine/">Event Machine Docs</a></li>
-                                <li><a href="https://proophsoftware.github.io/event-machine/api/">API</a></li>
+                        <li><a href="/">Event Machine Docs</a></li>
+                                <li><a href="/api/">API</a></li>
                                 <li class="active">Aggregates</li>
             </ol>
     <div class="row">
@@ -1041,7 +1159,7 @@ That's a bad situation specifically for business logic tests. When testing busin
 Mixing <strong>I/O</strong> into the game makes it difficult.</p>
 <p>If we must not query a database or call a remote service in aggregate functions, where do we do it then?
 Well, outside of the <strong>functional core</strong>. The following diagram illustrates that idea.</p>
-<p><img src="https://proophsoftware.github.io/event-machine/api/img/event_machine_functional_core.png" alt="Event Machine + Functional Core"></p>
+<p><img src="/api/img/event_machine_functional_core.png" alt="Event Machine + Functional Core"></p>
 <p class="alert alert-light">The diagram shows three layers. The outermost layer is where <code>I/O</code> happens. Event Machine acts as a middleware between <code>I/O</code> layer and the <code>functional core</code>.</p>
 <h2 id="3-3-5">Read I/O</h2>
 <p>We can tell Event Machine to invoke a <code>ContextProvider</code> before invoking an aggregate function.
@@ -1195,7 +1313,7 @@ But an aggregate is still a domain concept - a business process.
 Each aggregate has a <strong>unique id</strong> and yielded events should contain that id (otherwise Event Machine throws an exception)
 so that the events can be added to the <strong>event stream</strong> of the aggregate.
 An event stream can be seen as a timeline. It tracks all important facts about the aggregate.</p>
-<p><img src="https://proophsoftware.github.io/event-machine/api/img/Aggregate_Stream.png" alt="Aggregate Stream"></p>
+<p><img src="/api/img/Aggregate_Stream.png" alt="Aggregate Stream"></p>
 <p class="alert alert-light">But how can Event Machine always pass the current state of an aggregate to the next function?</p>
 <p>It seems like aggregate state is magically passed to aggregate functions. But the mechanism used by Event Machine is relatively simple.
 It is best explained with our shopping cart example again.</p>
@@ -1263,7 +1381,7 @@ final class ShoppingCart
 </code></pre>
 <p class="alert alert-info">All subsequent aggregate functions (command handling and event applying functions) receive the current aggregate state as the first argument.</p>
 <p>The following diagram illustrates how Event Machine calculates current state with the help of the <code>apply</code> functions.</p>
-<p><img src="https://proophsoftware.github.io/event-machine/api/img/Aggregate_Lifecycle.png" alt="Aggregate Lifecycle"></p>
+<p><img src="/api/img/Aggregate_Lifecycle.png" alt="Aggregate Lifecycle"></p>
 <h2 id="3-3-8">RecordThat</h2>
 <p>The <code>CommandProcessingDescription</code> defines two aliases for <code>recordThat</code>: <code>andRecordThat</code> and <code>orRecordThat</code>. You can use them when an aggregate function
 yields multiple events (andRecordThat) or different events depending on conditions (orRecordThat).</p>
@@ -1313,9 +1431,9 @@ together. This reduces boilerpate code and we can focus on the domain and avoid 
         <div class="container">
             <div class="row">
                 <div class="prev col-xs-6">
-                                            <a href="https://proophsoftware.github.io/event-machine/api/descriptions.html">Previous</a>                                    </div>
+                                            <a href="/api/descriptions.html">Previous</a>                                    </div>
                 <div class="next col-xs-6">
-                                            <a href="https://proophsoftware.github.io/event-machine/api/immutable_state.html">Next</a>                                    </div>
+                                            <a href="/api/immutable_state.html">Next</a>                                    </div>
             </div>
         </div>
     </div>

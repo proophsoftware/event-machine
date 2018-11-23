@@ -15,8 +15,8 @@
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:site" content="@prooph_software">
 <meta name="twitter:title" content="Event Machine">
-<meta name="twitter:description" content="Event Sourced RAD - based on prooph components">
-<meta name="twitter:image" content="https://proophsoftware.github.io/event-machine/api/event_machine/img/Aggregate_Lifecycle.png">
+<meta name="twitter:description" content="Rapid CQRS / ES framework for PHP with a path to refactor towards a richer domain model as needed.">
+<meta name="twitter:image" content="https://proophsoftware.github.io/event-machine/img/Event_Machine_Intro.png">
     <link rel="stylesheet"
       href="https://maxcdn.bootstrapcdn.com/bootswatch/3.3.5/lumen/bootstrap.min.css">
 <link rel="stylesheet"
@@ -404,6 +404,131 @@
         padding: 5px;
     }
 
+    .jumbotron {
+       background-color: #04A1B0;
+    }
+
+    .jumbotron .display-1 {
+        color: white;
+    }
+
+    .jumbotron .display-2 {
+        color: white;
+    }
+
+    .jumbotron pre {
+        display: block;
+        color: #f8f8f2;
+        font-size: 13px;
+        margin-top: 60px;
+        border-radius: 0;
+        border: none;
+        background: #272822;
+        padding: 1em;
+        padding-bottom: 0px;
+        overflow: auto;
+        text-shadow: 0 1px rgba(0,0,0,0.3);
+        font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+        text-align: left;
+        white-space: pre;
+        word-spacing: normal;
+        word-break: normal;
+        word-wrap: normal;
+        line-height: 1.5;
+        -moz-tab-size: 4;
+        -o-tab-size: 4;
+        tab-size: 4;
+        -webkit-hyphens: none;
+        -moz-hyphens: none;
+        -ms-hyphens: none;
+        hyphens: none;
+    }
+
+    .jumbotron pre.line-numbers {
+        position: relative;
+        padding-left: 3.8em;
+        counter-reset: linenumber;
+    }
+
+    .jumbotron pre code {
+        color: white;
+        margin-left: -80px;
+    }
+
+
+    h2.front {
+        text-align: center;
+        font-size: 56px;
+        margin-top: 50px;
+        padding: 20px;
+    }
+
+    .intro {
+        margin-top: 30px;
+        font-size: 24px;
+        font-weight: 200;
+    }
+
+    .intro.well {
+        margin-top: 15px;
+    }
+
+    .flavour {
+        height: 200px;
+    }
+
+    .flavour h3 {
+        color: white;
+        font-size: 30px;
+    }
+
+    .flavour h3 small {
+        color: #f2f2f2;
+        font-size: 20px;
+    }
+
+    .flavour.prototyping {
+        background-color: #CC3340;
+    }
+
+    .flavour.functional {
+        background-color: #EB6842;
+    }
+
+    .flavour.oop {
+        background-color: #715671;
+    }
+
+    .flavour.mixed {
+        background-color: #26896C;
+    }
+
+    .btn-get-started {
+        background-color: #04A1B0;
+        color: white;
+        padding: 20px 26px;
+        font-size: 35px;
+        border-radius: 8px;
+        width: 100%;
+        -webkit-transition-duration: 0.4s; /* Safari */
+        transition-duration: 0.4s;
+    }
+
+    .btn-get-started:hover {
+        background-color: #04c8d7;
+        color: white;
+        border-bottom-width: 4px;
+        margin-top: 0px;
+    }
+
+    .img-center {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 50%;
+    }
+
+
     #forkongithub a {
         background: #000;
         color: #fff;
@@ -464,6 +589,18 @@
             box-shadow: 4px 4px 10px rgba(0, 0, 0, 0.8);
         }
     }
+
+    @media screen and (max-width: 799px) {
+        .jumbotron {
+            margin-top: 60px;
+        }
+    }
+
+    @media screen and (max-width: 991px) {
+        .jumbotron pre {
+            display: none;
+        }
+    }
 </style>
 </head>
 <body data-spy="scroll" data-target="#sideNav" data-offset="50" class="bbt-theme-lumen">
@@ -491,7 +628,7 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="http://getprooph.org">
+            <a class="navbar-brand" href="https://proophsoftware.github.io/event-machine/">
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="prooph-logo">
                     <defs>
                         <style>
@@ -622,7 +759,7 @@
 
     </li>
                         <li>
-    <a href="https://proophsoftware.github.io/event-machine/api/aggregates.html">Aggregates</a>
+    <a href="https://proophsoftware.github.io/event-machine/api/functional_flavour.html">Functional Flavour</a>
 
     </li>
                         <li>
@@ -682,7 +819,7 @@
 
 <h1>3. API</h1>
 
-<ul class="list-toc"><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.1.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/set_up/">Set Up</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.2.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/descriptions.html#3-2">Event Machine Descriptions</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.3.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/aggregates.html#3-3">Aggregates</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.4.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/immutable_state.html#3-4">Immutable State</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.5.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/document_store/">Document Store</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.6.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/projections/">Projections</a></div></div></li></ul><div id="section-main"></div>        </div>
+<ul class="list-toc"><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.1.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/set_up/">Set Up</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.2.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/descriptions.html#3-2">Event Machine Descriptions</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.3.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/functional_flavour.html#3-3">Functional Flavour</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.4.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/immutable_state.html#3-4">Immutable State</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.5.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/document_store/">Document Store</a></div></div></li><li class="list-group-item"><div class="row clearfix"><div class="col-sm-3"><span class="text-number">3.6.</span></div><div class="col-sm-9"><a href="https://proophsoftware.github.io/event-machine/api/projections/">Projections</a></div></div></li></ul><div id="section-main"></div>        </div>
     </div>
 </div>
 
