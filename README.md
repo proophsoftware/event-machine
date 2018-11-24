@@ -27,6 +27,8 @@ Head over to the [skeleton](https://github.com/proophsoftware/event-machine-skel
 
 [![Tutorial](https://proophsoftware.github.io/event-machine/img/tutorial_screen.png)](https://proophsoftware.github.io/event-machine/tutorial/)
 
+**[GET STARTED](https://proophsoftware.github.io/event-machine/tutorial/)**
+
 ## Documentation
 
 Source of the docs is managed in a separate [repo](https://github.com/proophsoftware/event-machine-docs)
