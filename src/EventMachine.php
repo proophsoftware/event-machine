@@ -87,6 +87,8 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
     const SERVICE_ID_JSON_SCHEMA_ASSERTION = 'EventMachine.JsonSchemaAssertion';
     const SERVICE_ID_FLAVOUR = 'EventMachine.Flavour';
 
+    const CMD_METADATA_STOP_DISPATCH = 'EVENT-MACHINE-STOP-DISPATCH';
+
     /**
      * Map of command names and corresponding json schema of payload
      *
@@ -539,6 +541,10 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
                     }
 
                     $messageOrName = $this->flavour()->callCommandPreProcessor($preProcessorOrStr, $messageOrName);
+
+                    if ($messageOrName->metadata()[self::CMD_METADATA_STOP_DISPATCH] ?? false) {
+                        return null;
+                    }
                 }
 
                 $bus = $this->container->get(self::SERVICE_ID_COMMAND_BUS);
