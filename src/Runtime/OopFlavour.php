@@ -1,7 +1,7 @@
 <?php
 /**
  * This file is part of the proophsoftware/event-machine.
- * (c) 2017-2018 prooph software GmbH <contact@prooph.de>
+ * (c) 2017-2019 prooph software GmbH <contact@prooph.de>
  *
  * For the full copyright and license information, please view the LICENSE
  * file that was distributed with this source code.
@@ -73,15 +73,22 @@ final class OopFlavour implements Flavour, MessageFactoryAware
 
         $events = $this->port->popRecordedEvents($aggregate);
 
-        yield from new MapIterator(new \ArrayIterator($events), function ($event) use ($command, $aggregate, $aggregateType) {
+        $isFirstEvent = true;
+
+        yield from new MapIterator(new \ArrayIterator($events), function ($event) use ($command, $aggregate, $aggregateType, &$isFirstEvent) {
             if (null === $event) {
                 return null;
             }
 
-            return $this->functionalFlavour->decorateEvent($event)
-                ->withMessage(new AggregateAndEventBag($aggregate, $event))
-                ->withAddedMetadata('_causation_id', $command->uuid()->toString())
-                ->withAddedMetadata('_causation_name', $command->messageName());
+            $decoratedEvent = $this->functionalFlavour->decorateEvent($event);
+
+            if ($isFirstEvent) {
+                $decoratedEvent = $decoratedEvent->withMessage(new AggregateAndEventBag($aggregate, $event));
+                $isFirstEvent = false;
+            }
+
+            return $decoratedEvent->withAddedMetadata('_causation_id', $command->uuid()->toString())
+            ->withAddedMetadata('_causation_name', $command->messageName());
         });
     }
 
