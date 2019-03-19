@@ -102,7 +102,7 @@ class ObjectType implements AnnotatedType
             'additionalProperties' => $this->allowAdditionalProps,
         ];
 
-        if (!empty($this->properties)) {
+        if (! empty($this->properties)) {
             $schema['properties'] = \array_map(function (Type $type) {
                 return $type->toArray();
             }, $this->properties);
