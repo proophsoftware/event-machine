@@ -241,6 +241,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
         $self->commandMap = $config['commandMap'];
         $self->eventMap = $config['eventMap'];
         $self->compiledCommandRouting = $config['compiledCommandRouting'];
+        $self->commandPreProcessors = $config['commandPreProcessors'] ?? [];
         $self->aggregateDescriptions = $config['aggregateDescriptions'];
         $self->eventRouting = $config['eventRouting'];
         $self->compiledProjectionDescriptions = $config['compiledProjectionDescriptions'];
@@ -697,6 +698,7 @@ final class EventMachine implements MessageDispatcher, AggregateStateStore
             'commandMap' => $this->commandMap,
             'eventMap' => $this->eventMap,
             'compiledCommandRouting' => $this->compiledCommandRouting,
+            'commandPreProcessors' => $this->commandPreProcessors,
             'aggregateDescriptions' => $this->aggregateDescriptions,
             'eventRouting' => $this->eventRouting,
             'compiledProjectionDescriptions' => $this->compiledProjectionDescriptions,
