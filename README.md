@@ -4,8 +4,14 @@
 [![Coverage Status](https://coveralls.io/repos/github/proophsoftware/event-machine/badge.svg?branch=master)](https://coveralls.io/github/proophsoftware/event-machine?branch=master)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/proophsoftware/chat)
 
-**The world's only CQRS / ES framework that lets you pick your Flavour**
+**Superseded by [Event Engine](https://event-engine.io/)**
 
+## Event Engine
+
+Event Engine is a newer version of Event Machine with a different name but the same basic concepts.
+It's recommended to use Event Engine, because development of Event Machine is not continued (except bugfixes).
+
+Check the note in the [Event Engine readme](https://github.com/event-engine/php-engine#supersedes-event-machine) for further information.
 
 ## Intro
 
